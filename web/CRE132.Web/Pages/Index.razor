@@ -13,7 +13,7 @@
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
-                    <li><a href="@("#" + e.Id)">@e.Title</a></li>
+                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a></li>
                 }
             </ol>
         </nav>
@@ -24,12 +24,12 @@ else
 {
     <div class="page">
         <nav class="contents">
-            <a class="home" href="#">CRE132</a>
+            <a class="home" href="#" @onclick="GoHome" @onclick:preventDefault>CRE132</a>
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
                     <li class="@(e.Id == current.Id ? "current" : "")">
-                        <a href="@("#" + e.Id)">@e.Title</a>
+                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a>
                     </li>
                 }
             </ol>
@@ -71,6 +71,26 @@ else
         int at = uri.IndexOf('#');
         string hash = at >= 0 ? uri[(at + 1)..] : "";
         current = hash.Length == 0 ? null : WebCatalog.Find(hash);
+    }
+
+    // Navigation has THREE paths, each covering what the others cannot:
+    //  - These click handlers: every normal click. They set `current` DIRECTLY rather than
+    //    relying on any navigation event, because a Blazor-intercepted hash click raises
+    //    NEITHER LocationChanged NOR hashchange (pushState fires no events) - preventDefault
+    //    stops that interceptor and NavigateTo just keeps the URL in step.
+    //  - The hashchange listener (nav.js): Back/Forward and hand-edited URLs.
+    //  - Apply(Nav.Uri) in OnInitialized: a click made before Blazor booted - the native
+    //    fragment jump already changed the URL by the time we first read it.
+    void Go(string id)
+    {
+        Nav.NavigateTo("#" + id);
+        current = WebCatalog.Find(id);
+    }
+
+    void GoHome()
+    {
+        Nav.NavigateTo(Nav.BaseUri);
+        current = null;
     }
 
     public void Dispose() => self?.Dispose();
