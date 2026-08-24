@@ -1,0 +1,2 @@
+n % 2 = 1
+2 minutes 5 seconds

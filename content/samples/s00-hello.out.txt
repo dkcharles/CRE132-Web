@@ -1,0 +1,3 @@
+Welcome to CRE132!
+You are about to write real C# code, right here in this page.
+Nothing to install. Nothing to configure. Just press Run.
