@@ -1,6 +1,8 @@
 @page "/"
 @implements IDisposable
 @inject NavigationManager Nav
+@inject IJSRuntime JS
+@using Microsoft.JSInterop
 
 @if (current is null)
 {
@@ -11,7 +13,7 @@
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
-                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a></li>
+                    <li><a href="@("#" + e.Id)">@e.Title</a></li>
                 }
             </ol>
         </nav>
@@ -22,12 +24,12 @@ else
 {
     <div class="page">
         <nav class="contents">
-            <a class="home" href="#" @onclick="GoHome" @onclick:preventDefault>CRE132</a>
+            <a class="home" href="#">CRE132</a>
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
                     <li class="@(e.Id == current.Id ? "current" : "")">
-                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a>
+                        <a href="@("#" + e.Id)">@e.Title</a>
                     </li>
                 }
             </ol>
@@ -38,19 +40,29 @@ else
 
 @code {
     Entry? current;
+    DotNetObjectReference<Index>? self;
+    IJSObjectReference? nav;
 
     // The hash IS the router: #1 is Lesson 1, no hash is the contents. Pages serves only /
     // for this app, so hash addresses are the one deep-link scheme that cannot 404 on a
     // static host - the reason this site does not use path routes for lessons.
-    protected override void OnInitialized()
+    protected override void OnInitialized() => Apply(Nav.Uri);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Nav.LocationChanged += OnLocationChanged;
-        Apply(Nav.Uri);
+        if (!firstRender) return;
+        // hashchange covers anchor clicks (even those made before this line ran - the hash
+        // they set is already reflected in Nav.Uri by the time OnInitialized read it),
+        // Back/Forward, and manual URL edits. No per-anchor handlers to race with boot.
+        self = DotNetObjectReference.Create(this);
+        nav = await JS.InvokeAsync<IJSObjectReference>("import", "./js/nav.js");
+        await nav.InvokeVoidAsync("listen", self);
     }
 
-    void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    [JSInvokable]
+    public void OnHashChanged(string hash)
     {
-        Apply(e.Location);
+        current = hash.Length > 1 ? WebCatalog.Find(hash[1..]) : null;
         StateHasChanged();
     }
 
@@ -61,13 +73,5 @@ else
         current = hash.Length == 0 ? null : WebCatalog.Find(hash);
     }
 
-    // Blazor raises LocationChanged for NavigateTo and for popstate (Back/Forward), but NOT
-    // for a plain anchor click that only changes the hash - the browser handles that natively
-    // and the view never re-renders. Clicks therefore go through NavigateTo; the hrefs stay
-    // so copy-link and middle-click still behave like links.
-    void Go(string id) => Nav.NavigateTo("#" + id);
-
-    void GoHome() => Nav.NavigateTo(Nav.BaseUri);
-
-    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+    public void Dispose() => self?.Dispose();
 }

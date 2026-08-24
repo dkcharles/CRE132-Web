@@ -39,11 +39,11 @@ body {
 .challenge-task .label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #46a; }
 .verdict.pass { color: #2a7; font-weight: 700; }
 .verdict.fail { color: #b00020; font-weight: 700; }
-.diff { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.diff { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
 .diff-line { background: #b0002033; display: inline-block; width: 100%; }
 .notice { color: #b06000; }
 .caption { font-size: 0.85rem; opacity: 0.8; }
-@media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .diff { grid-template-columns: 1fr; } .contents { position: static; } }
+@media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .contents { position: static; } }
 
 /* The build-time highlighter's palette (same colours as CodeSchool). Listings and prose
    fences share it; the editor is CodeMirror's material-darker theme instead. */
