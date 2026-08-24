@@ -1,0 +1,5 @@
+[
+  { "input": "2\n", "expected": "1. Crisps - £1\n2. Chocolate - £2\n3. Water - £1\n4. Juice - £2\nYou chose Chocolate - £2" },
+  { "input": "4\n", "expected": "1. Crisps - £1\n2. Chocolate - £2\n3. Water - £1\n4. Juice - £2\nYou chose Juice - £2" },
+  { "input": "9\n", "expected": "1. Crisps - £1\n2. Chocolate - £2\n3. Water - £1\n4. Juice - £2\nSorry, we don't have that" }
+]

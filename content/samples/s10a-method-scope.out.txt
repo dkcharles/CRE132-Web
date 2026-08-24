@@ -1,0 +1,2 @@
+Books: 3
+Apples: 10

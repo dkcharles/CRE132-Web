@@ -1,0 +1,9 @@
+1. Crisps - £1
+2. Chocolate - £2
+3. Water - £1
+4. Juice - £2
+Enter an item number, or 0 to finish:
+You chose Chocolate - £2
+Sorry, we don't have that
+You chose Crisps - £1
+That comes to £3

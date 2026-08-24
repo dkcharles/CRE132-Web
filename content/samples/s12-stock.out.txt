@@ -1,0 +1,4 @@
+Crisps costs £1
+Chocolate costs £2
+Water costs £1
+Juice costs £2
