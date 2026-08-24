@@ -1,10 +1,15 @@
-:root { color-scheme: light dark; }
+/* Explicitly light: without a painted background, dark-mode browsers supply a near-black canvas
+   under a palette designed for light. A real dark theme is a deliberate later decision, not a
+   browser accident. */
+:root { color-scheme: light; }
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
     display: grid;
     min-height: 100vh;
     place-items: center;
+    background: #ffffff;
+    color: #1a1a1a;
 }
 .placeholder { text-align: center; }
 .placeholder .proof { font-family: monospace; }
@@ -40,7 +45,11 @@ body {
 .verdict.pass { color: #2a7; font-weight: 700; }
 .verdict.fail { color: #b00020; font-weight: 700; }
 .diff { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-.diff-line { background: #b0002033; display: inline-block; width: 100%; }
+.diff-line { background: #b0002033; }
+/* Verdict panes render one block div per line: inline spans inside <pre> depended on Razor
+   source newlines, which Razor collapses - lines ran together and indentation leaked in.
+   pre-wrap keeps spaces WITHIN a line; min-height keeps empty lines visible. */
+.console .line { display: block; white-space: pre-wrap; min-height: 1.2em; }
 .notice { color: #b06000; }
 .caption { font-size: 0.85rem; opacity: 0.8; }
 @media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .contents { position: static; } }

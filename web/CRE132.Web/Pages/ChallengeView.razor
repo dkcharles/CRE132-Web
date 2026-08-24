@@ -40,15 +40,21 @@
                 <div class="diff">
                     <div class="pane">
                         <div class="pane-label">Your output</div>
-                        <pre class="console">@for (int i = 0; i < failed.ActualLines.Count; i++)
-{<span class="@(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ActualLines[i]
-</span>}</pre>
+                        <div class="console">
+                            @for (int i = 0; i < failed.ActualLines.Count; i++)
+                            {
+                                <div class="line @(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ActualLines[i]</div>
+                            }
+                        </div>
                     </div>
                     <div class="pane">
                         <div class="pane-label">Expected</div>
-                        <pre class="console">@for (int i = 0; i < failed.ExpectedLines.Count; i++)
-{<span class="@(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ExpectedLines[i]
-</span>}</pre>
+                        <div class="console">
+                            @for (int i = 0; i < failed.ExpectedLines.Count; i++)
+                            {
+                                <div class="line @(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ExpectedLines[i]</div>
+                            }
+                        </div>
                     </div>
                 </div>
             }
