@@ -55,10 +55,30 @@
                 break;
         }
     }
+
+    <footer class="pager">
+        @{
+            int at = WebCatalog.Entries.ToList().FindIndex(e => e.Id == Entry.Id);
+            Entry? prev = at > 0 ? WebCatalog.Entries[at - 1] : null;
+            Entry? next = at >= 0 && at < WebCatalog.Entries.Count - 1 ? WebCatalog.Entries[at + 1] : null;
+        }
+        <div class="pager-position">Lesson @Entry.Id of 0–@WebCatalog.Entries[^1].Id</div>
+        <div class="pager-links">
+            @if (prev is not null)
+            {
+                <a href="@("#" + prev.Id)" @onclick="() => OnNavigate.InvokeAsync(prev!.Id)" @onclick:preventDefault>← @prev.Id. @prev.Title</a>
+            }
+            @if (next is not null)
+            {
+                <a class="pager-next" href="@("#" + next.Id)" @onclick="() => OnNavigate.InvokeAsync(next!.Id)" @onclick:preventDefault>@next.Id. @next.Title →</a>
+            }
+        </div>
+    </footer>
 </article>
 
 @code {
     [Parameter, EditorRequired] public Entry Entry { get; set; } = default!;
+    [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
     List<Block> blocks = new();
     string? loaded, loadError;

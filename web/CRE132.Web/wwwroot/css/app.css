@@ -54,6 +54,11 @@ body {
 .caption { font-size: 0.85rem; opacity: 0.8; }
 @media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .contents { position: static; } }
 
+.pager { margin-top: 2.5rem; border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent); padding-top: 0.75rem; font-size: 0.9rem; }
+.pager-position { opacity: 0.7; margin-bottom: 0.4rem; }
+.pager-links { display: flex; justify-content: space-between; gap: 1rem; }
+.pager-next { margin-left: auto; }
+
 /* The build-time highlighter's palette (same colours as CodeSchool). Listings and prose
    fences share it; the editor is CodeMirror's material-darker theme instead. */
 .hl-k { color: #1f4e8c; }
