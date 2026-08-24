@@ -1,16 +1,28 @@
 # Maths and operators
 
-C# does arithmetic with the same symbols you already know, mostly. Here are all four on a
-pair of `int` variables:
+C# does arithmetic with the same symbols you already know — with two catches worth knowing
+before you trust them: what order operators run in, and what happens when you divide two
+whole numbers. Here are all four on a pair of `int` variables:
 
 :::run s03-arithmetic Addition, subtraction, multiplication, division on two whole numbers.
 
-`+`, `-`, and `*` do exactly what you'd expect. `/` is the one to watch closely — it's the
-whole next section.
+`+`, `-`, `*`, and `/` do exactly what you'd expect when there's only one of them in an
+expression. Combine more than one, though, and the order they run in starts to matter.
+
+## Order matters: precedence
+
+:::run s03d-precedence `2 + 3 * 4` versus `(2 + 3) * 4` — same numbers, different order.
+
+`2 + 3 * 4` comes out `14`, not `20` — C# doesn't just work left to right, it does the
+multiplication first and adds the `2` afterwards, the same rule you already use with pen and
+paper. Wrap part of an expression in `( )`, like `(2 + 3) * 4`, and C# works out that part
+first regardless of which operator is inside it — parentheses always win.
 
 :::key
 `+ - * /` work on variables the same way they work on numbers written directly in the code.
-`a + b` means "add whatever `a` and `b` currently hold."
+When more than one appears in the same expression, `*` and `/` run **before** `+` and `-` —
+`2 + 3 * 4` is `14`. Wrap part of the expression in `( )` to force a different order:
+`(2 + 3) * 4` is `20`.
 :::
 
 ## Whole numbers divide differently
