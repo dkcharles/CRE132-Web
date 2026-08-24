@@ -1,0 +1,4 @@
+[
+  { "input": "4\n", "expected": "1 x 4 = 4\n2 x 4 = 8\n3 x 4 = 12\n4 x 4 = 16\n5 x 4 = 20" },
+  { "input": "7\n", "expected": "1 x 7 = 7\n2 x 7 = 14\n3 x 7 = 21\n4 x 7 = 28\n5 x 7 = 35" }
+]

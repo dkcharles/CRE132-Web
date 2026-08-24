@@ -1,0 +1,4 @@
+[
+  { "input": "hello\n", "expected": "HELLO!" },
+  { "input": "Cre132 rocks\n", "expected": "CRE132 ROCKS!" }
+]

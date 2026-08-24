@@ -1,0 +1,4 @@
+[
+  { "input": "3\n", "expected": "#\n##\n###" },
+  { "input": "5\n", "expected": "#\n##\n###\n####\n#####" }
+]
