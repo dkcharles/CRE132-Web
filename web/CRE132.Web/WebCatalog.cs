@@ -12,6 +12,9 @@ public static class WebCatalog
         new Entry("1", "Your first program", "lessons/01-first-program.json"),
         new Entry("2", "Variables and types", "lessons/02-variables.json"),
         new Entry("3", "Maths and operators", "lessons/03-maths-and-operators.json"),
+        new Entry("4", "Reading input", "lessons/04-reading-input.json"),
+        new Entry("5", "Making decisions", "lessons/05-making-decisions.json"),
+        new Entry("6", "More decisions", "lessons/06-more-decisions.json"),
     };
 
     public static Entry? Find(string id) => Entries.FirstOrDefault(e => e.Id == id);

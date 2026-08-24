@@ -1,0 +1,2 @@
+Menu: 1) Tea 2) Coffee 3) Juice
+One coffee coming up.

@@ -1,0 +1,4 @@
+[
+  { "input": "21\n", "expected": "Come in" },
+  { "input": "16\n", "expected": "Sorry, not tonight" }
+]

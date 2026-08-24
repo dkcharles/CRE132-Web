@@ -1,0 +1,3 @@
+Temperature: 30
+It's hot today.
+Have a nice day.

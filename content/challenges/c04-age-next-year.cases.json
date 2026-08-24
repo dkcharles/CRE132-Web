@@ -1,0 +1,4 @@
+[
+  { "input": "Sam\n20\n", "expected": "Sam will be 21 next year" },
+  { "input": "Priya\n17\n", "expected": "Priya will be 18 next year" }
+]

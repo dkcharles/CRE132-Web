@@ -1,0 +1,5 @@
+[
+  { "input": "10\nMonday\n", "expected": "Child ticket: £5" },
+  { "input": "25\nTuesday\n", "expected": "Tuesday special: £6" },
+  { "input": "30\nFriday\n", "expected": "Standard ticket: £9" }
+]
