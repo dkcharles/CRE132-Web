@@ -11,7 +11,7 @@ body {
 #blazor-error-ui { display: none; padding: 1rem; background: #b00020; color: white; }
 
 .playground { width: min(60rem, 92vw); margin: 2rem auto; text-align: left; place-self: start center; }
-.playground .editor, .playground .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 0.95rem; box-sizing: border-box; }
+.playground .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 0.95rem; box-sizing: border-box; }
 .playground .controls { margin: 0.75rem 0; }
 .playground .console { background: #111; color: #ddd; padding: 0.75rem; overflow-x: auto; min-height: 2rem; }
 .playground .errors { color: #b00020; }
@@ -44,3 +44,17 @@ body {
 .notice { color: #b06000; }
 .caption { font-size: 0.85rem; opacity: 0.8; }
 @media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .diff { grid-template-columns: 1fr; } .contents { position: static; } }
+
+/* The build-time highlighter's palette (same colours as CodeSchool). Listings and prose
+   fences share it; the editor is CodeMirror's material-darker theme instead. */
+.hl-k { color: #1f4e8c; }
+.hl-s { color: #9a4a1f; }
+.hl-c { color: #5f6a66; font-style: italic; }
+.hl-n { color: #6b3fa0; }
+
+.code-editor .CodeMirror {
+    height: auto;
+    min-height: 12rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.95rem;
+}

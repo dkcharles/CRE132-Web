@@ -7,7 +7,7 @@
     <h1>Playground</h1>
     <p>Write a C# program and press Run. It compiles and runs right here in your browser.</p>
 
-    <textarea class="editor" spellcheck="false" rows="14" @bind="source"></textarea>
+    <CodeEditor @ref="editor" EditorId="playground" InitialText="@source" />
 
     <details>
         <summary>Input — one line per <code>Console.ReadLine()</code></summary>
@@ -34,6 +34,7 @@
 </main>
 
 @code {
+    CodeEditor? editor;
     string source = "Console.WriteLine(\"Hello, CRE132!\");\n";
     string input = "";
     string? output;
@@ -51,12 +52,19 @@
         errors = null; output = null; runError = null;
         try
         {
+            source = await editor!.GetTextAsync();
             CompileResult result = await Compiler.CompileAsync(source);
-            if (!result.Succeeded) { errors = result.Errors; return; }
+            if (!result.Succeeded)
+            {
+                errors = result.Errors;
+                await editor.SetErrorsAsync(errors!);
+                return;
+            }
 
             RunResult run = ProgramRunner.Run(result.Run!, input);
             output = run.Output;
             runError = run.Error;
+            await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         finally
         {

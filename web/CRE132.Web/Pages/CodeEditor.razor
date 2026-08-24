@@ -1,0 +1,51 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* One CodeMirror instance. The buffer lives in JS from first render on; owners pull it with
+   GetTextAsync when they need it (Run/Check/save) rather than two-way binding per keystroke. *@
+<div class="code-editor" @ref="host"></div>
+
+@code {
+    [Parameter, EditorRequired] public string EditorId { get; set; } = default!;
+    [Parameter, EditorRequired] public string InitialText { get; set; } = default!;
+
+    ElementReference host;
+    IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/editor.js");
+        await module.InvokeVoidAsync("create", EditorId, host, InitialText);
+    }
+
+    public async Task<string> GetTextAsync() =>
+        module is null ? InitialText : await module.InvokeAsync<string>("getText", EditorId);
+
+    public async Task SetTextAsync(string text)
+    {
+        if (module is not null) await module.InvokeVoidAsync("setText", EditorId, text);
+    }
+
+    public async Task SetErrorsAsync(IReadOnlyList<CompileError> errors)
+    {
+        if (module is null) return;
+        await module.InvokeVoidAsync("setErrors", EditorId,
+            errors.Select(e => e.Line).ToArray(),
+            errors.Select(e => $"{e.Message} ({e.Id})").ToArray());
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is null) return;
+        try
+        {
+            await module.InvokeVoidAsync("destroy", EditorId);
+            await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+    }
+}

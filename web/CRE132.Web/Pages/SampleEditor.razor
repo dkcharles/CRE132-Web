@@ -16,7 +16,7 @@
                 </button>
             </span>
         </div>
-        <textarea class="editor" spellcheck="false" rows="@Rows" @bind="buffer"></textarea>
+        <CodeEditor @ref="editor" EditorId="@("sample-" + SampleId)" InitialText="@buffer" />
     </div>
     @if (errors is { Count: > 0 })
     {
@@ -35,12 +35,12 @@
     [Parameter, EditorRequired] public string Shipped { get; set; } = default!;   // RAW from the narration JSON
     [Parameter] public string? Caption { get; set; }
 
+    CodeEditor? editor;
     string buffer = "";
     string? output, runError, notice;
     IReadOnlyList<CompileError>? errors;
     bool busy;
 
-    int Rows => Math.Clamp(Shipped.Count(c => c == '\n') + 2, 4, 20);
     string StoreKey => "sample." + SampleId;
 
     protected override async Task OnInitializedAsync()
@@ -54,6 +54,7 @@
         busy = true; errors = null; output = null; runError = null; notice = null;
         try
         {
+            buffer = await editor!.GetTextAsync();
             await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Shipped));
 
             // The precompiled-vs-edited seam: an unmodified buffer runs the shipped bytes and
@@ -63,13 +64,20 @@
                 byte[] program = await SampleStore.FetchAsync(SampleId);
                 RunResult ready = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
                 output = ready.Output; runError = ready.Error;
+                await editor.SetErrorsAsync(Array.Empty<CompileError>());
                 return;
             }
 
             CompileResult result = await Compiler.CompileAsync(buffer);
-            if (!result.Succeeded) { errors = result.Errors; return; }
+            if (!result.Succeeded)
+            {
+                errors = result.Errors;
+                await editor.SetErrorsAsync(errors!);
+                return;
+            }
             RunResult run = ProgramRunner.Run(result.Run!, "");
             output = run.Output; runError = run.Error;
+            await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
@@ -82,6 +90,7 @@
     async Task ResetAsync()
     {
         buffer = Shipped;
+        await editor!.SetTextAsync(Shipped);
         output = null; runError = null; errors = null; notice = null;
         await Store.ClearAsync(StoreKey);
     }

@@ -9,7 +9,7 @@
         <span class="label">CHALLENGE</span>
         @((MarkupString)TaskHtml)
     </div>
-    <textarea class="editor" spellcheck="false" rows="@Rows" @bind="buffer"></textarea>
+    <CodeEditor @ref="editor" EditorId="@("challenge-" + ChallengeId)" InitialText="@buffer" />
     <div class="controls">
         <button @onclick="ResetAsync" disabled="@busy">Reset</button>
         <button @onclick="CheckAsync" disabled="@busy">
@@ -62,6 +62,7 @@
     [Parameter, EditorRequired] public string Starter { get; set; } = default!;
     [Parameter, EditorRequired] public IReadOnlyList<ChallengeCase> Cases { get; set; } = default!;
 
+    CodeEditor? editor;
     string buffer = "";
     string? notice;
     IReadOnlyList<CompileError>? errors;
@@ -69,7 +70,6 @@
     bool busy;
 
     string StoreKey => "challenge." + ChallengeId;
-    int Rows => Math.Clamp(Starter.Count(c => c == '\n') + 4, 6, 20);
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,12 +82,19 @@
         busy = true; errors = null; results = null; notice = null;
         try
         {
+            buffer = await editor!.GetTextAsync();
             await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Starter));
 
             CompiledBytes compiled = await Compiler.CompileToBytesAsync(buffer);
-            if (!compiled.Succeeded) { errors = compiled.Errors; return; }
+            if (!compiled.Succeeded)
+            {
+                errors = compiled.Errors;
+                await editor.SetErrorsAsync(errors!);
+                return;
+            }
 
             results = ChallengeChecker.Check(compiled.Bytes!, Cases);
+            await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
@@ -100,6 +107,7 @@
     async Task ResetAsync()
     {
         buffer = Starter;
+        await editor!.SetTextAsync(Starter);
         errors = null; results = null; notice = null;
         await Store.ClearAsync(StoreKey);
     }
