@@ -13,7 +13,7 @@
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
-                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a></li>
+                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@($"{e.Id}. {e.Title}")</a></li>
                 }
             </ol>
         </nav>
@@ -29,7 +29,7 @@ else
                 @foreach (Entry e in WebCatalog.Entries)
                 {
                     <li class="@(e.Id == current.Id ? "current" : "")">
-                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a>
+                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@($"{e.Id}. {e.Title}")</a>
                     </li>
                 }
             </ol>
