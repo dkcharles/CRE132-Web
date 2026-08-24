@@ -1,0 +1,12 @@
+@page "/"
+
+<main class="placeholder">
+    <h1>CRE132</h1>
+    <p>Learn C# in your browser. The course is being built — nothing to install, ever.</p>
+    <p class="proof">C# says: 6 × 7 = @(6 * 7)</p>
+    <button @onclick="() => clicks++">Clicked @clicks times</button>
+</main>
+
+@code {
+    int clicks;
+}
