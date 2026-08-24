@@ -59,6 +59,8 @@ body {
 .pager-links { display: flex; justify-content: space-between; gap: 1rem; }
 .pager-next { margin-left: auto; }
 
+.runnable .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; box-sizing: border-box; }
+
 /* The build-time highlighter's palette (same colours as CodeSchool). Listings and prose
    fences share it; the editor is CodeMirror's material-darker theme instead. */
 .hl-k { color: #1f4e8c; }

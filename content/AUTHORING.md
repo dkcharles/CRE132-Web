@@ -61,6 +61,24 @@ runtime one.
   URL hash and the contents list ("4. Input and parsing"), the filename padding is only so
   files sort in course order on disk.
 
+## Challenges
+
+A challenge kit is three files sharing an id: `<id>.start.cs`, `<id>.solution.cs`,
+`<id>.cases.json`. Three constraints govern them, none of them optional:
+
+- The starter (`<id>.start.cs`) must **compile and run as shipped**. It may print the wrong
+  thing, or an incomplete thing, or nothing at all beyond what's already there — that's the
+  point, the student finishes it — but it must never fail to compile. A student's first
+  encounter with a challenge can't be a red error list before they've touched anything.
+- The solution (`<id>.solution.cs`) is the **minimal idiomatic answer using only concepts
+  taught by that lesson**, and no others. No reaching ahead for a shortcut a student in that
+  lesson couldn't yet write themselves — a Lesson 5 challenge is solved with `if`/`else` and
+  what came before, never with a loop or a method just because it's shorter.
+- The challenge's task statement (the body of its `:::challenge` block, in the lesson md)
+  must **state the exact expected output text**. A student should never have to guess
+  capitalisation, punctuation, spacing, or wording — if the output is `CRE132`, the task
+  statement says `CRE132`, not "the course code."
+
 ## The `cases.json` format
 
 Each challenge's `<id>.cases.json` is a JSON array of `{ "input": "...", "expected": "..." }`
