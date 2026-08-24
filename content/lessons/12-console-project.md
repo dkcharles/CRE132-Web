@@ -41,8 +41,8 @@ number and the *index* are related but not the same thing.
 
 :::challenge c12a-menu
 Using the `names` and `prices` lists already declared in the starter, print the menu: one line
-per snack, in the form `N. Name - £Price`, numbered from `1`. For these lists, the program's
-complete output must be exactly:
+per snack, in the form `N. Name - £Price`, numbered from `1` — the same format `MenuLine` builds
+in `s12a-menu` above. For these lists, the program's complete output must be exactly:
 
 ```
 1. Crisps - £1
@@ -51,8 +51,8 @@ complete output must be exactly:
 4. Juice - £2
 ```
 
-Loop over the lists by index, from `0` up to (not including) their `.Count`, and print each line
-with `$"{i + 1}. {names[i]} - £{prices[i]}"`. Press **Check** when you're ready.
+Loop over the lists by index, from `0` up to (not including) their `.Count`; the menu number for
+index `i` is `i + 1`. Press **Check** when you're ready.
 :::
 
 ## Taking one order
@@ -153,6 +153,6 @@ You chose Water - £1
 That comes to £1
 ```
 
-Press **Check** when you're ready; it tries both orders — the machine you just finished is the
-same one `s12-demo` showed you at the top of this lesson.
+Press **Check** when you're ready; it tries both orders — the machine you just finished works the
+same way as `s12-demo` did at the top of this lesson.
 :::

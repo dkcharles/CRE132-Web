@@ -58,6 +58,8 @@ replace all six lines above with three calls: `Welcome("Ada");`, `Welcome("Grace
 result from a third of the code.
 :::
 
+## One more tool: string methods
+
 Strings have methods of their own, too. `"hello".ToUpper()` returns a new string with every
 letter capitalised — `"HELLO"` — leaving the original unchanged. You'll use it in this lesson's
 challenge.

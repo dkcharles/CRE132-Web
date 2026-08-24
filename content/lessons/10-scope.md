@@ -54,8 +54,11 @@ that point it doesn't. Put the `//` back afterwards so the sample compiles again
 
 :::try
 Uncomment the last line in `s10b-predict`, predict the exact error you'll get, then press Run and
-compare. Then look at `s10a-method-scope` again: add a third method with its own `count` set to a
-different number, call it from the top, and predict what it prints before you run it.
+compare. Then look at `s10a-method-scope` again as a thought experiment: if you added a third
+method with its own `count` set to a different number and called it from the top, would it
+conflict with the other two? Test the same idea for real in `s10b-predict` instead — declare a
+second variable of your own inside the loop's `{ }`, give it a value, and predict whether you
+could print it after the loop's closing `}` before you try.
 :::
 
 ## Declaring where the value needs to survive
