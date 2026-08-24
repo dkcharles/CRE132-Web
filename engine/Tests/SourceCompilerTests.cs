@@ -85,4 +85,49 @@ public class SourceCompilerTests
         // option itself is pinned.
         Assert.False(SourceCompiler.CompilationOptions.ConcurrentBuild);
     }
+
+    [Fact]
+    public async Task An_async_Main_is_rejected_at_compile_time_with_a_friendly_error()
+    {
+        CompileResult result = await Compiler.CompileAsync("""
+            class Program
+            {
+                static async System.Threading.Tasks.Task Main()
+                {
+                    await System.Threading.Tasks.Task.Delay(1);
+                }
+            }
+            """);
+        Assert.False(result.Succeeded);
+        CompileError error = result.Errors[0];
+        Assert.Equal("CRE0002", error.Id);
+        Assert.Equal(
+            "This playground can't run async programs — remove async, await and Task from your Main method.",
+            error.Message);
+    }
+
+    [Fact]
+    public async Task CompileToBytes_produces_bytes_that_ProgramLoader_runs()
+    {
+        CompiledBytes compiled = await Compiler.CompileToBytesAsync("Console.WriteLine(\"bytes\");");
+        Assert.True(compiled.Succeeded);
+        RunResult r = ProgramRunner.Run(ProgramLoader.FromBytes(compiled.Bytes!), "");
+        Assert.StartsWith("bytes", r.Output);
+    }
+
+    [Fact]
+    public async Task Each_FromBytes_load_is_fresh_so_static_state_cannot_leak_between_cases()
+    {
+        CompiledBytes compiled = await Compiler.CompileToBytesAsync("""
+            class Program
+            {
+                static int calls = 0;
+                static void Main() { calls++; Console.WriteLine(calls); }
+            }
+            """);
+        Assert.True(compiled.Succeeded);
+        string first  = ProgramRunner.Run(ProgramLoader.FromBytes(compiled.Bytes!), "").Output;
+        string second = ProgramRunner.Run(ProgramLoader.FromBytes(compiled.Bytes!), "").Output;
+        Assert.Equal(first, second);   // both "1" - a shared load would print "2" the second time
+    }
 }

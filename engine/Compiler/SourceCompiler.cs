@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -38,6 +37,14 @@ public sealed class SourceCompiler
 
     public async Task<CompileResult> CompileAsync(string source)
     {
+        CompiledBytes compiled = await CompileToBytesAsync(source);
+        return compiled.Succeeded
+            ? new CompileResult(ProgramLoader.FromBytes(compiled.Bytes!), Array.Empty<CompileError>())
+            : new CompileResult(null, compiled.Errors);
+    }
+
+    public async Task<CompiledBytes> CompileToBytesAsync(string source)
+    {
         cached ??= (await references.GetAsync())
             .Select(bytes => (MetadataReference)MetadataReference.CreateFromImage(bytes))
             .ToList();
@@ -60,8 +67,27 @@ public sealed class SourceCompiler
                     .Where(d => d.Severity == DiagnosticSeverity.Error)
                     .Select(ToError)
                     .ToList();
-                return new CompileResult(null, errors);
+                return new CompiledBytes(null, errors);
             }
+        }
+
+        // An async entry point would deadlock single-threaded WebAssembly the moment it hit a
+        // real await: Roslyn's synthesized wrapper blocks INSIDE the entry point, where no
+        // runtime guard can see it. Rejecting at compile time is the only reliable net -
+        // checked after pass 1 so a program with ordinary errors reports those, not this.
+        IMethodSymbol? entrySymbol = checkCompilation.GetEntryPoint(CancellationToken.None);
+        if (entrySymbol is not null && entrySymbol.ReturnType.Name == "Task")
+        {
+            FileLinePositionSpan? at = entrySymbol.Locations
+                .FirstOrDefault(l => l.IsInSource)?.GetLineSpan();
+            return new CompiledBytes(null, new[]
+            {
+                new CompileError(
+                    at.HasValue ? at.Value.StartLinePosition.Line + 1 : 1,
+                    at.HasValue ? at.Value.StartLinePosition.Character + 1 : 1,
+                    "CRE0002",
+                    "This playground can't run async programs — remove async, await and Task from your Main method.")
+            });
         }
 
         // Pass 2: same compilation, instrumented tree. The student's code already compiled, so
@@ -72,36 +98,14 @@ public sealed class SourceCompiler
         using var stream = new MemoryStream();
         EmitResult emit = runCompilation.Emit(stream);
         if (!emit.Success)
-            return new CompileResult(null, new[]
+            return new CompiledBytes(null, new[]
             {
                 new CompileError(1, 1, "CRE0001",
                     "Something went wrong on our side preparing your program to run. "
                   + "Your code is fine - please tell your tutor what you typed.")
             });
 
-        // Assembly.Load(byte[]) works in WebAssembly. It cannot be unloaded, which is why the
-        // UI compiles on Run rather than on every keystroke.
-        Assembly assembly = Assembly.Load(stream.ToArray());
-        MethodInfo entry = assembly.EntryPoint!;
-
-        void Run()
-        {
-            object?[]? args = entry.GetParameters().Length == 1
-                ? new object?[] { Array.Empty<string>() }
-                : null;
-            object? result = entry.Invoke(null, args);
-            if (result is Task task)
-            {
-                // Blocking on a pending Task can never succeed on single-threaded WebAssembly,
-                // so a friendly stop beats a frozen tab.
-                if (!task.IsCompleted)
-                    throw new InvalidOperationException(
-                        "This playground can't run programs that wait on async work — remove async/await.");
-                task.GetAwaiter().GetResult();
-            }
-        }
-
-        return new CompileResult(Run, Array.Empty<CompileError>());
+        return new CompiledBytes(stream.ToArray(), Array.Empty<CompileError>());
     }
 
     static CompileError ToError(Diagnostic d)
