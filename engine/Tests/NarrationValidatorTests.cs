@@ -14,7 +14,7 @@ public class NarrationValidatorTests
     };
 
     static (IReadOnlyList<Block> Resolved, IReadOnlyList<string> Errors) Run(params Block[] blocks) =>
-        NarrationValidator.Validate(blocks, Samples, Figures, Challenges);
+        NarrationValidator.Validate(blocks, Samples, Figures, Challenges, new Dictionary<string, string>());
 
     [Fact]
     public void A_run_naming_a_missing_sample_is_an_error()
@@ -49,7 +49,19 @@ public class NarrationValidatorTests
 
         var none = new Dictionary<string, ChallengeFiles> { ["c1"] = new("s", Array.Empty<ChallengeCase>()) };
         var (_, e2) = NarrationValidator.Validate(
-            new[] { new Block("challenge", Id: "c1") }, Samples, Figures, none);
+            new[] { new Block("challenge", Id: "c1") }, Samples, Figures, none, new Dictionary<string, string>());
         Assert.Contains(e2, e => e.Contains("no cases"));
+    }
+
+    [Fact]
+    public void A_sample_with_declared_input_carries_it_on_run_and_edit_blocks()
+    {
+        var inputs = new Dictionary<string, string> { ["s1"] = "16\n" };
+        var (resolved, errors) = NarrationValidator.Validate(
+            new[] { new Block("run", Id: "s1"), new Block("edit", Id: "s1") },
+            Samples, Figures, Challenges, inputs);
+        Assert.Empty(errors);
+        Assert.Equal("16\n", resolved[0].Input);
+        Assert.Equal("16\n", resolved[1].Input);
     }
 }

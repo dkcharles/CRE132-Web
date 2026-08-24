@@ -66,6 +66,14 @@ static class Program
                     SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases);
             }
 
+        // An .in.txt beside a sample's .cs prefills the input panel: what the sample's
+        // Console.ReadLine() calls read unless the student edits the panel first.
+        var inputs = Directory.Exists(samplesDir)
+            ? Directory.GetFiles(samplesDir, "*.in.txt").ToDictionary(
+                  f => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(f)),
+                  f => SourceText.Normalise(File.ReadAllText(f)))
+            : new Dictionary<string, string>();
+
         // Compile every sample with the SAME compiler and instrumentation the browser uses, so
         // precompiled and freshly-compiled behaviour cannot diverge. Shipped as .bin: some
         // enterprise proxies block .dll downloads.
@@ -73,12 +81,6 @@ static class Program
         var compiler = new SourceCompiler(new BuildReferenceSource());
         foreach ((string id, string source) in samples)
         {
-            if (File.Exists(Path.Combine(samplesDir, id + ".in.txt")))
-            {
-                Console.Error.WriteLine(
-                    $"sample '{id}' has an .in.txt, but the site cannot feed stdin to samples yet — remove it (the input panel arrives in Phase 3).");
-                failed = true;
-            }
             CompiledBytes compiled = await compiler.CompileToBytesAsync(source);
             if (!compiled.Succeeded)
             {
@@ -111,7 +113,7 @@ static class Program
             try
             {
                 (IReadOnlyList<Block> blocks, IReadOnlyList<string> errors) =
-                    NarrationValidator.Validate(NarrationParser.Parse(markdown), samples, figures, challenges);
+                    NarrationValidator.Validate(NarrationParser.Parse(markdown), samples, figures, challenges, inputs);
 
                 foreach (string e in errors)
                 {

@@ -13,7 +13,8 @@ public static class NarrationValidator
         IReadOnlyList<Block> blocks,
         IReadOnlyDictionary<string, string> samples,      // id -> normalised source
         IReadOnlyDictionary<string, string> figures,      // name -> svg
-        IReadOnlyDictionary<string, ChallengeFiles> challenges)
+        IReadOnlyDictionary<string, ChallengeFiles> challenges,
+        IReadOnlyDictionary<string, string> sampleInputs) // id -> .in.txt contents
     {
         var errors = new List<string>();
         var resolved = new List<Block>(blocks.Count);
@@ -30,13 +31,21 @@ public static class NarrationValidator
                 // Coloured here rather than in the browser: the payload ships no highlighter,
                 // the same bargain that keeps Markdig out of it.
                 case "run":
-                    resolved.Add(b with { Code = CSharpHighlighter.Highlight(samples[b.Id!]) });
+                    resolved.Add(b with
+                    {
+                        Code = CSharpHighlighter.Highlight(samples[b.Id!]),
+                        Input = sampleInputs.TryGetValue(b.Id!, out string? runInput) ? runInput : null
+                    });
                     break;
 
                 // RAW, not highlighted: this seeds the editor buffer and is the baseline the
                 // precompiled-vs-edited comparison and the save fingerprint both hang on.
                 case "edit":
-                    resolved.Add(b with { Code = samples[b.Id!] });
+                    resolved.Add(b with
+                    {
+                        Code = samples[b.Id!],
+                        Input = sampleInputs.TryGetValue(b.Id!, out string? editInput) ? editInput : null
+                    });
                     break;
 
                 case "challenge" when !challenges.ContainsKey(b.Id!):

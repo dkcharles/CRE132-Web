@@ -37,12 +37,12 @@
 
             case "run":
                 <SampleRunner @key="@($"{Entry.Id}/run/{b.Id}")"
-                              SampleId="@b.Id" Code="@(b.Code!)" Caption="@b.Caption" />
+                              SampleId="@b.Id" Code="@(b.Code!)" Caption="@b.Caption" DeclaredInput="@b.Input" />
                 break;
 
             case "edit":
                 <SampleEditor @key="@($"{Entry.Id}/edit/{b.Id}")"
-                              SampleId="@b.Id" Shipped="@(b.Code!)" Caption="@b.Caption" />
+                              SampleId="@b.Id" Shipped="@(b.Code!)" Caption="@b.Caption" DeclaredInput="@b.Input" />
                 break;
 
             case "challenge":

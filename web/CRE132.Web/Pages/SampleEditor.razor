@@ -18,6 +18,13 @@
         </div>
         <CodeEditor @ref="editor" EditorId="@("sample-" + SampleId)" InitialText="@buffer" />
     </div>
+    @if (DeclaredInput is not null)
+    {
+        <details>
+            <summary>Input — one line per <code>Console.ReadLine()</code></summary>
+            <textarea class="stdin" rows="3" @bind="input"></textarea>
+        </details>
+    }
     @if (errors is { Count: > 0 })
     {
         <ul class="errors">
@@ -34,9 +41,11 @@
     [Parameter, EditorRequired] public string SampleId { get; set; } = default!;
     [Parameter, EditorRequired] public string Shipped { get; set; } = default!;   // RAW from the narration JSON
     [Parameter] public string? Caption { get; set; }
+    [Parameter] public string? DeclaredInput { get; set; }
 
     CodeEditor? editor;
     string buffer = "";
+    string input = "";
     string? output, runError, notice;
     IReadOnlyList<CompileError>? errors;
     bool busy;
@@ -47,6 +56,7 @@
     {
         Compiler.StateChanged += StateHasChanged;
         buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Shipped)) ?? Shipped;
+        input = DeclaredInput ?? "";
     }
 
     async Task RunAsync()
@@ -62,7 +72,7 @@
             if (SourceText.Normalise(buffer) == SourceText.Normalise(Shipped))
             {
                 byte[] program = await SampleStore.FetchAsync(SampleId);
-                RunResult ready = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
+                RunResult ready = ProgramRunner.Run(ProgramLoader.FromBytes(program), input ?? "");
                 output = ready.Output; runError = ready.Error;
                 await editor.SetErrorsAsync(Array.Empty<CompileError>());
                 return;
@@ -75,7 +85,7 @@
                 await editor.SetErrorsAsync(errors!);
                 return;
             }
-            RunResult run = ProgramRunner.Run(result.Run!, "");
+            RunResult run = ProgramRunner.Run(result.Run!, input ?? "");
             output = run.Output; runError = run.Error;
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }

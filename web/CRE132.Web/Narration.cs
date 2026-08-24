@@ -16,4 +16,5 @@ public sealed record Block(
     string? Variant = null,
     string? Svg = null,
     string? Code = null,
-    IReadOnlyList<ChallengeCase>? Cases = null);
+    IReadOnlyList<ChallengeCase>? Cases = null,
+    string? Input = null);    // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it

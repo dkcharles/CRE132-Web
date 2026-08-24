@@ -19,7 +19,8 @@ public sealed record Block(
     string? Variant = null,   // callout: "try" | "key"
     string? Svg = null,       // figure, inlined by the validator
     string? Code = null,      // see above
-    IReadOnlyList<ChallengeCase>? Cases = null);  // challenge
+    IReadOnlyList<ChallengeCase>? Cases = null,   // challenge
+    string? Input = null);    // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it
 
 // A malformed directive, reported with the line it is on so the build message is actionable.
 public sealed class NarrationException(int line, string message)

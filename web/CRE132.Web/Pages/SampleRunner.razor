@@ -7,6 +7,13 @@
         <div class="pane-label">The code</div>
         <pre class="listing"><code>@((MarkupString)Code)</code></pre>
     </div>
+    @if (DeclaredInput is not null)
+    {
+        <details>
+            <summary>Input — one line per <code>Console.ReadLine()</code></summary>
+            <textarea class="stdin" rows="3" @bind="input"></textarea>
+        </details>
+    }
     <div class="pane">
         <div class="pane-label">
             Console — what it prints
@@ -24,9 +31,13 @@
     [Parameter, EditorRequired] public string SampleId { get; set; } = default!;
     [Parameter, EditorRequired] public string Code { get; set; } = default!;
     [Parameter] public string? Caption { get; set; }
+    [Parameter] public string? DeclaredInput { get; set; }
 
     string? output, runError, notice;
+    string input = "";
     bool busy;
+
+    protected override void OnInitialized() => input = DeclaredInput ?? "";
 
     // Precompiled: fetching a few KB of bytes, never Roslyn. A reader who only presses Run
     // buttons downloads no compiler at all.
@@ -36,7 +47,7 @@
         try
         {
             byte[] program = await SampleStore.FetchAsync(SampleId);
-            RunResult run = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
+            RunResult run = ProgramRunner.Run(ProgramLoader.FromBytes(program), input ?? "");
             output = run.Output; runError = run.Error;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
