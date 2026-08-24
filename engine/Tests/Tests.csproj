@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Harness\Harness.csproj" />
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
+    <ProjectReference Include="..\LessonDoc\LessonDoc.csproj" />
   </ItemGroup>
 
   <ItemGroup>

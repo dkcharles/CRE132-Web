@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Harness\Harness.csproj" />
+    <ProjectReference Include="..\Compiler\Compiler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.37.0" />
+  </ItemGroup>
+
+  <!-- LessonDoc compiles the sample programs at build time with the same SourceCompiler the
+       browser uses. It cannot read the web project's wwwroot/refs (those are produced later in
+       the web build than this tool runs), so it carries its own copies of the same six
+       facades. The list and count MUST stay in step with web/CRE132.Web/CopyReferences.targets. -->
+  <Target Name="CopyLessonDocReferences" AfterTargets="Build">
+    <ItemGroup>
+      <_Ref Include="@(ReferencePath)"
+            Condition="'%(Filename)' == 'System.Runtime'
+                    Or '%(Filename)' == 'System.Console'
+                    Or '%(Filename)' == 'System.Collections'
+                    Or '%(Filename)' == 'System.Linq'
+                    Or '%(Filename)' == 'System.Runtime.Extensions'
+                    Or '%(Filename)' == 'Harness'" />
+    </ItemGroup>
+    <Error Condition="'@(_Ref->Count())' != '6'"
+           Text="Expected 6 compilation references for LessonDoc, found @(_Ref->Count())." />
+    <Copy SourceFiles="@(_Ref)"
+          DestinationFiles="@(_Ref->'$(OutDir)refs/%(Filename).bin')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
