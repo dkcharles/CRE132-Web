@@ -18,4 +18,10 @@
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- RunBudget and the console redirect in ProgramRunner are process-global static state
+         by design; parallel test collections would interleave them into flaky failures. -->
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
