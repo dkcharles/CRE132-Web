@@ -1,4 +1,5 @@
 [
   { "input": "21\n", "expected": "Come in" },
-  { "input": "16\n", "expected": "Sorry, not tonight" }
+  { "input": "16\n", "expected": "Sorry, not tonight" },
+  { "input": "18\n", "expected": "Come in" }
 ]

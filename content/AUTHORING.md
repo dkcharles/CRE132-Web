@@ -51,9 +51,11 @@ runtime one.
 ## Id conventions
 
 - Lesson files: `<NN-name>.md`, two-digit zero-padded number, kebab-case name —
-  `01-first-program.md`, `04-input-and-parsing.md`.
+  `01-first-program.md`, `04-reading-input.md`.
 - Sample ids: `s<NN>-<slug>` — `s01-hello`, `s01-edit-message`. The `s` prefix, the lesson
-  number, and a short slug naming what the sample shows.
+  number, and a short slug naming what the sample shows. A lesson's first sample carries no
+  letter; each additional sample after it adds one, in order: `sNNa-`, `sNNb-`, `sNNc-`, ... —
+  e.g. a lesson's samples run `s05-if`, `s05a-else`, `s05b-bool`.
 - Challenge ids: `c<NN>-<slug>` — `c01-three-lines`.
 - Catalog `Id` (the first argument to `Entry`, and the `#hash` a lesson is addressed by): the
   lesson number as a *string*, no padding — `"1"`, `"4"`, `"12"`. This is deliberately not the
@@ -78,6 +80,11 @@ A challenge kit is three files sharing an id: `<id>.start.cs`, `<id>.solution.cs
   must **state the exact expected output text**. A student should never have to guess
   capitalisation, punctuation, spacing, or wording — if the output is `CRE132`, the task
   statement says `CRE132`, not "the course code."
+- A challenge's solution reads input **silently**: it prints only the answer output, never a
+  prompt asking for what to type. Samples MAY prompt before a `ReadLine()` (that's fine, even
+  helpful, in a `:::run`/`:::edit`); a challenge must not, because the checker compares the
+  program's printed lines against `expected` starting from the first line — a prompt line
+  would shift everything after it out of alignment and fail every case.
 
 ## The `cases.json` format
 
@@ -128,17 +135,17 @@ choosing what a sample or challenge may contain:
 |---|--------|------------|
 | 0 | Welcome | How the site works |
 | 1 | Your first program | Statements, `Console.WriteLine`, comments |
-| 2 | Variables & types | Variables, types |
-| 3 | Maths, operators, interpolation | Arithmetic operators, `$"..."` interpolation |
-| 4 | Input and parsing | `Console.ReadLine`, the input panel, `int.Parse` |
+| 2 | Variables and types | Variables, types |
+| 3 | Maths and operators | Arithmetic operators, `$"..."` interpolation |
+| 4 | Reading input | `Console.ReadLine`, the input panel, `int.Parse` |
 | 5 | Making decisions | `if`/`else`, comparisons, `bool` |
 | 6 | More decisions | `else if`, `&&`/`\|\|`/`!`, `switch` |
-| 7 | Repeating yourself | `while`, `for` |
-| 8 | Loops in depth | Accumulators, nested loops, ASCII art |
+| 7 | Repetition | `while`, `for` |
+| 8 | Loop patterns | Accumulators, nested loops, ASCII art |
 | 9 | Methods | Methods, parameters, return values |
 | 10 | Scope | Variable scope |
 | 11 | Collections | Arrays, `List<T>`, `foreach` |
-| 12 | Putting it together | Console project (Snack Machine) |
+| 12 | Console project: The Snack Machine | Console project (Snack Machine) |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
 arrays or `List<T>` before Lesson 11. String building uses `+` concatenation until Lesson 3

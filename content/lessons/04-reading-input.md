@@ -74,5 +74,7 @@ Sam will be 21 next year
 
 For the input `Priya` then `17`, it must print exactly `Priya will be 18 next year` — same
 pattern, different name and age. You'll need `int.Parse` to turn the age into a number before
-you can add `1` to it. Press **Check** when you're ready — it runs your program against both.
+you can add `1` to it. Your program should read **silently**: print only the one answer
+line, and don't print a question first — the checker compares every line you print, starting
+with the first. Press **Check** when you're ready — it runs your program against both.
 :::

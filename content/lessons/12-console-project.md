@@ -115,7 +115,9 @@ until the shopper's done. That's an accumulator, wrapped around the order-taking
 reading numbers until a `0` says "finished". Look back at `s12-demo`'s code at the top of this
 lesson for the shape: one `Console.ReadLine()` before the loop starts, a `while (choice != 0)`
 around everything, and another `Console.ReadLine()` as the very last thing inside the loop's
-`{ }` — that second read is what lines up the *next* number for the loop to check.
+`{ }` — that second read is what lines up the *next* number for the loop to check. Copy the
+*read-loop* shape, not the `Console.WriteLine("Enter an item number...")` prompt line above
+it — like every challenge, the till prints only the menu, the chosen items, and the total.
 
 :::key
 An accumulator declared before a loop, and updated inside it, keeps a running result across
