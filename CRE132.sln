@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Harness", "engine\Harness\H
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "engine\Tests\Tests.csproj", "{5F2C3E1A-7D9B-4C6E-A8F2-3B5D7C9E1A4F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler", "engine\Compiler\Compiler.csproj", "{7E4D5C3B-9F2A-4E8D-B7C1-5A3F8E2D6C4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,5 +28,9 @@ Global
 		{5F2C3E1A-7D9B-4C6E-A8F2-3B5D7C9E1A4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F2C3E1A-7D9B-4C6E-A8F2-3B5D7C9E1A4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F2C3E1A-7D9B-4C6E-A8F2-3B5D7C9E1A4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4D5C3B-9F2A-4E8D-B7C1-5A3F8E2D6C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4D5C3B-9F2A-4E8D-B7C1-5A3F8E2D6C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4D5C3B-9F2A-4E8D-B7C1-5A3F8E2D6C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4D5C3B-9F2A-4E8D-B7C1-5A3F8E2D6C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
