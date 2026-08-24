@@ -1,0 +1,80 @@
+using CRE132.Compiler;
+using CRE132.Engine;
+using Microsoft.AspNetCore.Components.WebAssembly.Services;
+
+namespace CRE132.Web;
+
+// Pulls Roslyn down on demand, which is what keeps a first visit small while the compiler
+// costs a few MB more, once, on the first Run.
+//
+// TWO RULES IN THIS FILE, both about lazy loading, both of which broke CodeSchool when ignored:
+//
+//  1. The `compiler` field is typed `object`, not `SourceCompiler`. The CLR resolves a type's
+//     FIELD types when it loads the type, and this class loads during service registration at
+//     startup - long before Roslyn is fetched.
+//
+//  2. CompileAsync must not hold a SourceCompiler in a local, because C# hoists an async
+//     method's locals into fields of a generated state machine, and those resolve on first
+//     call rather than after the await. Hence the non-async Bridge method below: no async
+//     means no state machine, means no fields, means nothing resolves early.
+public sealed class CompilerLoader
+{
+    readonly LazyAssemblyLoader loader;
+    readonly HttpClient http;
+    object? compiler;
+
+    public CompilerLoader(LazyAssemblyLoader loader, HttpClient http)
+    {
+        this.loader = loader;
+        this.http = http;
+    }
+
+    public bool IsLoaded => compiler is not null;
+    public bool IsLoading { get; private set; }
+    public event Action? StateChanged;
+
+    // Returns a Harness type, so callers can safely hold the result across an await.
+    public async Task<CompileResult> CompileAsync(string source)
+    {
+        await EnsureLoadedAsync();
+        return await Bridge(source);
+    }
+
+    // Non-async on purpose: see rule 2 above.
+    Task<CompileResult> Bridge(string source) => ((SourceCompiler)compiler!).CompileAsync(source);
+
+    async Task EnsureLoadedAsync()
+    {
+        if (compiler is not null) return;
+
+        IsLoading = true;
+        StateChanged?.Invoke();
+        try
+        {
+            // Roslyn's dependencies are listed too. They are lazy in the csproj so the first
+            // visit does not pay for them, which means they must be requested explicitly here.
+            // THIS LIST MUST MATCH the BlazorWebAssemblyLazyLoad items in CRE132.Web.csproj.
+            await loader.LoadAssembliesAsync(new[]
+            {
+                "System.Collections.Immutable.wasm",
+                "System.Reflection.Metadata.wasm",
+                "System.Text.Encoding.CodePages.wasm",
+                "System.Private.Xml.wasm",
+                "System.Text.RegularExpressions.wasm",
+                "Microsoft.CodeAnalysis.wasm",
+                "Microsoft.CodeAnalysis.CSharp.wasm",
+                "Compiler.wasm"
+            });
+
+            compiler = Make();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateChanged?.Invoke();
+        }
+    }
+
+    // Also non-async, and also deliberately: constructing SourceCompiler names the lazy type.
+    object Make() => new SourceCompiler(new BrowserReferenceSource(http));
+}

@@ -1,0 +1,66 @@
+@page "/playground"
+@using CRE132.Engine
+@inject CompilerLoader Compiler
+@implements IDisposable
+
+<main class="playground">
+    <h1>Playground</h1>
+    <p>Write a C# program and press Run. It compiles and runs right here in your browser.</p>
+
+    <textarea class="editor" spellcheck="false" rows="14" @bind="source"></textarea>
+
+    <details>
+        <summary>Input — one line per <code>Console.ReadLine()</code></summary>
+        <textarea class="stdin" rows="3" @bind="input"></textarea>
+    </details>
+
+    <div class="controls">
+        <button @onclick="RunAsync" disabled="@busy">
+            @(Compiler.IsLoading ? "Downloading compiler…" : busy ? "Running…" : "Run")
+        </button>
+    </div>
+
+    @if (errors is { Count: > 0 })
+    {
+        <ul class="errors">
+            @foreach (var e in errors)
+            {
+                <li>Line @e.Line: @e.Message <span class="error-id">(@e.Id)</span></li>
+            }
+        </ul>
+    }
+    @if (output is not null) { <pre class="console">@output</pre> }
+    @if (runError is not null) { <p class="run-error">@runError</p> }
+</main>
+
+@code {
+    string source = "Console.WriteLine(\"Hello, CRE132!\");\n";
+    string input = "";
+    string? output;
+    string? runError;
+    IReadOnlyList<CompileError>? errors;
+    bool busy;
+
+    protected override void OnInitialized() => Compiler.StateChanged += StateHasChanged;
+
+    public void Dispose() => Compiler.StateChanged -= StateHasChanged;
+
+    async Task RunAsync()
+    {
+        busy = true;
+        errors = null; output = null; runError = null;
+        try
+        {
+            CompileResult result = await Compiler.CompileAsync(source);
+            if (!result.Succeeded) { errors = result.Errors; return; }
+
+            RunResult run = ProgramRunner.Run(result.Run!, input);
+            output = run.Output;
+            runError = run.Error;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

@@ -9,3 +9,11 @@ body {
 .placeholder { text-align: center; }
 .placeholder .proof { font-family: monospace; }
 #blazor-error-ui { display: none; padding: 1rem; background: #b00020; color: white; }
+
+.playground { width: min(60rem, 92vw); margin: 2rem auto; text-align: left; place-self: start center; }
+.playground .editor, .playground .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 0.95rem; box-sizing: border-box; }
+.playground .controls { margin: 0.75rem 0; }
+.playground .console { background: #111; color: #ddd; padding: 0.75rem; overflow-x: auto; min-height: 2rem; }
+.playground .errors { color: #b00020; }
+.playground .error-id { opacity: 0.6; font-size: 0.85em; }
+.playground .run-error { color: #b00020; font-weight: 600; }
