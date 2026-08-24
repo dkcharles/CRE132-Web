@@ -1,0 +1,93 @@
+@namespace CRE132.Web.Pages
+@using System.Net.Http.Json
+@using CRE132.Engine
+@inject HttpClient Http
+
+<article class="lesson">
+    <h1>@Entry.Title</h1>
+
+    @if (loadError is not null) { <p class="notice">@loadError</p> }
+
+    @foreach (Block b in blocks)
+    {
+        switch (b.Kind)
+        {
+            case "prose":
+                <div>@((MarkupString)b.Html!)</div>
+                break;
+
+            case "figure":
+                <figure class="figure">
+                    @((MarkupString)b.Svg!)
+                    <figcaption class="caption">@b.Caption</figcaption>
+                </figure>
+                break;
+
+            case "callout":
+                <aside class="callout @b.Variant">
+                    <span class="label">@(b.Variant switch
+                    {
+                        "try" => "TRY THIS",
+                        "key" => "KEY IDEA",
+                        _ => throw new InvalidOperationException($"unknown callout variant '{b.Variant}'")
+                    })</span>
+                    @((MarkupString)b.Html!)
+                </aside>
+                break;
+
+            case "run":
+                <SampleRunner @key="@($"{Entry.Id}/run/{b.Id}")"
+                              SampleId="@b.Id" Code="@(b.Code!)" Caption="@b.Caption" />
+                break;
+
+            case "edit":
+                <SampleEditor @key="@($"{Entry.Id}/edit/{b.Id}")"
+                              SampleId="@b.Id" Shipped="@(b.Code!)" Caption="@b.Caption" />
+                break;
+
+            case "challenge":
+                <ChallengeView @key="@($"{Entry.Id}/challenge/{b.Id}")"
+                               ChallengeId="@b.Id" TaskHtml="@(b.Html!)" Starter="@(b.Code!)" Cases="@(b.Cases!)" />
+                break;
+        }
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Entry Entry { get; set; } = default!;
+
+    List<Block> blocks = new();
+    string? loaded, loadError;
+
+    // A deep link decided before the first render, a Back press mid-fetch: whichever fetch
+    // finished last used to win in CodeSchool until this token pattern. The newest parameter
+    // set is the only one allowed to write. No lock: WebAssembly runs this on one thread.
+    int loadToken;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (loaded == Entry.Id) return;   // a re-render is not a new lesson
+
+        int token = ++loadToken;
+        loaded = Entry.Id;
+
+        try
+        {
+            List<Block> fetched = await Http.GetFromJsonAsync<List<Block>>(Entry.NarrationFile) ?? new();
+            if (token != loadToken) return;
+            blocks = fetched;
+            loadError = null;
+        }
+        // A host mid-deploy can answer 200 text/html, which arrives as an unreadable body
+        // rather than a failed request - hence NotSupportedException and JsonException.
+        // `loaded` is cleared so the next parameter set retries instead of latching a blank.
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or NotSupportedException or System.Text.Json.JsonException)
+        {
+            if (token != loadToken) return;
+            blocks = new();
+            loaded = null;
+            loadError = "Could not load this lesson just now — pick it again to retry.";
+        }
+    }
+}

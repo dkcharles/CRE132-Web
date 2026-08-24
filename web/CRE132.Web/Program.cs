@@ -14,5 +14,7 @@ builder.Services.AddScoped(_ => new HttpClient
 
 builder.Services.AddScoped<LazyAssemblyLoader>();
 builder.Services.AddScoped<CompilerLoader>();
+builder.Services.AddScoped<LocalStore>();
+builder.Services.AddScoped<Samples>();
 
 await builder.Build().RunAsync();

@@ -1,13 +1,65 @@
 @page "/"
+@implements IDisposable
+@inject NavigationManager Nav
 
-<main class="placeholder">
-    <h1>CRE132</h1>
-    <p>Learn C# in your browser. The course is being built — nothing to install, ever.</p>
-    <p class="proof">C# says: 6 × 7 = @(6 * 7)</p>
-    <p><a href="playground">Try the playground →</a></p>
-    <button @onclick="() => clicks++">Clicked @clicks times</button>
-</main>
+@if (current is null)
+{
+    <main class="placeholder">
+        <h1>CRE132</h1>
+        <p>Learn C# in your browser. Nothing to install — code runs right here in the page.</p>
+        <nav class="contents-home">
+            <ol>
+                @foreach (Entry e in WebCatalog.Entries)
+                {
+                    <li><a href="@("#" + e.Id)">@e.Title</a></li>
+                }
+            </ol>
+        </nav>
+        <p><a href="playground">Or open the free-form playground →</a></p>
+    </main>
+}
+else
+{
+    <div class="page">
+        <nav class="contents">
+            <a class="home" href="#">CRE132</a>
+            <ol>
+                @foreach (Entry e in WebCatalog.Entries)
+                {
+                    <li class="@(e.Id == current.Id ? "current" : "")">
+                        <a href="@("#" + e.Id)">@e.Title</a>
+                    </li>
+                }
+            </ol>
+        </nav>
+        <LessonView Entry="@current" />
+    </div>
+}
 
 @code {
-    int clicks;
+    Entry? current;
+
+    // The hash IS the router: #1 is Lesson 1, no hash is the contents. Pages serves only /
+    // for this app, so hash addresses are the one deep-link scheme that cannot 404 on a
+    // static host - the reason this site does not use path routes for lessons.
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        Apply(Nav.Uri);
+    }
+
+    void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        Apply(e.Location);
+        StateHasChanged();
+    }
+
+    void Apply(string uri)
+    {
+        int at = uri.IndexOf('#');
+        string hash = at >= 0 ? uri[(at + 1)..] : "";
+        current = hash.Length == 0 ? null : WebCatalog.Find(hash);
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
 }

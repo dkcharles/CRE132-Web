@@ -1,0 +1,89 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@implements IDisposable
+@inject Samples SampleStore
+@inject CompilerLoader Compiler
+@inject LocalStore Store
+
+<div class="runnable editable">
+    <div class="pane">
+        <div class="pane-label">
+            Try changing it
+            <span class="pane-buttons">
+                <button @onclick="ResetAsync" disabled="@busy">Reset</button>
+                <button @onclick="RunAsync" disabled="@busy">
+                    @(Compiler.IsLoading ? "Downloading compiler…" : busy ? "Running…" : "Run")
+                </button>
+            </span>
+        </div>
+        <textarea class="editor" spellcheck="false" rows="@Rows" @bind="buffer"></textarea>
+    </div>
+    @if (errors is { Count: > 0 })
+    {
+        <ul class="errors">
+            @foreach (var e in errors) { <li>Line @e.Line: @e.Message <span class="error-id">(@e.Id)</span></li> }
+        </ul>
+    }
+    @if (notice is not null) { <p class="notice">@notice</p> }
+    @if (output is not null) { <pre class="console">@output</pre> }
+    @if (runError is not null) { <p class="run-error">@runError</p> }
+    @if (Caption is { Length: > 0 }) { <p class="caption">@Caption</p> }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string SampleId { get; set; } = default!;
+    [Parameter, EditorRequired] public string Shipped { get; set; } = default!;   // RAW from the narration JSON
+    [Parameter] public string? Caption { get; set; }
+
+    string buffer = "";
+    string? output, runError, notice;
+    IReadOnlyList<CompileError>? errors;
+    bool busy;
+
+    int Rows => Math.Clamp(Shipped.Count(c => c == '\n') + 2, 4, 20);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Compiler.StateChanged += StateHasChanged;
+        buffer = await Store.LoadAsync(SampleId, SourceText.Fingerprint(Shipped)) ?? Shipped;
+    }
+
+    async Task RunAsync()
+    {
+        busy = true; errors = null; output = null; runError = null; notice = null;
+        try
+        {
+            await Store.SaveAsync(SampleId, buffer, SourceText.Fingerprint(Shipped));
+
+            // The precompiled-vs-edited seam: an unmodified buffer runs the shipped bytes and
+            // never downloads Roslyn; only a real edit pays for the compiler.
+            if (SourceText.Normalise(buffer) == SourceText.Normalise(Shipped))
+            {
+                byte[] program = await SampleStore.FetchAsync(SampleId);
+                RunResult ready = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
+                output = ready.Output; runError = ready.Error;
+                return;
+            }
+
+            CompileResult result = await Compiler.CompileAsync(buffer);
+            if (!result.Succeeded) { errors = result.Errors; return; }
+            RunResult run = ProgramRunner.Run(result.Run!, "");
+            output = run.Output; runError = run.Error;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or Microsoft.JSInterop.JSException)
+        {
+            notice = "Could not reach the site just now — check your connection and press Run again.";
+        }
+        finally { busy = false; }
+    }
+
+    async Task ResetAsync()
+    {
+        buffer = Shipped;
+        output = null; runError = null; errors = null; notice = null;
+        await Store.ClearAsync(SampleId);
+    }
+
+    public void Dispose() => Compiler.StateChanged -= StateHasChanged;
+}

@@ -1,0 +1,48 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@inject Samples SampleStore
+
+<div class="runnable">
+    <div class="pane">
+        <div class="pane-label">The code</div>
+        <pre class="listing"><code>@((MarkupString)Code)</code></pre>
+    </div>
+    <div class="pane">
+        <div class="pane-label">
+            Console — what it prints
+            <button @onclick="RunAsync" disabled="@busy">@(busy ? "Running…" : "Run this")</button>
+        </div>
+        @if (notice is not null) { <p class="notice">@notice</p> }
+        else if (output is null) { <div class="console empty">Press Run this to see the output.</div> }
+        else { <pre class="console">@output</pre> }
+        @if (runError is not null) { <p class="run-error">@runError</p> }
+    </div>
+    @if (Caption is { Length: > 0 }) { <p class="caption">@Caption</p> }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string SampleId { get; set; } = default!;
+    [Parameter, EditorRequired] public string Code { get; set; } = default!;
+    [Parameter] public string? Caption { get; set; }
+
+    string? output, runError, notice;
+    bool busy;
+
+    // Precompiled: fetching a few KB of bytes, never Roslyn. A reader who only presses Run
+    // buttons downloads no compiler at all.
+    async Task RunAsync()
+    {
+        busy = true; notice = null; runError = null;
+        try
+        {
+            byte[] program = await SampleStore.FetchAsync(SampleId);
+            RunResult run = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
+            output = run.Output; runError = run.Error;
+        }
+        catch (HttpRequestException)
+        {
+            notice = "Could not fetch this example just now — try again in a moment.";
+        }
+        finally { busy = false; }
+    }
+}

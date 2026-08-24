@@ -1,0 +1,108 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@implements IDisposable
+@inject CompilerLoader Compiler
+@inject LocalStore Store
+
+<div class="challenge">
+    <div class="challenge-task">
+        <span class="label">CHALLENGE</span>
+        @((MarkupString)TaskHtml)
+    </div>
+    <textarea class="editor" spellcheck="false" rows="@Rows" @bind="buffer"></textarea>
+    <div class="controls">
+        <button @onclick="ResetAsync" disabled="@busy">Reset</button>
+        <button @onclick="CheckAsync" disabled="@busy">
+            @(Compiler.IsLoading ? "Downloading compiler…" : busy ? "Checking…" : "Check")
+        </button>
+    </div>
+    @if (errors is { Count: > 0 })
+    {
+        <ul class="errors">
+            @foreach (var e in errors) { <li>Line @e.Line: @e.Message <span class="error-id">(@e.Id)</span></li> }
+        </ul>
+    }
+    @if (notice is not null) { <p class="notice">@notice</p> }
+    @if (results is not null)
+    {
+        @if (results.All(r => r.Passed))
+        {
+            <p class="verdict pass">✓ Passed! Your output matches on @(results.Count == 1 ? "the test" : $"all {results.Count} tests").</p>
+        }
+        else
+        {
+            CaseResult failed = results.First(r => !r.Passed);
+            <p class="verdict fail">✗ Not yet — test @failed.Index didn't match.</p>
+            @if (failed.Input.Length > 0) { <p class="case-input">Input given: <code>@failed.Input.TrimEnd()</code></p> }
+            @if (failed.Error is not null) { <p class="run-error">@failed.Error</p> }
+            else
+            {
+                <div class="diff">
+                    <div class="pane">
+                        <div class="pane-label">Your output</div>
+                        <pre class="console">@for (int i = 0; i < failed.ActualLines.Count; i++)
+{<span class="@(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ActualLines[i]
+</span>}</pre>
+                    </div>
+                    <div class="pane">
+                        <div class="pane-label">Expected</div>
+                        <pre class="console">@for (int i = 0; i < failed.ExpectedLines.Count; i++)
+{<span class="@(i + 1 == failed.FirstDiffLine ? "diff-line" : "")">@failed.ExpectedLines[i]
+</span>}</pre>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string ChallengeId { get; set; } = default!;
+    [Parameter, EditorRequired] public string TaskHtml { get; set; } = default!;
+    [Parameter, EditorRequired] public string Starter { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<ChallengeCase> Cases { get; set; } = default!;
+
+    string buffer = "";
+    string? notice;
+    IReadOnlyList<CompileError>? errors;
+    IReadOnlyList<CaseResult>? results;
+    bool busy;
+
+    string StoreKey => "challenge." + ChallengeId;
+    int Rows => Math.Clamp(Starter.Count(c => c == '\n') + 4, 6, 20);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Compiler.StateChanged += StateHasChanged;
+        buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Starter)) ?? Starter;
+    }
+
+    async Task CheckAsync()
+    {
+        busy = true; errors = null; results = null; notice = null;
+        try
+        {
+            await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Starter));
+
+            CompiledBytes compiled = await Compiler.CompileToBytesAsync(buffer);
+            if (!compiled.Succeeded) { errors = compiled.Errors; return; }
+
+            results = ChallengeChecker.Check(compiled.Bytes!, Cases);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or Microsoft.JSInterop.JSException)
+        {
+            notice = "Could not reach the site just now — check your connection and press Check again.";
+        }
+        finally { busy = false; }
+    }
+
+    async Task ResetAsync()
+    {
+        buffer = Starter;
+        errors = null; results = null; notice = null;
+        await Store.ClearAsync(StoreKey);
+    }
+
+    public void Dispose() => Compiler.StateChanged -= StateHasChanged;
+}

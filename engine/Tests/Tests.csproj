@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Harness\Harness.csproj" />
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
     <ProjectReference Include="..\LessonDoc\LessonDoc.csproj" />
+    <ProjectReference Include="..\..\web\CRE132.Web\CRE132.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

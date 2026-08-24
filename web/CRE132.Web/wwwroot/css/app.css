@@ -17,3 +17,30 @@ body {
 .playground .errors { color: #b00020; }
 .playground .error-id { opacity: 0.6; font-size: 0.85em; }
 .playground .run-error { color: #b00020; font-weight: 600; }
+
+.page { display: grid; grid-template-columns: 14rem 1fr; gap: 2rem; width: min(70rem, 94vw); margin: 2rem auto; align-items: start; place-self: start center; }
+.contents { position: sticky; top: 1rem; font-size: 0.9rem; }
+.contents .home { font-weight: 700; text-decoration: none; }
+.contents ol { padding-left: 1.2rem; }
+.contents .current { font-weight: 700; }
+.contents-home ol { text-align: left; display: inline-block; }
+.lesson { text-align: left; max-width: 46rem; }
+.lesson .runnable, .lesson .challenge { margin: 1.5rem 0; }
+.pane { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 6px; margin: 0.5rem 0; overflow: hidden; }
+.pane-label { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0.7rem; font-size: 0.8rem; font-weight: 600; opacity: 0.85; }
+.pane-buttons { display: flex; gap: 0.4rem; }
+.listing, .console { margin: 0; padding: 0.7rem; overflow-x: auto; font-family: ui-monospace, Consolas, monospace; font-size: 0.9rem; }
+.console { background: #111; color: #ddd; min-height: 1.5rem; }
+.console.empty { opacity: 0.6; font-style: italic; }
+.callout { border-left: 4px solid #4a7; padding: 0.5rem 1rem; margin: 1.25rem 0; }
+.callout.key { border-color: #d90; }
+.callout .label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; opacity: 0.8; }
+.challenge-task { border: 2px solid #46a; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+.challenge-task .label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #46a; }
+.verdict.pass { color: #2a7; font-weight: 700; }
+.verdict.fail { color: #b00020; font-weight: 700; }
+.diff { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.diff-line { background: #b0002033; display: inline-block; width: 100%; }
+.notice { color: #b06000; }
+.caption { font-size: 0.85rem; opacity: 0.8; }
+@media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .diff { grid-template-columns: 1fr; } .contents { position: static; } }

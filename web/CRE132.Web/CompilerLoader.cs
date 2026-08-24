@@ -22,6 +22,7 @@ public sealed class CompilerLoader
     readonly LazyAssemblyLoader loader;
     readonly HttpClient http;
     object? compiler;
+    Task? loading;
 
     public CompilerLoader(LazyAssemblyLoader loader, HttpClient http)
     {
@@ -43,7 +44,21 @@ public sealed class CompilerLoader
     // Non-async on purpose: see rule 2 above.
     Task<CompileResult> Bridge(string source) => ((SourceCompiler)compiler!).CompileAsync(source);
 
-    async Task EnsureLoadedAsync()
+    public async Task<CompiledBytes> CompileToBytesAsync(string source)
+    {
+        await EnsureLoadedAsync();
+        return await BridgeBytes(source);
+    }
+
+    // Non-async on purpose: see rule 2 above.
+    Task<CompiledBytes> BridgeBytes(string source) => ((SourceCompiler)compiler!).CompileToBytesAsync(source);
+
+    // Gated: two samples' first Runs can overlap on one page, and each would otherwise start
+    // its own LoadAssembliesAsync. The first caller starts the load; everyone awaits the same
+    // Task. Single-threaded WASM makes the ??= race-free.
+    Task EnsureLoadedAsync() => loading ??= LoadAsync();
+
+    async Task LoadAsync()
     {
         if (compiler is not null) return;
 
@@ -66,6 +81,13 @@ public sealed class CompilerLoader
             });
 
             compiler = Make();
+        }
+        catch
+        {
+            // A failed download must not poison every later attempt: clear the gate so the
+            // next Run retries the load instead of awaiting a permanently faulted Task.
+            loading = null;
+            throw;
         }
         finally
         {
