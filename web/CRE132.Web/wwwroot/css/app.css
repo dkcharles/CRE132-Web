@@ -61,9 +61,12 @@ body {
 .hl-c { color: #5f6a66; font-style: italic; }
 .hl-n { color: #6b3fa0; }
 
+/* Auto-grows with content. The minimum is ~4 lines: enough to click into comfortably, small
+   enough that a one-line sample doesn't sit on a slab of empty dark editor (user feedback -
+   12rem read as an unused black console under short code). */
 .code-editor .CodeMirror {
     height: auto;
-    min-height: 12rem;
+    min-height: 6rem;
     font-family: ui-monospace, Consolas, monospace;
     font-size: 0.95rem;
 }
