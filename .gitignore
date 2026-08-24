@@ -8,3 +8,5 @@ publish/
 !.vscode/tasks.json
 !.vscode/extensions.json
 web/CRE132.Web/wwwroot/refs/
+web/CRE132.Web/wwwroot/lessons/
+web/CRE132.Web/wwwroot/samples/

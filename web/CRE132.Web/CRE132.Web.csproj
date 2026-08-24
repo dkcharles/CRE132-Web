@@ -55,5 +55,6 @@
   </ItemGroup>
 
   <Import Project="CopyReferences.targets" />
+  <Import Project="Narration.targets" />
 
 </Project>

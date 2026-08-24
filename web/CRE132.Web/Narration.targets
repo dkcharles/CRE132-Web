@@ -1,0 +1,18 @@
+<Project>
+
+  <!-- Renders content/lessons/*.md into wwwroot/lessons/*.json and compiles content/samples
+       into wwwroot/samples/*.bin before the app is built, so no markdown parser and no
+       compiler ships to a reader.
+
+       This RUNS LessonDoc rather than referencing it: a ProjectReference would drag Markdig
+       into the published payload, which is exactly what this design exists to avoid. -->
+  <Target Name="GenerateNarration" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <_LessonDoc>$(MSBuildProjectDirectory)/../../engine/LessonDoc/LessonDoc.csproj</_LessonDoc>
+      <_Content>$(MSBuildProjectDirectory)/../../content</_Content>
+    </PropertyGroup>
+
+    <Exec Command="dotnet run --project &quot;$(_LessonDoc)&quot; -c Release -- --lessons &quot;$(_Content)/lessons&quot; --samples &quot;$(_Content)/samples&quot; --challenges &quot;$(_Content)/challenges&quot; --figures &quot;$(MSBuildProjectDirectory)/figures&quot; --out &quot;$(MSBuildProjectDirectory)/wwwroot/lessons&quot; --bin &quot;$(MSBuildProjectDirectory)/wwwroot/samples&quot;" />
+  </Target>
+
+</Project>
