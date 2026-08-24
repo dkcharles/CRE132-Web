@@ -39,6 +39,21 @@
          (RegexRouteConstraint). Lazy-loading it broke startup outright. -->
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Student code compiles against the six shipped facades but binds at RUNTIME via
+         Assembly.Load, which the IL trimmer cannot see - Release publish stripped
+         List<T>.Sort() in production while every desktop test stayed green. Root the
+         implementation assemblies reachable through those facades, plus Harness
+         (RunBudget.Step is called only by instrumented student code). Blazor framework
+         assemblies stay trimmed. -->
+    <TrimmerRootAssembly Include="System.Private.CoreLib" />
+    <TrimmerRootAssembly Include="System.Console" />
+    <TrimmerRootAssembly Include="System.Collections" />
+    <TrimmerRootAssembly Include="System.Linq" />
+    <TrimmerRootAssembly Include="System.Runtime.Extensions" />
+    <TrimmerRootAssembly Include="Harness" />
+  </ItemGroup>
+
   <Import Project="CopyReferences.targets" />
 
 </Project>
