@@ -17,7 +17,11 @@ public static class ProgramRunner
     {
         var writer = new BoundedWriter(OutputLimit);
         TextWriter oldOut = Console.Out;
-        TextReader oldIn = Console.In;
+        // On browser WebAssembly the Console.In GETTER itself throws (no stdin exists to wrap),
+        // so the save is conditional - and restoration below is too. Desktop keeps full restore.
+        TextReader? oldIn;
+        try { oldIn = Console.In; }
+        catch (PlatformNotSupportedException) { oldIn = null; }
         CultureInfo oldCulture = CultureInfo.CurrentCulture;
 
         RunBudget.Reset(budget);
@@ -45,7 +49,7 @@ public static class ProgramRunner
         finally
         {
             Console.SetOut(oldOut);
-            Console.SetIn(oldIn);
+            if (oldIn is not null) Console.SetIn(oldIn);
             CultureInfo.CurrentCulture = oldCulture;
         }
     }
