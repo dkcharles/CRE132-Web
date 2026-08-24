@@ -11,7 +11,7 @@
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
-                    <li><a href="@("#" + e.Id)">@e.Title</a></li>
+                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a></li>
                 }
             </ol>
         </nav>
@@ -22,12 +22,12 @@ else
 {
     <div class="page">
         <nav class="contents">
-            <a class="home" href="#">CRE132</a>
+            <a class="home" href="#" @onclick="GoHome" @onclick:preventDefault>CRE132</a>
             <ol>
                 @foreach (Entry e in WebCatalog.Entries)
                 {
                     <li class="@(e.Id == current.Id ? "current" : "")">
-                        <a href="@("#" + e.Id)">@e.Title</a>
+                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@e.Title</a>
                     </li>
                 }
             </ol>
@@ -60,6 +60,14 @@ else
         string hash = at >= 0 ? uri[(at + 1)..] : "";
         current = hash.Length == 0 ? null : WebCatalog.Find(hash);
     }
+
+    // Blazor raises LocationChanged for NavigateTo and for popstate (Back/Forward), but NOT
+    // for a plain anchor click that only changes the hash - the browser handles that natively
+    // and the view never re-renders. Clicks therefore go through NavigateTo; the hrefs stay
+    // so copy-link and middle-click still behave like links.
+    void Go(string id) => Nav.NavigateTo("#" + id);
+
+    void GoHome() => Nav.NavigateTo(Nav.BaseUri);
 
     public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
 }
