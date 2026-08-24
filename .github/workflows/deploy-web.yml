@@ -43,7 +43,7 @@ jobs:
       # Source keeps <base href="/" /> so local `dotnet run` works;
       # DeployContractTests pins the exact string this sed targets.
       - name: Rewrite base href
-        run: sed -i 's|<base href="/" />|<base href="/CRE132-Web/" />|' publish/wwwroot/index.html
+        run: sed -i 's|<base href="/" />|<base href="/CRE132-Web/" />|' publish/wwwroot/index.html && grep -q '<base href="/CRE132-Web/" />' publish/wwwroot/index.html
 
       - uses: actions/upload-pages-artifact@v3
         with:

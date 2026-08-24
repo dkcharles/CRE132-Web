@@ -1,6 +1,6 @@
-namespace CRE132.Tests;
-
 using Xunit;
+
+namespace CRE132.Tests;
 
 public class DeployContractTests
 {
@@ -23,5 +23,16 @@ public class DeployContractTests
         // with an underscore - exactly where Blazor puts its runtime.
         Assert.True(File.Exists(Path.Combine(WwwRoot, ".nojekyll")),
             ".nojekyll is missing from wwwroot");
+    }
+
+    [Fact]
+    public void Web_csproj_keeps_InvariantGlobalization_on()
+    {
+        // The spec mandates it: it drops ~2.5 MB of ICU data AND pins '.' as the
+        // decimal separator whatever locale the visitor's browser reports -
+        // challenge expected-output matching depends on it.
+        var csproj = File.ReadAllText(Path.Combine(RepoPaths.Root,
+            "web", "CRE132.Web", "CRE132.Web.csproj"));
+        Assert.Contains("<InvariantGlobalization>true</InvariantGlobalization>", csproj);
     }
 }

@@ -9,7 +9,7 @@ public static class RepoPaths
     static string Find()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !Directory.Exists(Path.Combine(dir.FullName, ".git")))
+        while (dir is not null && !Path.Exists(Path.Combine(dir.FullName, ".git")))
             dir = dir.Parent;
         return dir?.FullName
             ?? throw new InvalidOperationException("No .git directory above " + AppContext.BaseDirectory);
