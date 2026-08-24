@@ -28,6 +28,18 @@
         @if (results.All(r => r.Passed))
         {
             <p class="verdict pass">✓ Passed! Your output matches on @(results.Count == 1 ? "the test" : $"all {results.Count} tests").</p>
+            @foreach (CaseResult r in results)
+            {
+                <div class="pane">
+                    <div class="pane-label">@(results.Count == 1 ? "Your output" : $"Test {r.Index} — your output")@(r.Input.Length > 0 ? " (input: " + r.Input.TrimEnd() + ")" : "")</div>
+                    <div class="console">
+                        @foreach (string line in r.ActualLines)
+                        {
+                            <div class="line">@line</div>
+                        }
+                    </div>
+                </div>
+            }
         }
         else
         {
