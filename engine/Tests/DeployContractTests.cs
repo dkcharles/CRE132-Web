@@ -35,4 +35,17 @@ public class DeployContractTests
             "web", "CRE132.Web", "CRE132.Web.csproj"));
         Assert.Contains("<InvariantGlobalization>true</InvariantGlobalization>", csproj);
     }
+
+    [Fact]
+    public void The_six_reference_assemblies_are_copied_for_the_browser_compiler()
+    {
+        // Produced by CopyReferences.targets on every web build. If one is missing, in-browser
+        // compilation fails at runtime; run `dotnet build web/CRE132.Web` before testing.
+        string refs = Path.Combine(WwwRoot, "refs");
+        string[] expected = { "System.Runtime", "System.Console", "System.Collections",
+                              "System.Linq", "System.Runtime.Extensions", "Harness" };
+        foreach (string name in expected)
+            Assert.True(File.Exists(Path.Combine(refs, name + ".bin")),
+                $"{name}.bin missing from wwwroot/refs — build web/CRE132.Web first");
+    }
 }

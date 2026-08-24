@@ -17,4 +17,27 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.30" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\engine\Harness\Harness.csproj" />
+    <ProjectReference Include="..\..\engine\Compiler\Compiler.csproj" />
+  </ItemGroup>
+
+  <!-- Not downloaded until the student presses Run on edited code. Reading pages never
+       triggers it, so a first visit stays small. -->
+  <ItemGroup>
+    <BlazorWebAssemblyLazyLoad Include="Microsoft.CodeAnalysis.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="Microsoft.CodeAnalysis.CSharp.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="Compiler.wasm" />
+
+    <!-- Roslyn's own dependencies. Without these the compiler is lazy but everything it needs
+         is not, and the first visit pays for a compiler it never loads. -->
+    <BlazorWebAssemblyLazyLoad Include="System.Collections.Immutable.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="System.Reflection.Metadata.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="System.Text.Encoding.CodePages.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="System.Private.Xml.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="System.Text.RegularExpressions.wasm" />
+  </ItemGroup>
+
+  <Import Project="CopyReferences.targets" />
+
 </Project>

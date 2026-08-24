@@ -1,0 +1,29 @@
+<Project>
+
+  <!-- Roslyn compiles student code against these. They are copied as .bin, not .dll, because
+       some enterprise proxies block .dll downloads. They must be plain PE assemblies, which is
+       why they come from the resolved reference path rather than from the published _framework
+       directory - that one contains Webcil, which Roslyn cannot read. -->
+  <!-- ReferencePath, not ReferencePathWithRefAssemblies: only the former is populated here.
+       System.Private.CoreLib is deliberately absent - compiling against the reference pack
+       binds to the System.Runtime facade, and the implementation assembly is not a reference. -->
+  <Target Name="CopyCompilationReferences" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <_RefToCopy Include="@(ReferencePath)"
+                  Condition="'%(Filename)' == 'System.Runtime'
+                          Or '%(Filename)' == 'System.Console'
+                          Or '%(Filename)' == 'System.Collections'
+                          Or '%(Filename)' == 'System.Linq'
+                          Or '%(Filename)' == 'System.Runtime.Extensions'
+                          Or '%(Filename)' == 'Harness'" />
+    </ItemGroup>
+
+    <Error Condition="'@(_RefToCopy->Count())' != '6'"
+           Text="Expected 6 compilation references, found @(_RefToCopy->Count()). In-browser compilation would fail at runtime, so this is a build error rather than a surprise later." />
+
+    <Copy SourceFiles="@(_RefToCopy)"
+          DestinationFiles="@(_RefToCopy->'$(MSBuildProjectDirectory)/wwwroot/refs/%(Filename).bin')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

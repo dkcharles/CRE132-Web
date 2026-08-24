@@ -7,3 +7,4 @@ publish/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/extensions.json
+web/CRE132.Web/wwwroot/refs/
