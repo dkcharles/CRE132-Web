@@ -18,6 +18,8 @@ public static class ChallengeChecker
 {
     public static IReadOnlyList<CaseResult> Check(byte[] program, IReadOnlyList<ChallengeCase> cases)
     {
+        if (cases.Count == 0) throw new ArgumentException("a challenge needs at least one case", nameof(cases));
+
         var results = new List<CaseResult>(cases.Count);
         for (int i = 0; i < cases.Count; i++)
         {

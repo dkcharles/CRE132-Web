@@ -41,11 +41,12 @@
     bool busy;
 
     int Rows => Math.Clamp(Shipped.Count(c => c == '\n') + 2, 4, 20);
+    string StoreKey => "sample." + SampleId;
 
     protected override async Task OnInitializedAsync()
     {
         Compiler.StateChanged += StateHasChanged;
-        buffer = await Store.LoadAsync(SampleId, SourceText.Fingerprint(Shipped)) ?? Shipped;
+        buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Shipped)) ?? Shipped;
     }
 
     async Task RunAsync()
@@ -53,7 +54,7 @@
         busy = true; errors = null; output = null; runError = null; notice = null;
         try
         {
-            await Store.SaveAsync(SampleId, buffer, SourceText.Fingerprint(Shipped));
+            await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Shipped));
 
             // The precompiled-vs-edited seam: an unmodified buffer runs the shipped bytes and
             // never downloads Roslyn; only a real edit pays for the compiler.
@@ -82,7 +83,7 @@
     {
         buffer = Shipped;
         output = null; runError = null; errors = null; notice = null;
-        await Store.ClearAsync(SampleId);
+        await Store.ClearAsync(StoreKey);
     }
 
     public void Dispose() => Compiler.StateChanged -= StateHasChanged;

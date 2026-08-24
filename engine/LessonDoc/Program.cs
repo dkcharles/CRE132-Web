@@ -49,9 +49,19 @@ static class Program
                     failed = true;
                     continue;
                 }
-                var cases = JsonSerializer.Deserialize<List<ChallengeCase>>(
-                    File.ReadAllText(casesFile),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+                List<ChallengeCase> cases;
+                try
+                {
+                    cases = JsonSerializer.Deserialize<List<ChallengeCase>>(
+                        File.ReadAllText(casesFile),
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+                }
+                catch (JsonException e)
+                {
+                    Console.Error.WriteLine($"challenge '{id}': cases.json is not valid JSON: {e.Message}");
+                    failed = true;
+                    continue;
+                }
                 challenges[id] = new ChallengeFiles(
                     SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases);
             }
@@ -63,6 +73,12 @@ static class Program
         var compiler = new SourceCompiler(new BuildReferenceSource());
         foreach ((string id, string source) in samples)
         {
+            if (File.Exists(Path.Combine(samplesDir, id + ".in.txt")))
+            {
+                Console.Error.WriteLine(
+                    $"sample '{id}' has an .in.txt, but the site cannot feed stdin to samples yet — remove it (the input panel arrives in Phase 3).");
+                failed = true;
+            }
             CompiledBytes compiled = await compiler.CompileToBytesAsync(source);
             if (!compiled.Succeeded)
             {

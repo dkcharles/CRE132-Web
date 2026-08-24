@@ -36,6 +36,8 @@ public class ContentTests
     {
         string source = File.ReadAllText(Content("samples", id + ".cs"));
         string golden = File.ReadAllText(Content("samples", id + ".out.txt"));
+        // .in.txt is build-gated out of samples/ for now (LessonDoc rejects it) - this stays
+        // ready to re-activate the moment the input panel lands in Phase 3.
         string stdinFile = Content("samples", id + ".in.txt");
         string stdin = File.Exists(stdinFile) ? File.ReadAllText(stdinFile) : "";
 
@@ -68,5 +70,20 @@ public class ContentTests
             Assert.Null(run.Error);
             Assert.Null(OutputComparer.FirstDifference(c.Expected, run.Output));
         }
+    }
+
+    [Fact]
+    public void Every_catalog_entry_has_a_lesson_file_and_every_lesson_file_a_catalog_entry()
+    {
+        // A typo'd NarrationFile deploys a lesson whose page permanently shows the retry
+        // notice; an md with no catalog row is authored but unreachable. Both are build errors.
+        var catalogNames = CRE132.Web.WebCatalog.Entries
+            .Select(e => Path.GetFileNameWithoutExtension(e.NarrationFile))
+            .OrderBy(n => n).ToList();
+        var lessonNames = Directory.GetFiles(Content("lessons"), "*.md")
+            .Where(f => CRE132.LessonDoc.NarrationParser.HasDirectives(File.ReadAllText(f)))
+            .Select(f => Path.GetFileNameWithoutExtension(f)!)
+            .OrderBy(n => n).ToList();
+        Assert.Equal(lessonNames, catalogNames!);
     }
 }

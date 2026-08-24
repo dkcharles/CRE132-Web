@@ -49,6 +49,10 @@
                 <ChallengeView @key="@($"{Entry.Id}/challenge/{b.Id}")"
                                ChallengeId="@b.Id" TaskHtml="@(b.Html!)" Starter="@(b.Code!)" Cases="@(b.Cases!)" />
                 break;
+
+            default:
+                <p class="notice">This lesson contains a block this version of the site can't display (kind: @b.Kind). Reload the page — if it persists, tell your tutor.</p>
+                break;
         }
     }
 </article>

@@ -39,7 +39,8 @@
             RunResult run = ProgramRunner.Run(ProgramLoader.FromBytes(program), "");
             output = run.Output; runError = run.Error;
         }
-        catch (HttpRequestException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or Microsoft.JSInterop.JSException)
         {
             notice = "Could not fetch this example just now — try again in a moment.";
         }
