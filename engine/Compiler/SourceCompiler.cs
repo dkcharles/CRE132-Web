@@ -90,7 +90,15 @@ public sealed class SourceCompiler
                 ? new object?[] { Array.Empty<string>() }
                 : null;
             object? result = entry.Invoke(null, args);
-            if (result is Task task) task.GetAwaiter().GetResult();
+            if (result is Task task)
+            {
+                // Blocking on a pending Task can never succeed on single-threaded WebAssembly,
+                // so a friendly stop beats a frozen tab.
+                if (!task.IsCompleted)
+                    throw new InvalidOperationException(
+                        "This playground can't run programs that wait on async work — remove async/await.");
+                task.GetAwaiter().GetResult();
+            }
         }
 
         return new CompileResult(Run, Array.Empty<CompileError>());

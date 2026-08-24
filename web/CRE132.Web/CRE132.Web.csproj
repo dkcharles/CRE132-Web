@@ -35,7 +35,8 @@
     <BlazorWebAssemblyLazyLoad Include="System.Reflection.Metadata.wasm" />
     <BlazorWebAssemblyLazyLoad Include="System.Text.Encoding.CodePages.wasm" />
     <BlazorWebAssemblyLazyLoad Include="System.Private.Xml.wasm" />
-    <BlazorWebAssemblyLazyLoad Include="System.Text.RegularExpressions.wasm" />
+    <!-- System.Text.RegularExpressions must stay EAGER: Blazor's Router needs it at boot
+         (RegexRouteConstraint). Lazy-loading it broke startup outright. -->
   </ItemGroup>
 
   <Import Project="CopyReferences.targets" />

@@ -60,7 +60,6 @@ public sealed class CompilerLoader
                 "System.Reflection.Metadata.wasm",
                 "System.Text.Encoding.CodePages.wasm",
                 "System.Private.Xml.wasm",
-                "System.Text.RegularExpressions.wasm",
                 "Microsoft.CodeAnalysis.wasm",
                 "Microsoft.CodeAnalysis.CSharp.wasm",
                 "Compiler.wasm"

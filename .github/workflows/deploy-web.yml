@@ -36,6 +36,9 @@ jobs:
       - name: Run the tests
         run: dotnet test engine/Tests --nologo
 
+      # Build MUST run before Publish: wwwroot/refs/*.bin are generated during build, and
+      # wwwroot content is evaluated at project-evaluation time - a clean single-shot publish
+      # would ship without them.
       - name: Publish
         run: dotnet publish web/CRE132.Web -c Release -o publish --nologo
 
