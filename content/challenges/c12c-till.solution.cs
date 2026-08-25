@@ -6,6 +6,7 @@ for (int i = 0; i < names.Count; i++)
     Console.WriteLine($"{i + 1}. {names[i]} - £{prices[i]}");
 }
 
+// total is declared before the loop, so it survives from one order to the next.
 int total = 0;
 int choice = int.Parse(Console.ReadLine());
 
@@ -22,6 +23,7 @@ while (choice != 0)
         Console.WriteLine("Sorry, we don't have that");
     }
 
+    // Read the next number here, at the end of the loop, so while has something new to check.
     choice = int.Parse(Console.ReadLine());
 }
 

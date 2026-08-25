@@ -378,6 +378,21 @@ points at the next part of the course by name, never by a `#n` hash.
 - A lesson reads in 5–10 minutes — don't pad it to look thorough.
 - Samples fit on one screen; if a sample needs scrolling to read, it's doing too much. The one
   exception is a guided-build lesson's single reference sample — see "Guided-build lessons".
+- **A number used twice gets a name.** When the same literal appears two or more times in one
+  program with the same meaning — a radius, a paddle height, a speed, a screen edge — declare it
+  once as a plain variable at the top of the file (`double radius = 20;`, `int screenWidth = 640;`)
+  and use the name everywhere, writing derived values as expressions of it (`640 - radius`, not
+  `620`). A literal used once stays a literal. Plain variables only: `const`, `static` and
+  `readonly` are never taught, and Lessons 0–1 have no variables at all.
+- **Comment the *why*, never the *what*.** One short line in plain English above a block whose
+  reason a beginner would not guess — `// Step the index back, or the item that slid into the gap
+  is skipped` — and none at all above a line that already says what it does. One to four per
+  sample is typical. A starter's `// TODO`-style markers are load-bearing (the prose points at
+  them by position); leave them exactly as they are and don't add extra comments beside them.
+- **Names say what they hold.** `starCount`, not `n`; `sweetsEach`, not `val`; `wallHeight`, not
+  `wh`. The exceptions are the conventional short names — loop indices `i`/`j`, coordinates
+  `x`/`y`, deltas `dx`/`dy` — and any name the lesson prose itself introduces and discusses, which
+  must not be renamed without rewriting the prose that teaches it.
 
 The pilot lesson, `content/lessons/01-first-program.md`, embodies all of the above and is the
 reference to match when a rule in this document leaves a judgement call.

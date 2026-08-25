@@ -50,9 +50,12 @@ divided answer. It's the tool for "is this number even?" and for splitting a tot
 :::run s03b-remainder `%` used two ways: even/odd, and turning seconds into minutes and seconds.
 
 `n % 2` is `0` for an even number and `1` for an odd one — that's the whole trick, worth
-remembering. In the second example, `totalSeconds / 60` gives whole minutes and `totalSeconds
-% 60` gives the seconds left over once those minutes are removed — `/` and `%` used together
-turn one number into two.
+remembering. The second example needs `60` twice, so it is written once as a variable called
+`secondsPerMinute`: `totalSeconds / secondsPerMinute` gives whole minutes and
+`totalSeconds % secondsPerMinute` gives the seconds left over once those minutes are removed —
+`/` and `%` used together turn one number into two. A number that appears more than once in a
+program is nearly always worth a name; the name says what it *means*, and there is then only
+one place to change it.
 
 ## Putting values inside text: `$"..."`
 
