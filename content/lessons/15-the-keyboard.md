@@ -82,19 +82,20 @@ thirty a second, one for every frame the key is down. Change it back, and keep t
 ## Challenge
 
 :::challenge c15-paddle
-The starter draws a paddle `100` wide and `16` tall, at `x = 270` and `y = 330` — a Pong paddle
-that cannot move. Give it the arrow keys, and keep it on the screen.
+The starter draws a paddle `paddleWidth` (`100`) wide and `paddleHeight` (`16`) tall, at
+`x = 270` and `paddleY` (`330`) — a Pong paddle that cannot move. Give it the arrow keys, and
+keep it on the screen. Two more names are declared at the top of the file ready for you:
+`paddleSpeed` is `6`, and `paddleMaxX` is `screenWidth - paddleWidth`, which comes to `540`.
 
 Where the comment is, add:
 
-- when `Key.Left` is down, `x = x - 6`
-- when `Key.Right` is down, `x = x + 6`
-- then clamp `x`: never below `0`, never above `540` (that is `640 - 100`, the screen's width
-  less the paddle's)
+- when `Key.Left` is down, `x = x - paddleSpeed`
+- when `Key.Right` is down, `x = x + paddleSpeed`
+- then clamp `x`: never below `0`, never above `paddleMaxX` — that is `640 - 100`, the screen's
+  width less the paddle's, or `540`
 
-Leave the `330`, the `100` and the `16` in the `Screen.Rect` call exactly as they are. The
-checker holds `Right` down and looks twice: at frame 40 the paddle should have reached
-`x = 510`, and at frame 60 it should be pinned against the right-hand edge at `x = 540` rather
-than past it. Then it holds `Left` for 80 frames and expects the paddle pinned at `x = 0`. Press
-**Check** when you are ready.
+Leave the `Screen.Rect` call exactly as it is. The checker holds `Right` down and looks twice: at
+frame 40 the paddle should have reached `x = 510`, and at frame 60 it should be pinned against
+the right-hand edge at `x = 540` rather than past it. Then it holds `Left` for 80 frames and
+expects the paddle pinned at `x = 0`. Press **Check** when you are ready.
 :::

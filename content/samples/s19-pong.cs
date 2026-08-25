@@ -1,56 +1,72 @@
+int screenWidth = 640;
+int screenHeight = 360;
+int paddleWidth = 16;
+int paddleHeight = 80;
+int paddleSpeed = 6;
+int leftX = 20;
+// The right paddle sits the same margin in from its edge as the left one: 640 - 16 - 20 = 604.
+int rightX = screenWidth - paddleWidth - leftX;
+// A rectangle is drawn from its top edge, so 360 - 80 = 280 is as low as a paddle may sit.
+int paddleMaxY = screenHeight - paddleHeight;
 double leftY = 140;
 double rightY = 140;
-double bx = 320;
-double by = 180;
-double speedX = 4;
-double speedY = 5;
+int centreX = screenWidth / 2;
+int centreY = screenHeight / 2;
+int ballRadius = 12;
+double bx = centreX;
+double by = centreY;
+double ballSpeedX = 4;
+double ballSpeedY = 5;
 int left = 0;
 int right = 0;
 
 void Setup()
 {
-    Screen.Size(640, 360);
+    Screen.Size(screenWidth, screenHeight);
 }
 
 void Draw()
 {
     Screen.Clear(Colour.Black);
 
-    // A rectangle is drawn from its top edge, so the lowest a paddle may sit is 360 - 80 = 280.
-    if (Keys.IsDown(Key.W)) leftY = leftY - 6;
-    if (Keys.IsDown(Key.S)) leftY = leftY + 6;
+    if (Keys.IsDown(Key.W)) leftY = leftY - paddleSpeed;
+    if (Keys.IsDown(Key.S)) leftY = leftY + paddleSpeed;
     if (leftY < 0) leftY = 0;
-    if (leftY > 280) leftY = 280;
+    if (leftY > paddleMaxY) leftY = paddleMaxY;
 
-    if (Keys.IsDown(Key.Up)) rightY = rightY - 6;
-    if (Keys.IsDown(Key.Down)) rightY = rightY + 6;
+    if (Keys.IsDown(Key.Up)) rightY = rightY - paddleSpeed;
+    if (Keys.IsDown(Key.Down)) rightY = rightY + paddleSpeed;
     if (rightY < 0) rightY = 0;
-    if (rightY > 280) rightY = 280;
+    if (rightY > paddleMaxY) rightY = paddleMaxY;
 
-    bx = bx + speedX;
-    by = by + speedY;
-    if (by < 12 || by > 348) speedY = -speedY;
-    // A paddle hit is the collision lesson's box grown by the ball's radius: a paddle at x = 20,
-    // 16 wide and 80 tall, grown by 12, is 20 - 12 = 8 to 20 + 16 + 12 = 48 and 80 + 12 = 92 tall.
-    if (bx > 8 && bx < 48 && by > leftY - 12 && by < leftY + 92) speedX = -speedX;
-    if (bx > 592 && bx < 632 && by > rightY - 12 && by < rightY + 92) speedX = -speedX;
-    // A miss: the ball is put back in the middle and the player at the other end scores.
+    bx = bx + ballSpeedX;
+    by = by + ballSpeedY;
+    if (by < ballRadius || by > screenHeight - ballRadius) ballSpeedY = -ballSpeedY;
+    // A paddle hit is the collision lesson's rectangle grown by the ball's radius: each of the
+    // four comparisons is one edge of the paddle pushed out by ballRadius.
+    if (bx > leftX - ballRadius && bx < leftX + paddleWidth + ballRadius &&
+        by > leftY - ballRadius && by < leftY + paddleHeight + ballRadius)
+        ballSpeedX = -ballSpeedX;
+    if (bx > rightX - ballRadius && bx < rightX + paddleWidth + ballRadius &&
+        by > rightY - ballRadius && by < rightY + paddleHeight + ballRadius)
+        ballSpeedX = -ballSpeedX;
+    // A miss: the ball goes back to the middle and the player at the other end scores.
     if (bx < 0)
     {
-        bx = 320;
-        by = 180;
+        bx = centreX;
+        by = centreY;
         right = right + 1;
     }
-    if (bx > 640)
+    if (bx > screenWidth)
     {
-        bx = 320;
-        by = 180;
+        bx = centreX;
+        by = centreY;
         left = left + 1;
     }
 
-    Screen.Rect(20, leftY, 16, 80, Colour.White);
-    Screen.Rect(604, rightY, 16, 80, Colour.White);
-    Screen.Circle(bx, by, 12, Colour.Yellow);
+    Screen.Rect(leftX, leftY, paddleWidth, paddleHeight, Colour.White);
+    Screen.Rect(rightX, rightY, paddleWidth, paddleHeight, Colour.White);
+    Screen.Circle(bx, by, ballRadius, Colour.Yellow);
     // Drawn last, so the score sits on top of everything else rather than under the ball.
     Screen.Text(300, 10, left + " : " + right, Colour.White);
 }

@@ -348,8 +348,8 @@ the rules above — deliberately, so copy this shape rather than fighting it:
 
 - **One reference sample, not 3–5.** A single `:::run` at the top shows the finished game, so the
   reader knows what they are building towards. It is the one place a sample may run past a
-  screenful (Pong's is around fifty lines): the whole point is that it is a whole program, and
-  the lesson then takes it apart. Every other sample the lesson would have had is a challenge
+  screenful (Pong's is around seventy lines, a third of them the named numbers the game is built
+  from): the whole point is that it is a whole program, and the lesson then takes it apart. Every other sample the lesson would have had is a challenge
   step instead.
 - **Chained challenge kits, one per step.** Each step gets its own three-file kit, lettered in
   order, and **each starter is the previous step's solution** — `c19b-ball.start.cs` is

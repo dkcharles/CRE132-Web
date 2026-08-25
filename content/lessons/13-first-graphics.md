@@ -50,13 +50,17 @@ So `(320, 180)` is the middle, `(0, 0)` is the top-left, and `(640, 360)` is the
 
 Read that `Draw` against the picture:
 
-- `Screen.Rect(0, 300, 640, 60, Colour.Green)` — a filled rectangle whose **top-left corner** is
-  at `(0, 300)`, `640` wide and `60` tall. Starting at `y = 300` out of `360` puts it along the
-  bottom: the ground.
+- `Screen.Rect(0, groundY, screenWidth, 60, Colour.Green)` — a filled rectangle whose
+  **top-left corner** is at `(0, 300)`, `640` wide and `60` tall. `groundY` is `300` and
+  `screenWidth` is `640`, both written down once at the top of the file because the horizon line
+  below wants the very same two numbers. Starting at `y = 300` out of `360` puts the rectangle
+  along the bottom: the ground.
 - `Screen.Circle(560, 70, 30, Colour.Yellow)` — a circle **centred** at `(560, 70)` with a
   radius of `30`. Big `x`, small `y`, so: top right. The sun.
-- `Screen.Line(0, 300, 640, 300, Colour.White)` — a line from `(0, 300)` to `(640, 300)`. Two
-  points, four numbers, drawn along the top of the ground as a horizon.
+- `Screen.Line(0, groundY, screenWidth, groundY, Colour.White)` — a line from `(0, 300)` to
+  `(640, 300)`. Two points, four numbers, drawn along the top of the ground as a horizon. The
+  same two names again, which is the point of naming them: change `groundY` once and the ground
+  and its horizon move together, still touching.
 - `Screen.Text(20, 20, "My first scene", Colour.White)` — text, with its top-left at `(20, 20)`.
 
 Colours are named: `Colour.Black`, `Colour.White`, `Colour.Grey`, `Colour.Red`, `Colour.Orange`,
@@ -97,13 +101,23 @@ where you can look at it. The text at the top still reports the numbers, which i
 ## Challenge
 
 :::challenge c13-house
-The starter already clears the screen and draws the green ground. Add a house standing on it,
-using these **exact** numbers, in this order, after the ground:
+The starter already clears the screen and draws the green ground, and the house's numbers are
+declared at the top of the file for you: `wallX` is `220`, `wallY` is `180`, `wallWidth` is
+`200`, `wallHeight` is `120`, and `roofTopY` is `100`. `middleX` is worked out from two of them,
+`wallX + wallWidth / 2`, which comes to `320` — the middle of the walls, where the roof's apex
+and the window both belong.
 
-- the walls: `Screen.Rect(220, 180, 200, 120, ...)`
-- a round window: `Screen.Circle(320, 240, 16, ...)`
-- the left roof slope: `Screen.Line(220, 180, 320, 100, ...)`
-- the right roof slope: `Screen.Line(320, 100, 420, 180, ...)`
+Add a house standing on the ground, in this order, after it:
+
+- the walls: `Screen.Rect(wallX, wallY, wallWidth, wallHeight, ...)`
+- a round window: `Screen.Circle(middleX, 240, 16, ...)`
+- the left roof slope: `Screen.Line(wallX, wallY, middleX, roofTopY, ...)`
+- the right roof slope: `Screen.Line(middleX, roofTopY, wallX + wallWidth, wallY, ...)`
+
+Those come out at the **exact** positions the checker wants: walls from `(220, 180)` measuring
+`200` by `120`, a window centred at `(320, 240)` with a radius of `16`, and two roof lines
+meeting at `(320, 100)`. Typing the numbers yourself instead works just as well — but every one
+of the six names above already holds the right one.
 
 Choose any colour you like for each of the four shapes: the checker looks at **where** shapes
 are and how big they are, never at what colour they are. Press **Check** when you are ready.

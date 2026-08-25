@@ -2,6 +2,9 @@ double px = 460;
 double py = 100;
 double cx = 520;
 double cy = 100;
+double playerSize = 30;
+double playerSpeed = 5;
+double coinRadius = 10;
 int score = 0;
 
 void Setup()
@@ -12,18 +15,20 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    if (Keys.IsDown(Key.Left)) px = px - 5;
-    if (Keys.IsDown(Key.Right)) px = px + 5;
-    if (Keys.IsDown(Key.Up)) py = py - 5;
-    if (Keys.IsDown(Key.Down)) py = py + 5;
-    if (cx > px - 10 && cx < px + 40 && cy > py - 10 && cy < py + 40)
+    if (Keys.IsDown(Key.Left)) px = px - playerSpeed;
+    if (Keys.IsDown(Key.Right)) px = px + playerSpeed;
+    if (Keys.IsDown(Key.Up)) py = py - playerSpeed;
+    if (Keys.IsDown(Key.Down)) py = py + playerSpeed;
+    // The player's square grown by the coin's radius on all four sides.
+    if (cx > px - coinRadius && cx < px + playerSize + coinRadius &&
+        cy > py - coinRadius && cy < py + playerSize + coinRadius)
     {
         cx = 100;
         cy = 300;
         score = score + 1;
     }
-    Screen.Circle(cx, cy, 10, Colour.Yellow);
-    Screen.Rect(px, py, 30, 30, Colour.Cyan);
+    Screen.Circle(cx, cy, coinRadius, Colour.Yellow);
+    Screen.Rect(px, py, playerSize, playerSize, Colour.Cyan);
     Screen.Text(10, 10, "Score: " + score, Colour.White);
 }
 

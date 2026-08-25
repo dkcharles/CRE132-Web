@@ -1,3 +1,10 @@
+int wallX = 220;
+int wallY = 180;
+int wallWidth = 200;
+int wallHeight = 120;
+int middleX = wallX + wallWidth / 2;
+int roofTopY = 100;
+
 void Setup()
 {
     Screen.Size(640, 360);

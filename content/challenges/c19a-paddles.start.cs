@@ -1,9 +1,17 @@
+int screenWidth = 640;
+int screenHeight = 360;
+int paddleWidth = 16;
+int paddleHeight = 80;
+int paddleSpeed = 6;
+int leftX = 20;
+int rightX = screenWidth - paddleWidth - leftX;
+int paddleMaxY = screenHeight - paddleHeight;
 double leftY = 140;
 double rightY = 140;
 
 void Setup()
 {
-    Screen.Size(640, 360);
+    Screen.Size(screenWidth, screenHeight);
 }
 
 void Draw()
@@ -14,8 +22,8 @@ void Draw()
 
     // Move the right paddle with Up and Down here, then clamp rightY.
 
-    Screen.Rect(20, leftY, 16, 80, Colour.White);
-    Screen.Rect(604, rightY, 16, 80, Colour.White);
+    Screen.Rect(leftX, leftY, paddleWidth, paddleHeight, Colour.White);
+    Screen.Rect(rightX, rightY, paddleWidth, paddleHeight, Colour.White);
 }
 
 Game.Run(Setup, Draw);

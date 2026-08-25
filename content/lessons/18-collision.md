@@ -79,14 +79,19 @@ shrunk to nothing: a point is a rectangle with no width and no height.
 
 A **circle** against a rectangle is the same trick the other way round. Grow the rectangle by the
 circle's radius on all four sides, then ask the point-in-rectangle question about the circle's
-centre. A coin of radius `10` meeting a `30` by `30` square whose corner is at `px`, `py`:
+centre. A coin of radius `coinRadius` meeting a `playerSize` by `playerSize` square whose corner
+is at `px`, `py`:
 
 ```csharp
-if (cx > px - 10 && cx < px + 40 && cy > py - 10 && cy < py + 40)
+if (cx > px - coinRadius && cx < px + playerSize + coinRadius &&
+    cy > py - coinRadius && cy < py + playerSize + coinRadius)
 ```
 
-`px - 10` is the left edge pushed out by one radius; `px + 40` is `px + 30 + 10`, the right edge
-pushed out by the same; the two `py` comparisons do the top and the bottom. It treats the circle
+`px - coinRadius` is the left edge pushed out by one radius; `px + playerSize + coinRadius` is
+the right edge pushed out by the same — with a coin of `10` and a square of `30` that works out
+as `px + 40`; the two `py` comparisons do the top and the bottom. The condition is split over two
+lines with the `&&` left at the end of the first: C# does not care where you break a line, it
+reads on until the `)` closes the condition. It treats the circle
 as a square, so it is a shade generous at the corners — and it is four comparisons with no square
 root, which is why most 2D games use it anyway. You will write it once more in the next lesson,
 for a ball meeting a paddle.
@@ -118,21 +123,26 @@ number. Catch enough coins and it shrinks to nothing — which is a bug, and a r
 ## Challenge
 
 :::challenge c18-coin
-The starter is a small game already: a `30` by `30` player square at `px = 460`, `py = 100` that
-the arrow keys move `5` pixels a frame, a yellow coin of radius `10` at `cx = 520`, `cy = 100`,
-an `int score` starting at `0`, and `Screen.Text(10, 10, "Score: " + score, Colour.White);`
-drawing the score. The coin does nothing when you reach it.
+The starter is a small game already: a `playerSize` by `playerSize` player square — that is `30`
+by `30` — at `px = 460`, `py = 100`, which the arrow keys move `playerSpeed` (`5`) pixels a
+frame; a yellow coin of radius `coinRadius` (`10`) at `cx = 520`, `cy = 100`; an `int score`
+starting at `0`; and `Screen.Text(10, 10, "Score: " + score, Colour.White);` drawing the score.
+The coin does nothing when you reach it.
 
 Where the comment is — after the four arrow-key lines, before anything is drawn — add an `if`
-with exactly this test:
+with exactly this test, split over two lines the same way:
 
-`if (cx > px - 10 && cx < px + 40 && cy > py - 10 && cy < py + 40)`
+```
+if (cx > px - coinRadius && cx < px + playerSize + coinRadius &&
+    cy > py - coinRadius && cy < py + playerSize + coinRadius)
+```
 
-That is the player's square grown by the coin's radius of `10` on every side, so it is true when
-the coin's centre has come within a coin's-width of the square. Inside the `if`, do three things:
-set `cx` to `100`, set `cy` to `300`, and add one to `score`.
+That is the player's square grown by the coin's radius on every side — `px - 10` to `px + 40`
+across, the same down — so it is true when the coin's centre has come within a coin's-width of
+the square. Inside the `if`, do three things: set `cx` to `100`, set `cy` to `300`, and add one
+to `score`.
 
-Change nothing else: not the starting positions, not the radius `10`, not the `30` by `30`, not
+Change nothing else: not the starting positions, not `coinRadius`, not `playerSize`, not
 the text. The checker runs two 20-frame scripts and looks at the last frame of each. In the
 first it holds **Right**, so the square reaches the coin: it expects the coin at `(100, 300)` and
 the text `Score: 1`. In the second it presses nothing at all: it expects the coin still at
