@@ -14,6 +14,7 @@ void Draw()
     double dy = Mouse.Y - cy;
     if (Math.Sqrt(dx * dx + dy * dy) < 40)
     {
+        // Caught: the coin jumps to a new random spot and the score goes up.
         cx = Rand.Range(40, 600);
         cy = Rand.Range(40, 320);
         score = score + 1;

@@ -11,6 +11,7 @@ void Draw()
     Screen.Clear(Colour.Black);
     if (Frame.Count % 10 == 0)
     {
+        // Both lists must grow on the same frame, or drop i loses the partner it is paired with.
         xs.Add(Rand.Range(20, 620));
         ys.Add(0);
     }

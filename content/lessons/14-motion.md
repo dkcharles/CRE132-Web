@@ -40,7 +40,7 @@ changes only one line.
 **Bounce** — when it reaches an edge, reverse the speed:
 
 ```csharp
-if (x < 20 || x > 620) speedX = -speedX;
+if (x < radius || x > 640 - radius) speedX = -speedX;
 ```
 
 `speedX = -speedX;` flips the sign: `4` becomes `-4`, and `-4` becomes `4` again. That single
@@ -49,9 +49,14 @@ shape rattles around all four walls:
 
 :::run s14a-bounce Two speeds, four edges.
 
-The `20` and the `620` are the circle's radius in from each edge. The circle is drawn from its
-*centre*, so testing the centre against `20` and `640 - 20` turns it round when its rim touches
-the wall rather than when half of it is already outside.
+`radius` is the circle's radius, `20`, declared at the top of the file alongside the two speeds.
+The circle is drawn from its *centre*, so testing the centre against `radius` and `640 - radius`
+turns it round when its rim touches the wall rather than when half of it is already outside.
+
+The radius is wanted in five places — the `Screen.Circle` call and all four edge tests — which is
+exactly when a number has earned a name. Typed out as `20`, `620`, `20` and `340`, a bigger
+circle means finding and fixing every one of them, and missing one is a bug you only notice when
+the ball sinks halfway into a wall.
 
 ## Gravity is a speed that changes
 
@@ -64,8 +69,8 @@ have a ball:
 :::try
 Change `gravity` from `0.5` to `0.1` and run — a slow, floaty, moon-sized bounce. Then try `2`
 for something heavy. Then make the ball lose energy each time it lands: change the last line of
-`Draw` to `if (y > 340) speedY = -speedY * 0.8;` so it comes back with 80% of the speed it
-arrived with, and watch the bounces get smaller until it settles on the floor.
+`Draw` to `if (y > 360 - radius) speedY = -speedY * 0.8;` so it comes back with 80% of the
+speed it arrived with, and watch the bounces get smaller until it settles on the floor.
 :::
 
 ## A free clock
@@ -101,18 +106,19 @@ frame. The canvas keeps everything you have ever drawn until you clear it.
 ## Challenge
 
 :::challenge c14-bouncing-ball
-The starter draws a ball of radius `20` starting at `(320, 180)` and moves it by `speedX = 4`
-and `speedY = 3` every frame — so after a couple of seconds it leaves the screen and never comes
-back. Make it bounce off all four edges instead, so its centre never leaves the screen.
+The starter draws a ball whose `radius` is `20`, starting at `(320, 180)`, and moves it by
+`speedX = 4` and `speedY = 3` every frame — so after a couple of seconds it leaves the screen and
+never comes back. Make it bounce off all four edges instead, so its centre never leaves the
+screen.
 
 Where the comment is, add exactly two lines:
 
-- reverse `speedX` when `x` is less than `20` **or** greater than `620`
-- reverse `speedY` when `y` is less than `20` **or** greater than `340`
+- reverse `speedX` when `x` is less than `radius` **or** greater than `640 - radius`
+- reverse `speedY` when `y` is less than `radius` **or** greater than `360 - radius`
 
-Those four numbers are the ball's radius, `20`, in from each of the four edges — the same numbers
-`s14a-bounce` uses above. Do not change the starting position, the radius, or the two speeds: the
-checker runs 260 frames and compares where the ball is on frames 60, 160 and 260. That is long
-enough for the ball to reach all four walls, so a bounce you leave out will show up. Press
-**Check** when you are ready.
+Every one of those four tests is the ball's `radius` in from one edge — `20` and `620` across,
+`20` and `340` down — which is the same pair of lines `s14a-bounce` uses above. Do not change the
+starting position, `radius`, or the two speeds: the checker runs 260 frames and compares where
+the ball is on frames 60, 160 and 260. That is long enough for the ball to reach all four walls,
+so a bounce you leave out will show up. Press **Check** when you are ready.
 :::

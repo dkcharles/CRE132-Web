@@ -2,6 +2,7 @@ double x = 320;
 double y = 180;
 double speedX = 4;
 double speedY = 3;
+double radius = 20;
 
 void Setup()
 {
@@ -11,11 +12,12 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    Screen.Circle(x, y, 20, Colour.Yellow);
+    Screen.Circle(x, y, radius, Colour.Yellow);
     x = x + speedX;
     y = y + speedY;
-    if (x < 20 || x > 620) speedX = -speedX;
-    if (y < 20 || y > 340) speedY = -speedY;
+    // The ball is drawn from its centre, so turn it round one radius in from each edge.
+    if (x < radius || x > 640 - radius) speedX = -speedX;
+    if (y < radius || y > 360 - radius) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);

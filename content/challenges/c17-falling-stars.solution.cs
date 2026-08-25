@@ -22,6 +22,7 @@ void Draw()
         {
             xs.RemoveAt(i);
             ys.RemoveAt(i);
+            // Step the index back, or the star that slid into the gap is skipped this frame.
             i--;
         }
     }

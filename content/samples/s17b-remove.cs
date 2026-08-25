@@ -18,10 +18,11 @@ void Draw()
     {
         Screen.Circle(xs[i], ys[i], 12, Colour.Blue);
         ys[i] = ys[i] + 6;
-        if (ys[i] > 360)
+        if (ys[i] > Screen.Height)
         {
             xs.RemoveAt(i);
             ys.RemoveAt(i);
+            // Step the index back, or the drop that slid into the gap is skipped this frame.
             i--;
         }
     }

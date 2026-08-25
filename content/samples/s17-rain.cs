@@ -9,11 +9,13 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
+    // One index reaches into both lists: xs[i] and ys[i] are the same drop's two coordinates.
     for (int i = 0; i < xs.Count; i++)
     {
         Screen.Circle(xs[i], ys[i], 12, Colour.Cyan);
         ys[i] = ys[i] + 4;
-        if (ys[i] > 360) ys[i] = 0;
+        // Send a drop that has fallen past the bottom back to the top, so it rains forever.
+        if (ys[i] > Screen.Height) ys[i] = 0;
     }
 }
 

@@ -23,8 +23,10 @@ for (int i = 0; i < xs.Count; i++)
 `foreach` hands you a copy of each value, which is fine for reading but useless for moving:
 `ys[i] = ys[i] + 4;` needs the **index** so it can write the new value back into the list. The
 same `i` reaches into both lists at once, which is the whole trick — one counter, two lists,
-kept in step. `if (ys[i] > 360) ys[i] = 0;` is what makes it rain forever instead of once: a drop
-that falls past the bottom is sent straight back to the top rather than removed.
+kept in step. `if (ys[i] > Screen.Height) ys[i] = 0;` is what makes it rain forever instead of
+once: a drop that falls past the bottom is sent straight back to the top rather than removed.
+`Screen.Height` rather than a typed-out `360`, for the reason the motion lesson gave — the
+screen's size is written down once, in `Setup`, and asking for it beats copying it out again.
 
 :::key
 Two parallel lists and one index: `xs[i]` and `ys[i]` are the same thing's two coordinates. Loop

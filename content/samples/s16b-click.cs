@@ -9,6 +9,7 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
+    // WasClicked is true for one frame only, so the target sits still between clicks.
     if (Mouse.WasClicked)
     {
         tx = Mouse.X;

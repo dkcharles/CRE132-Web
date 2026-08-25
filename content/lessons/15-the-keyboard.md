@@ -11,10 +11,12 @@ it drops straight into an `if`:
 
 Click on the canvas first so it is listening to the keyboard, then hold an arrow key.
 
-Every frame, `Draw` asks all four questions and moves `x` or `y` by `5` for each one that comes
-back `true`. Nothing remembers that you pressed anything: `Keys.IsDown` reports what is
-happening *this frame only*, so you have to ask again on the next one. That is why the four
-`if`s live inside `Draw` and not in `Setup`.
+Every frame, `Draw` asks all four questions and moves `x` or `y` by `speed` — `5` here — for each
+one that comes back `true`. The same `5` in all four `if`s would be four numbers to keep in step,
+so it is written once at the top of the file and used four times; `size`, the square's width and
+height, is there for the same reason. Nothing remembers that you pressed anything: `Keys.IsDown`
+reports what is happening *this frame only*, so you have to ask again on the next one. That is
+why the four `if`s live inside `Draw` and not in `Setup`.
 
 Hold two arrows at once and both `if`s are true, so the square moves diagonally — for free, with
 no extra code.
@@ -35,22 +37,22 @@ becomes `700`, then `2000`, and nothing stops it. Two `if`s do:
 
 ```csharp
 if (x < 0) x = 0;
-if (x > Screen.Width - 40) x = Screen.Width - 40;
+if (x > Screen.Width - size) x = Screen.Width - size;
 ```
 
 The first catches `x` sliding under the left edge and pins it at `0`. The second catches the
-right-hand edge: the square is `40` wide and is drawn from its left corner, so the furthest
-right it can sit and still be fully on screen is `640 - 40`, which is `600`. Squashing a value
-back into a range like this is called **clamping**, and it is always the same shape — one `if`
-for the low end, one for the high end.
+right-hand edge: `size` is the square's width, `40`, and the square is drawn from its left
+corner, so the furthest right it can sit and still be fully on screen is `640 - 40`, which is
+`600`. Squashing a value back into a range like this is called **clamping**, and it is always
+the same shape — one `if` for the low end, one for the high end.
 
 :::run s15a-clamp The same square, clamped on all four sides, with its position drawn on screen.
 
 Hold `Right` until the square stops, then hold `Down` until it stops. Up and down are clamped
-the same way, against `Screen.Height - 40` instead of `Screen.Width - 40` — the screen is `360`
-tall, so the square's `y` never gets past `320`. The `Screen.Text` line draws the live values of
-`x` and `y` onto the canvas: putting a number on screen is the quickest way to see what your
-program thinks is going on.
+the same way, against `Screen.Height - size` instead of `Screen.Width - size` — the screen is
+`360` tall, so the square's `y` never gets past `320`. The `Screen.Text` line draws the live
+values of `x` and `y` onto the canvas: putting a number on screen is the quickest way to see
+what your program thinks is going on.
 
 :::key
 Clamping is two `if`s: one for the low end, one for the high end. For a shape `w` pixels wide

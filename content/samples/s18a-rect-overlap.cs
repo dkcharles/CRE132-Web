@@ -1,4 +1,10 @@
-double px = 100;
+double playerX = 100;
+double playerY = 160;
+double playerSize = 40;
+double wallX = 400;
+double wallY = 100;
+double wallWidth = 40;
+double wallHeight = 160;
 
 bool Overlaps(double ax, double ay, double aw, double ah,
               double bx, double by, double bw, double bh)
@@ -14,11 +20,11 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    if (Keys.IsDown(Key.Left)) px = px - 5;
-    if (Keys.IsDown(Key.Right)) px = px + 5;
-    Screen.Rect(400, 100, 40, 160, Colour.Grey);
-    Screen.Rect(px, 160, 40, 40, Colour.Cyan);
-    if (Overlaps(px, 160, 40, 40, 400, 100, 40, 160))
+    if (Keys.IsDown(Key.Left)) playerX = playerX - 5;
+    if (Keys.IsDown(Key.Right)) playerX = playerX + 5;
+    Screen.Rect(wallX, wallY, wallWidth, wallHeight, Colour.Grey);
+    Screen.Rect(playerX, playerY, playerSize, playerSize, Colour.Cyan);
+    if (Overlaps(playerX, playerY, playerSize, playerSize, wallX, wallY, wallWidth, wallHeight))
         Screen.Text(240, 40, "touching", Colour.White);
 }
 

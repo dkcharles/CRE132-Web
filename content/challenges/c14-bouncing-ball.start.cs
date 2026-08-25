@@ -2,6 +2,7 @@ double x = 320;
 double y = 180;
 double speedX = 4;
 double speedY = 3;
+double radius = 20;
 
 void Setup()
 {
@@ -11,7 +12,7 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    Screen.Circle(x, y, 20, Colour.Yellow);
+    Screen.Circle(x, y, radius, Colour.Yellow);
     x = x + speedX;
     y = y + speedY;
     // Add the two bounce tests here.

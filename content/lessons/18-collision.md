@@ -63,8 +63,16 @@ bool Overlaps(double ax, double ay, double aw, double ah,
 ```
 
 Eight parameters is a lot to type once and a joy to never type again. Written this way the game
-loop reads like English — `if (Overlaps(px, 160, 40, 40, 400, 100, 40, 160))` — and if the test
-turns out to be wrong there is exactly one place to fix it.
+loop reads like English:
+
+```csharp
+if (Overlaps(playerX, playerY, playerSize, playerSize, wallX, wallY, wallWidth, wallHeight))
+```
+
+If the test turns out to be wrong there is exactly one place to fix it. Every one of those eight
+arguments is a variable declared at the top of the file, and that is what makes the line
+readable: the same call written out as `Overlaps(100, 160, 40, 40, 400, 100, 40, 160)` compiles
+just as well and tells you nothing at all about which square is which.
 
 The point-in-rectangle test from the mouse lesson is this same idea with one of the rectangles
 shrunk to nothing: a point is a rectangle with no width and no height.

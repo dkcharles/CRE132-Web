@@ -2,6 +2,7 @@ double x = 20;
 double y = 20;
 double speedX = 4;
 double speedY = 3;
+double radius = 12;
 
 void Setup()
 {
@@ -10,11 +11,12 @@ void Setup()
 
 void Draw()
 {
-    Screen.Circle(x, y, 12, Colour.Pink);
+    // No Screen.Clear on purpose: every circle ever drawn stays, so the path shows as a trail.
+    Screen.Circle(x, y, radius, Colour.Pink);
     x = x + speedX;
     y = y + speedY;
-    if (x < 12 || x > 628) speedX = -speedX;
-    if (y < 12 || y > 348) speedY = -speedY;
+    if (x < radius || x > 640 - radius) speedX = -speedX;
+    if (y < radius || y > 360 - radius) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);
