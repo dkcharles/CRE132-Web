@@ -51,16 +51,19 @@ Where the first comment is, add four lines for the left paddle:
 
 - when `Key.W` is down, `leftY = leftY - 6`
 - when `Key.S` is down, `leftY = leftY + 6`
-- then clamp `leftY`: never below `0`, never above `280`
+- if `leftY` is less than `0`, set it to `0`
+- if `leftY` is more than `280`, set it to `280`
 
 Where the second comment is, add the same four lines for `rightY`, using `Key.Up` and
 `Key.Down` and the same `6`, `0` and `280`.
 
 Leave the two `Screen.Rect` calls exactly as they are. The checker runs two scripts. In the
 first it holds **W** and **Up** together for 30 frames, so both paddles run into the top edge
-and stop at `0` rather than sliding off it. In the second it holds **S** for 60 frames and
-**Down** for the first 20, so the left paddle ends pinned against the bottom at `280` and the
-right one ends at `260`. Press **Check** when you are ready.
+and stop at `0` rather than sliding off it. The second holds **S** and **Down** together for 60
+frames and looks twice. At frame 20 each paddle should have taken exactly twenty steps of `6`
+down from `140`, which puts both at `260` — a paddle that moves by `5` or by `7` is somewhere
+else by then. At frame 60 both should be pinned against the bottom at `280` rather than far
+past it. Press **Check** when you are ready.
 :::
 
 ## Step 2: the ball
@@ -122,13 +125,16 @@ Where the comment is, add five things in this order:
    to `180`
 
 Change nothing else — not the two speeds, not the radius `12`, not the paddles you finished in
-step 1. The checker runs two scripts. The first presses no keys for 240 frames and compares
+step 1. The checker runs three scripts. The first presses no keys for 240 frames and compares
 frames 40, 120 and 240; in that time the ball bounces off the bottom at frame 34, reflects off
 the right paddle at frame 69, bounces off the top at 102 and the bottom again at 170, and
 reflects off the left paddle at 207, so leaving any one of the five lines out puts it somewhere
 else. The second holds **Down** for 30 frames, which slides the right paddle out of the way; the
-ball leaves the screen on the right twice, and only a program that puts it back at `(320, 180)`
-has a ball left to draw at frames 90 and 200. Press **Check** when you are ready.
+ball leaves the screen on the **right** twice, and only a program that puts it back at
+`(320, 180)` has a ball left to draw at frames 90 and 200. The third holds **S** for 30 frames
+instead, dropping the *left* paddle out of the way, so the ball comes back across the screen and
+leaves on the **left** at frame 219 — the other half of the same test, and the reason the reset
+has to catch both edges. Press **Check** when you are ready.
 :::
 
 ## Step 3: the score
@@ -188,8 +194,10 @@ can break anything, and **Reset** always brings the starter back.
 :::try
 Two changes worth trying, both in the step 3 editor.
 
-Make the rally get harder. Inside each of the two paddle `if`s, next to `speedX = -speedX;`, add
-`speedY = speedY * 1.1;` so every return makes the ball a little steeper. Play until you lose,
+Make the rally get harder. Each of the two paddle `if`s carries a single statement with no
+`{ }` around it, so put braces round it first — otherwise the line you add runs on every frame
+instead of only on a hit. Then, next to `speedX = -speedX;`, add `speedY = speedY * 1.1;` so
+every return makes the ball a little steeper. Play until you lose,
 then try `1.3` and find out how quickly a good idea becomes an unplayable one.
 
 Then add a second ball. The many-things lesson's `List<double>` is exactly the tool: keep

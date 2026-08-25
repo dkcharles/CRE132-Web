@@ -1,4 +1,4 @@
 [
   { "game": { "frames": 30, "snapshot": [30], "keys": { "W": "1-30", "Up": "1-30" } } },
-  { "game": { "frames": 60, "snapshot": [60], "keys": { "S": "1-60", "Down": "1-20" } } }
+  { "game": { "frames": 60, "snapshot": [20, 60], "keys": { "S": "1-60", "Down": "1-60" } } }
 ]
