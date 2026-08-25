@@ -33,4 +33,12 @@ public class OutputComparerTests
     {
         Assert.Equal(2, OutputComparer.FirstDifference("a\n\nb", "a\nb"));
     }
+
+    [Fact]
+    public void FirstDifferentRow_keeps_blank_rows_and_pads_a_short_side()
+    {
+        Assert.Equal(2, OutputComparer.FirstDifferentRow("   \n o \n   ", "   \n   \n o "));
+        Assert.Null(OutputComparer.FirstDifferentRow(" o \n   \n   ", " o   \n\n"));
+        Assert.Null(OutputComparer.FirstDifferentRow("a\r\nb", "a\nb"));
+    }
 }

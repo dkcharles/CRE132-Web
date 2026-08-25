@@ -33,4 +33,20 @@ public static class OutputComparer
         while (lines.Count > 0 && lines[^1].Length == 0) lines.RemoveAt(lines.Count - 1);
         return lines;
     }
+
+    // For frame grids: blank rows are positions, not padding, so nothing is dropped. A missing
+    // row on either side compares as blank (a file's trailing newline must not fail a frame).
+    public static int? FirstDifferentRow(string expected, string actual)
+    {
+        string[] e = Rows(expected), a = Rows(actual);
+        for (int i = 0; i < Math.Max(e.Length, a.Length); i++)
+        {
+            string left = i < e.Length ? e[i] : "", right = i < a.Length ? a[i] : "";
+            if (left != right) return i + 1;
+        }
+        return null;
+    }
+
+    public static string[] Rows(string text) =>
+        text.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n').Select(l => l.TrimEnd()).ToArray();
 }
