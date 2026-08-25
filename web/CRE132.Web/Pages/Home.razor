@@ -1,0 +1,100 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@using Microsoft.JSInterop
+@inject Samples SampleStore
+
+@* The landing page: what the course is, on the left; what it builds, playing on the right.
+   Every lesson link here is wired exactly like the sidebar contents links - an href plus an
+   @onclick that preventDefaults and calls back into Index.Go. Index's comment explains why the
+   handler is the path that matters: a Blazor-intercepted hash click raises neither
+   LocationChanged nor hashchange, so the href on its own would move the URL and nothing else. *@
+<main class="home">
+    <section class="hero">
+        <div class="hero-text">
+            <h1>CRE132: Fundamentals of Game Programming</h1>
+            <p class="blurb">
+                Learn C# by writing programs that run right here in your browser — nothing to
+                install, and your work saves as you go.
+            </p>
+            <p class="cta-row">
+                <a class="cta" href="@("#" + FirstLesson)" @onclick="() => OnNavigate.InvokeAsync(FirstLesson)" @onclick:preventDefault>▶ Start Lesson 0</a>
+            </p>
+            <p class="hero-aside"><a href="playground">Or open the free-form playground →</a></p>
+        </div>
+
+        <div class="hero-preview">
+            @* A plain GameStage, unchanged: its own ■ Stop is the only control a visitor needs
+               here, because the game starts itself as soon as the page has rendered. *@
+            <GameStage @ref="stage" />
+            @if (notice is not null)
+            {
+                <p class="notice">@notice</p>
+            }
+            else
+            {
+                <p class="hero-hint">Click the canvas first — <b>W</b> / <b>S</b> move the left paddle, <b>↑</b> / <b>↓</b> the right.</p>
+            }
+            <p class="caption">What you'll build: Pong, by Lesson 19 — then Snake in Part 3.</p>
+        </div>
+    </section>
+
+    <section class="parts">
+        @foreach (Part part in WebCatalog.Parts)
+        {
+            Dictionary<string, Entry> written = WebCatalog.EntriesIn(part).ToDictionary(e => e.Id);
+            <div class="part @(written.Count == 0 ? "planned" : "")">
+                <h2>@part.Title</h2>
+                <p class="part-sub">@part.Subtitle</p>
+                <ol>
+                    @* Walk the ids, not the rows: an id with a row is a link, an id without one
+                       shows its planned title greyed out. Writing lesson 20 therefore needs no
+                       edit here - the row appears and the greyed line becomes a link. *@
+                    @for (int id = part.FirstId; id <= part.LastId; id++)
+                    {
+                        string key = id.ToString();
+                        if (written.GetValueOrDefault(key) is Entry lesson)
+                        {
+                            <li><a href="@("#" + lesson.Id)" @onclick="() => OnNavigate.InvokeAsync(lesson.Id)" @onclick:preventDefault>@($"{lesson.Id}. {lesson.Title}")</a></li>
+                        }
+                        else
+                        {
+                            int slot = id - part.FirstId;
+                            <li class="soon">@($"{key}. {(slot < part.PlannedTitles.Count ? part.PlannedTitles[slot] : "")}")</li>
+                        }
+                    }
+                </ol>
+            </div>
+        }
+    </section>
+</main>
+
+@code {
+    [Parameter, EditorRequired] public EventCallback<string> OnNavigate { get; set; }
+
+    const string FirstLesson = "0";
+    const string PreviewSample = "s19-pong";
+
+    GameStage? stage;
+    string? notice;
+
+    // firstRender only, and only here: PlayAsync hands the canvas element to JS, so it must
+    // already be in the document. The stage stops itself when this component goes away
+    // (GameStage is IAsyncDisposable), so clicking through to a lesson leaves no loop running,
+    // and Back re-creates Home and starts the preview afresh.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            byte[] program = await SampleStore.FetchAsync(PreviewSample);
+            GameSession session = GameSession.Start(ProgramLoader.FromBytes(program), "");
+            if (session.IsGame) await stage!.PlayAsync(session);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JSException)
+        {
+            // A decorative preview must never be the reason the contents under it are unreachable.
+            notice = "The preview could not load — the lessons still work.";
+            StateHasChanged();
+        }
+    }
+}

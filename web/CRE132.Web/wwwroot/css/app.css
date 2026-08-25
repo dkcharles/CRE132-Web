@@ -13,6 +13,47 @@ body {
 }
 .placeholder { text-align: center; }
 .placeholder .proof { font-family: monospace; }
+
+/* The landing page. body centres its single child, so like .page this wants an explicit width
+   and place-self: start, or the whole page floats in the middle of tall viewports.
+   Tagged main.home on purpose: .home is ALSO the sidebar's "CRE132" link on every lesson page,
+   and an unqualified .home rule would reach across and lay that anchor out as a page. */
+main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; place-self: start center; }
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+.hero-text h1 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); line-height: 1.15; margin: 0 0 0.9rem; }
+.hero-text .blurb { font-size: 1.1rem; line-height: 1.5; max-width: 32rem; margin: 0 0 1.5rem; }
+.hero-text .cta-row { margin: 0 0 0.9rem; }
+.cta {
+    display: inline-block;
+    background: #46a;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 0.7rem 1.4rem;
+    border-radius: 6px;
+}
+.cta:hover, .cta:focus-visible { background: #35a; }
+.hero-aside { font-size: 0.9rem; margin: 0; }
+/* Reserves the canvas's height before the preview has loaded, so the parts below do not jump
+   up the page and then back down when the game starts. */
+.hero-preview { min-height: 14rem; }
+.hero-preview .stage.hidden { display: block; visibility: hidden; }
+.hero-preview .stage-canvas { max-width: 100%; }
+.hero-hint { font-size: 0.85rem; opacity: 0.75; margin: 0.4rem 0 0.2rem; }
+.hero-preview .caption { margin: 0.7rem 0 0; font-size: 0.95rem; opacity: 1; }
+
+.parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+.part h2 { font-size: 1rem; color: #46a; margin: 0 0 0.2rem; }
+.part .part-sub { font-size: 0.85rem; opacity: 0.7; margin: 0 0 0.6rem; }
+.part ol { list-style: none; padding-left: 0; margin: 0; font-size: 0.92rem; line-height: 1.75; }
+/* Planned lessons are text, not links: greyed enough to read as unavailable, dark enough to
+   still be legible on white. */
+.part .soon { opacity: 0.45; }
+@media (max-width: 50rem) {
+    .hero { grid-template-columns: 1fr; gap: 1.5rem; }
+    .parts { grid-template-columns: 1fr; gap: 1.75rem; margin-top: 2rem; }
+}
 #blazor-error-ui { display: none; padding: 1rem; background: #b00020; color: white; }
 
 .playground { width: min(60rem, 92vw); margin: 2rem auto; text-align: left; place-self: start center; }
