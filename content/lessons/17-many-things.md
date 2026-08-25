@@ -23,7 +23,8 @@ for (int i = 0; i < xs.Count; i++)
 `foreach` hands you a copy of each value, which is fine for reading but useless for moving:
 `ys[i] = ys[i] + 4;` needs the **index** so it can write the new value back into the list. The
 same `i` reaches into both lists at once, which is the whole trick — one counter, two lists,
-kept in step.
+kept in step. `if (ys[i] > 360) ys[i] = 0;` is what makes it rain forever instead of once: a drop
+that falls past the bottom is sent straight back to the top rather than removed.
 
 :::key
 Two parallel lists and one index: `xs[i]` and `ys[i]` are the same thing's two coordinates. Loop
@@ -112,8 +113,9 @@ appears, because nothing is ever added. Fill in the three comments:
 1. Where comment 1 is: when `Frame.Count % 15 == 0`, add exactly **one** star — `xs.Add(...)`
    with `Rand.Range(20, 620)`, and `ys.Add(0)`. Call `Rand.Range` once and only once per spawn,
    with those two numbers, or the checker's random positions will not line up with yours.
-2. Where comment 2 is, inside the loop: if that star's `ys[i]` is greater than `360`, remove it
-   from **both** lists with `RemoveAt(i)` and then step `i` back with `i--`.
+2. Where comment 2 is, inside the loop: if that star's `ys[i]` is greater than `370` (a little
+   past the bottom edge, so the star is completely off the screen), remove it from **both** lists
+   with `RemoveAt(i)` and then step `i` back with `i--`.
 3. Where comment 3 is, after the loop: `Screen.Text(10, 10, "Stars: " + xs.Count, Colour.White);`
    — that exact text, at that exact position.
 

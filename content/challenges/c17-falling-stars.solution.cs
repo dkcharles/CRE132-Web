@@ -18,7 +18,7 @@ void Draw()
     {
         Screen.Circle(xs[i], ys[i], 12, Colour.White);
         ys[i] = ys[i] + 4;
-        if (ys[i] > 360)
+        if (ys[i] > 370)
         {
             xs.RemoveAt(i);
             ys.RemoveAt(i);

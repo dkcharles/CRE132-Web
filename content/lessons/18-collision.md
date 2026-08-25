@@ -21,16 +21,17 @@ you do have to remember the shape of the line, because you will write it in ever
 
 :::run s18-distance A fixed circle, a circle on the pointer, and the distance between them.
 
-The grey line is `dx` and `dy` made visible. Park the pointer 48 pixels across and 36 down from
-the middle and the distance reads exactly `60`; move it anywhere else and you get a long tail of
-decimals, because `Math.Sqrt` hands back every digit it worked out rather than a tidy answer.
+The grey line is the straight-line distance made visible — the hypotenuse of the triangle whose
+short sides are `dx` and `dy`. Park the pointer 48 pixels across and 36 down from the middle and
+the distance reads exactly `60`; move it anywhere else and you get a long tail of decimals,
+because `Math.Sqrt` hands back every digit it worked out rather than a tidy answer.
 
 The fixed circle has radius `40` and the pointer's has radius `30`. They are touching the moment
 the gap between their **centres** drops below `40 + 30` — when the distance is less than the two
 radii added together, each rim has reached the other:
 
 ```csharp
-if (dist < 40 + 30) { ... }
+if (dist < 70) { ... }
 ```
 
 That is the whole of circle-to-circle collision. Nothing about the shapes on screen, just two
@@ -62,7 +63,7 @@ bool Overlaps(double ax, double ay, double aw, double ah,
 ```
 
 Eight parameters is a lot to type once and a joy to never type again. Written this way the game
-loop reads like English — `if (Overlaps(px, py, 40, 40, 400, 100, 40, 160))` — and if the test
+loop reads like English — `if (Overlaps(px, 160, 40, 40, 400, 100, 40, 160))` — and if the test
 turns out to be wrong there is exactly one place to fix it.
 
 The point-in-rectangle test from the mouse lesson is this same idea with one of the rectangles

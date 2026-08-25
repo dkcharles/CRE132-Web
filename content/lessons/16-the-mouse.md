@@ -86,7 +86,7 @@ Where the comment is, add an `if` that runs when `Mouse.WasClicked` is true and,
 
 Leave the radius `20` and the two starting values alone, and do not touch the `Screen.Circle`
 line. The checker runs three short scripts: one clicks at `(100, 60)` and expects the circle
-centred there afterwards; one clicks at `(560, 296)` and expects it there instead; and one moves
-the pointer to `(500, 300)` without ever pressing the button, and expects the circle still at
-`(320, 180)`. Press **Check** when you are ready.
+centred there afterwards; one moves the pointer to `(500, 300)` without ever pressing the button,
+and expects the circle still at `(320, 180)`; and one clicks at `(560, 296)` and expects it there
+instead. Press **Check** when you are ready.
 :::
