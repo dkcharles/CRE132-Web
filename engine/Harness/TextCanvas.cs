@@ -68,12 +68,31 @@ public sealed class TextCanvas
         if (row >= 0 && row < Rows && col >= 0 && col < Columns) cells[row, col] = ch;
     }
 
+    // The ONE place a double coordinate becomes a cell index. Student arithmetic runs away easily
+    // (speed = speed * 2 reaches +Infinity in about a thousand frames and NaN one operation later),
+    // and a raw (int) cast of NaN or 1e300 yields int.MinValue / int.MaxValue - which makes
+    // Math.Abs overflow in PlotLine and leaves Bresenham two billion cells to walk. That runs in
+    // the checker, outside ProgramRunner's catch and outside the per-frame budget, so it would
+    // take the page down or freeze the tab. Clamping to just off the grid BEFORE the cast leaves
+    // every ordinary coordinate exactly where it was (anything from -32 px to 32 px past the edge
+    // is already inside the range) and makes an absurd one behave like any other far-away shape.
+    enum Round { Down, Up }
+
+    static int ToCell(double v, int limit, Round round = Round.Down)
+    {
+        double cell = v / Cell;
+        if (double.IsNaN(cell)) return -2;              // NaN compares false with everything
+        if (cell < -2) return -2;
+        if (cell > limit + 2) return limit + 2;
+        return (int)(round == Round.Up ? Math.Ceiling(cell) : Math.Floor(cell));
+    }
+
     // A cell is touched when any part of the rect overlaps it: cell c spans [c*16, (c+1)*16).
     void PlotRect(double x, double y, double w, double h)
     {
         if (w <= 0 || h <= 0) return;
-        int c0 = (int)Math.Floor(x / Cell), c1 = (int)Math.Ceiling((x + w) / Cell) - 1;
-        int r0 = (int)Math.Floor(y / Cell), r1 = (int)Math.Ceiling((y + h) / Cell) - 1;
+        int c0 = ToCell(x, Columns), c1 = ToCell(x + w, Columns, Round.Up) - 1;
+        int r0 = ToCell(y, Rows), r1 = ToCell(y + h, Rows, Round.Up) - 1;
         for (int r = Math.Max(r0, 0); r <= Math.Min(r1, Rows - 1); r++)
             for (int c = Math.Max(c0, 0); c <= Math.Min(c1, Columns - 1); c++) cells[r, c] = '#';
     }
@@ -82,8 +101,8 @@ public sealed class TextCanvas
     void PlotCircle(double x, double y, double radius)
     {
         if (radius <= 0) return;
-        int c0 = (int)Math.Floor((x - radius) / Cell), c1 = (int)Math.Ceiling((x + radius) / Cell);
-        int r0 = (int)Math.Floor((y - radius) / Cell), r1 = (int)Math.Ceiling((y + radius) / Cell);
+        int c0 = ToCell(x - radius, Columns), c1 = ToCell(x + radius, Columns, Round.Up);
+        int r0 = ToCell(y - radius, Rows), r1 = ToCell(y + radius, Rows, Round.Up);
         for (int r = Math.Max(r0, 0); r <= Math.Min(r1, Rows - 1); r++)
             for (int c = Math.Max(c0, 0); c <= Math.Min(c1, Columns - 1); c++)
             {
@@ -95,12 +114,12 @@ public sealed class TextCanvas
     // Bresenham between the two endpoint cells; Plot clips.
     void PlotLine(double x1, double y1, double x2, double y2)
     {
-        int c0 = (int)Math.Floor(x1 / Cell), r0 = (int)Math.Floor(y1 / Cell);
-        int c1 = (int)Math.Floor(x2 / Cell), r1 = (int)Math.Floor(y2 / Cell);
+        int c0 = ToCell(x1, Columns), r0 = ToCell(y1, Rows);
+        int c1 = ToCell(x2, Columns), r1 = ToCell(y2, Rows);
         int dc = Math.Abs(c1 - c0), dr = -Math.Abs(r1 - r0);
         int sc = c0 < c1 ? 1 : -1, sr = r0 < r1 ? 1 : -1;
         int err = dc + dr;
-        int guard = dc - dr + 2;                  // bounded even for absurd endpoints
+        int guard = dc - dr + 2;                  // ToCell bounds this at about (Columns + Rows)
         while (guard-- > 0)
         {
             Plot(r0, c0, '+');
@@ -113,7 +132,7 @@ public sealed class TextCanvas
 
     void PlotText(double x, double y, string text)
     {
-        int row = (int)Math.Floor(y / Cell), col = (int)Math.Floor(x / Cell);
+        int row = ToCell(y, Rows), col = ToCell(x, Columns);
         for (int i = 0; i < text.Length; i++)
             Plot(row, col + i, char.IsControl(text[i]) ? ' ' : text[i]);
     }

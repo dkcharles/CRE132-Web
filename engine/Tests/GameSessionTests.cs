@@ -111,7 +111,7 @@ public class GameSessionTests
     }
 
     [Fact]
-    public async Task Two_sessions_do_not_share_state()
+    public async Task Two_sessions_on_one_loaded_program_see_fresh_closures()
     {
         Action program = await Program(Ball);
         GameSession a = GameSession.StartHeadless(program, "");
@@ -120,6 +120,31 @@ public class GameSessionTests
         FrameResult fb = b.Step(InputState.None);
         Assert.Equal(1, fb.FrameNumber);
         Assert.Equal(0.0, fb.Commands[1].A);
+    }
+
+    // The test above only proves that top-level-statement locals are per-Main closures. Real
+    // isolation - what every caller relies on - comes from loading the assembly again per Run and
+    // per case, so a static field starts at zero every time. Pin that with a static.
+    const string StaticCounter = """
+        class Program
+        {
+            static double x;
+            static void Setup() { }
+            static void Draw() { x = x + 10; Console.WriteLine(x); }
+            static void Main() { Game.Run(Setup, Draw); }
+        }
+        """;
+
+    [Fact]
+    public async Task Loading_the_program_again_gives_student_statics_a_fresh_start()
+    {
+        CompiledBytes c = await Compiler.CompileToBytesAsync(StaticCounter);
+        Assert.True(c.Succeeded, string.Join("\n", c.Errors.Select(e => $"line {e.Line}: {e.Message}")));
+
+        GameSession a = GameSession.StartHeadless(ProgramLoader.FromBytes(c.Bytes!), "");
+        GameSession b = GameSession.StartHeadless(ProgramLoader.FromBytes(c.Bytes!), "");
+        Assert.Equal("10" + Environment.NewLine, a.Step(InputState.None).Console);
+        Assert.Equal("10" + Environment.NewLine, b.Step(InputState.None).Console);
     }
 
     [Fact]

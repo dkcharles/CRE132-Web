@@ -190,11 +190,12 @@
     async Task CheckAsync()
     {
         busy = true; checking = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
-        // Marking runs the program again headless: a stage still playing would be a second copy
-        // of the program competing for the same screen.
-        await stage!.StopAsync();
         try
         {
+            // Marking runs the program again headless: a stage still playing would be a second
+            // copy of the program competing for the same screen. Inside the try, so an unfiltered
+            // failure here cannot leave Run and Check disabled until the page is reloaded.
+            await stage!.StopAsync();
             buffer = await editor!.GetTextAsync();
             await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Starter));
 
@@ -206,7 +207,17 @@
                 return;
             }
 
-            results = ChallengeChecker.Check(compiled.Bytes!, Cases);
+            // Everything the student's own program can do is caught inside the checker, but the
+            // renderer runs outside that catch and outside the frame budget. A bug there must
+            // read as a message under the buttons, never as Blazor's unhandled-error banner,
+            // which kills the circuit and takes the whole page with it.
+            // Check is pure CPU - no network, no JS - so nothing here belongs to the outer filter.
+            try { results = ChallengeChecker.Check(compiled.Bytes!, Cases); }
+            catch (Exception)
+            {
+                notice = "Something went wrong while checking your program — please tell your tutor what you typed.";
+                return;
+            }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException

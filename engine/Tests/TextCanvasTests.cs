@@ -84,4 +84,34 @@ public class TextCanvasTests
         Assert.Equal('o', rows[0][39]);   // text 'o' at column 39; the rest fell off the grid
         Assert.Equal(new string('+', 40), rows[12]);
     }
+
+    // A runaway student variable (speed = speed * 2) reaches +/-Infinity in about a thousand
+    // frames and NaN one operation later. Rendering happens in the checker, outside the per-frame
+    // budget and outside ProgramRunner's catch, so a throw here is Blazor's error banner and a
+    // slow loop here is a frozen tab. Every plotter must survive and stay quick.
+    [Fact]
+    public void Non_finite_and_enormous_coordinates_neither_throw_nor_hang()
+    {
+        double[] wild = { double.NaN, double.PositiveInfinity, double.NegativeInfinity, 1e300, -1e300, 3e10, -3e10 };
+        var commands = new List<DrawCommand>();
+        foreach (double v in wild)
+        {
+            commands.Add(new DrawCommand(DrawKind.Rect, v, 0, 40, 40, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Rect, 0, v, v, v, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Circle, v, 100, 20, 0, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Circle, 100, 100, v, 0, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Line, 0, 0, v, 0, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Line, v, v, -v, 200, Colour.White));
+            commands.Add(new DrawCommand(DrawKind.Text, v, 100, 0, 0, Colour.White, "score"));
+            commands.Add(new DrawCommand(DrawKind.Text, 100, v, 0, 0, Colour.White, "score"));
+        }
+
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        string[] rows = TextCanvas.Render(commands, 640, 360);
+        watch.Stop();
+
+        Assert.True(watch.ElapsedMilliseconds < 200, $"rendering took {watch.ElapsedMilliseconds} ms");
+        Assert.Equal(23, rows.Length);
+        Assert.All(rows, r => Assert.Equal(40, r.Length));
+    }
 }

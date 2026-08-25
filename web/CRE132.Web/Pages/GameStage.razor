@@ -54,7 +54,21 @@
         active = this;
         session = s; error = null; notice = null; consoleLength = 0;
         lines = Tail(s.ConsoleText);
-        if (s.Stopped) { error = s.StopReason; StateHasChanged(); return; }
+        // Setup threw: show why, and blank the canvas so the previous run's last frame is not
+        // left sitting under an error message as if this program had drawn it.
+        if (s.Stopped)
+        {
+            error = s.StopReason;
+            StateHasChanged();
+            try
+            {
+                game ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/game.js");
+                await game.InvokeVoidAsync("reset", canvas, s.Width, s.Height);
+            }
+            catch (JSException) { }
+            StateHasChanged();
+            return;
+        }
 
         try
         {

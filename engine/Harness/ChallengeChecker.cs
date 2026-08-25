@@ -1,9 +1,9 @@
 namespace CRE132.Engine;
 
-// A verdict panel needs both sides in the trimmed form the comparison actually used, or the
-// highlighted "first differing line" can point at a line the student sees differently.
 public sealed record FrameCheck(int Frame, bool Passed, IReadOnlyList<string> ExpectedRows, IReadOnlyList<string> ActualRows, int? FirstDiffRow);
 
+// A verdict panel needs both sides in the trimmed form the comparison actually used, or the
+// highlighted "first differing line" can point at a line the student sees differently.
 public sealed record CaseResult(
     int Index,
     bool Passed,
