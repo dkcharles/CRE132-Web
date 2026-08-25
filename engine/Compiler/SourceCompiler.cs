@@ -28,7 +28,7 @@ public sealed class SourceCompiler
     // Mirrors the ImplicitUsings a student's own VS Code project would have, so week 1 code is
     // `Console.WriteLine("Hello");` and nothing else - and still transfers out unchanged.
     static readonly SyntaxTree GlobalUsings = CSharpSyntaxTree.ParseText(
-        "global using System;\nglobal using System.Collections.Generic;\nglobal using System.Linq;\n");
+        "global using System;\nglobal using System.Collections.Generic;\nglobal using System.Linq;\nglobal using CRE132.Game;\n");
 
     readonly IReferenceSource references;
     IReadOnlyList<MetadataReference>? cached;

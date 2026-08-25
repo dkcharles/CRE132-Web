@@ -130,4 +130,12 @@ public class SourceCompilerTests
         string second = ProgramRunner.Run(ProgramLoader.FromBytes(compiled.Bytes!), "").Output;
         Assert.Equal(first, second);   // both "1" - a shared load would print "2" the second time
     }
+
+    [Fact]
+    public async Task Student_code_sees_the_game_api_without_a_using()
+    {
+        CompiledBytes c = await Compiler.CompileToBytesAsync(
+            "void Setup() { Screen.Size(640, 360); }\nvoid Draw() { Screen.Circle(1, 2, 3, Colour.Red); }\nGame.Run(Setup, Draw);\n");
+        Assert.True(c.Succeeded, string.Join("\n", c.Errors.Select(e => e.Message)));
+    }
 }
