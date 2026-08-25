@@ -69,6 +69,20 @@ turns out to be wrong there is exactly one place to fix it.
 The point-in-rectangle test from the mouse lesson is this same idea with one of the rectangles
 shrunk to nothing: a point is a rectangle with no width and no height.
 
+A **circle** against a rectangle is the same trick the other way round. Grow the rectangle by the
+circle's radius on all four sides, then ask the point-in-rectangle question about the circle's
+centre. A coin of radius `10` meeting a `30` by `30` square whose corner is at `px`, `py`:
+
+```csharp
+if (cx > px - 10 && cx < px + 40 && cy > py - 10 && cy < py + 40)
+```
+
+`px - 10` is the left edge pushed out by one radius; `px + 40` is `px + 30 + 10`, the right edge
+pushed out by the same; the two `py` comparisons do the top and the bottom. It treats the circle
+as a square, so it is a shade generous at the corners — and it is four comparisons with no square
+root, which is why most 2D games use it anyway. You will write it once more in the next lesson,
+for a ball meeting a paddle.
+
 :::key
 Write a collision test as a method that returns `bool`. The four comparisons live in one place,
 and every `if` that calls it says what it means.

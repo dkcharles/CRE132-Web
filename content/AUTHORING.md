@@ -38,7 +38,8 @@ Every lesson needs, at minimum:
 
 - [ ] `content/lessons/<NN-name>.md` — the narration itself.
 - [ ] 3–5 sample kits in `content/samples/`, each `<id>.cs` + `<id>.out.txt` (the golden
-      output), plus `<id>.in.txt` only if the sample reads input.
+      output), plus `<id>.in.txt` only if the sample reads input. (A guided-build lesson may ship
+      a single reference sample instead — see "Guided-build lessons" below.)
 - [ ] At least one challenge kit in `content/challenges/`: `<id>.start.cs` +
       `<id>.solution.cs` + `<id>.cases.json`.
 - [ ] One row in `WebCatalog.Entries` (`web/CRE132.Web/WebCatalog.cs`), inserted in course
@@ -62,7 +63,9 @@ runtime one.
   number, and a short slug naming what the sample shows. A lesson's first sample carries no
   letter; each additional sample after it adds one, in order: `sNNa-`, `sNNb-`, `sNNc-`, ... —
   e.g. a lesson's samples run `s05-if`, `s05a-else`, `s05b-bool`.
-- Challenge ids: `c<NN>-<slug>` — `c01-three-lines`.
+- Challenge ids: `c<NN>-<slug>` — `c01-three-lines`. A lesson with more than one challenge
+  letters them the way samples are lettered, in the order the lesson works through them:
+  `c19a-paddles`, `c19b-ball`, `c19c-score`.
 - Catalog `Id` (the first argument to `Entry`, and the `#hash` a lesson is addressed by): the
   lesson number as a *string*, no padding — `"1"`, `"4"`, `"12"`. This is deliberately not the
   same string as the `NN` in the filename (`"04-..."`): the catalog id is what appears in the
@@ -155,11 +158,11 @@ choosing what a sample or challenge may contain:
 | 11 | Collections | Arrays, `List<T>`, `foreach` |
 | 12 | Console project: The Snack Machine | Console project (Snack Machine) |
 | 13 | First graphics | `Setup`/`Draw`/`Game.Run`, `Screen.Size/Clear/Rect/Circle/Line/Text`, `Colour`, pixel coordinates |
-| 14 | Motion | A variable changed every frame, speed, bouncing at edges, `Frame.Count` |
-| 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, clamping with `if` |
+| 14 | Motion | A variable changed every frame, speed, wrapping and bouncing at edges, `Screen.Width`, `Frame.Count` |
+| 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, `Screen.Height`, clamping with `if` |
 | 16 | The mouse | `Mouse.X/Y/IsDown/WasClicked`, point-in-rect tests |
 | 17 | Many things | `List<double>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
-| 18 | Collision | `Math.Sqrt`, `Math.Abs`, distance, circle/rect overlap as `bool` methods |
+| 18 | Collision | `Math.Sqrt`, `Math.Abs`, distance, circle/circle and rect/rect overlap as `bool` methods, circle-vs-rect as a rectangle grown by the radius |
 | 19 | Mini-game: Pong | Nothing new — a guided build |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
@@ -337,6 +340,31 @@ A game challenge's reference solution must reproduce `frames.txt` exactly, the s
 console `expected` output is checked — and the **starter must not already pass**, the same
 rule that governs every challenge, console ones included.
 
+### Guided-build lessons
+
+A mini-game lesson (Lesson 19 is the shipped example, and Lesson 25 will be the next) is not
+"lesson plus challenge". It is one program built in steps, and the shape it uses bends three of
+the rules above — deliberately, so copy this shape rather than fighting it:
+
+- **One reference sample, not 3–5.** A single `:::run` at the top shows the finished game, so the
+  reader knows what they are building towards. It is the one place a sample may run past a
+  screenful (Pong's is around fifty lines): the whole point is that it is a whole program, and
+  the lesson then takes it apart. Every other sample the lesson would have had is a challenge
+  step instead.
+- **Chained challenge kits, one per step.** Each step gets its own three-file kit, lettered in
+  order, and **each starter is the previous step's solution** — `c19b-ball.start.cs` is
+  `c19a-paddles.solution.cs` with the next comment in it. A student who finishes step 1 carries
+  it forward; a student who did not can still start step 2 from working code. The 1–3 cases rule
+  is per kit and still holds: it is the *kits* that multiply, never one kit's case list.
+- **The `:::try` may target a challenge editor.** With no `:::edit` sample of its own, the
+  lesson's `:::try` sends the reader back up to a named challenge's editor to experiment
+  ("both changes go in the step 3 editor"), and the prose says so plainly first. The 2–3
+  `:::key` rule is unchanged — one per step reads naturally.
+
+Nothing else bends. Every step's statement still names exact numbers, every starter still
+compiles, every solution still uses only what the course has taught, and the closing paragraph
+points at the next part of the course by name, never by a `#n` hash.
+
 ## Style
 
 - Second person ("you"), short paragraphs.
@@ -348,7 +376,8 @@ rule that governs every challenge, console ones included.
 - At least one `:::try` per lesson, inviting the reader to experiment beyond what the samples
   show.
 - A lesson reads in 5–10 minutes — don't pad it to look thorough.
-- Samples fit on one screen; if a sample needs scrolling to read, it's doing too much.
+- Samples fit on one screen; if a sample needs scrolling to read, it's doing too much. The one
+  exception is a guided-build lesson's single reference sample — see "Guided-build lessons".
 
 The pilot lesson, `content/lessons/01-first-program.md`, embodies all of the above and is the
 reference to match when a rule in this document leaves a judgement call.
