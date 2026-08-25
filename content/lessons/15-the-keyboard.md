@@ -11,12 +11,12 @@ it drops straight into an `if`:
 
 Click on the canvas first so it is listening to the keyboard, then hold an arrow key.
 
-Every frame, `Draw` asks all four questions and moves `x` or `y` by `speed` — `5` here — for each
-one that comes back `true`. The same `5` in all four `if`s would be four numbers to keep in step,
-so it is written once at the top of the file and used four times; `size`, the square's width and
-height, is there for the same reason. Nothing remembers that you pressed anything: `Keys.IsDown`
-reports what is happening *this frame only*, so you have to ask again on the next one. That is
-why the four `if`s live inside `Draw` and not in `Setup`.
+Every frame, `Draw` asks all four questions and moves `x` or `y` by `speed` — `5` here — for
+each one that comes back `true`. The same `5` in all four `if`s would be four numbers to keep
+in step, so it is written once at the top of the file and used four times; `size`, the square's
+width and height, is there for the same reason. Nothing remembers that you pressed anything:
+`Keys.IsDown` reports what is happening *this frame only*, so you have to ask again on the next
+one. That is why the four `if`s live inside `Draw` and not in `Setup`.
 
 Hold two arrows at once and both `if`s are true, so the square moves diagonally — for free, with
 no extra code.

@@ -8,6 +8,7 @@ int rightX = screenWidth - paddleWidth - leftX;
 int paddleMaxY = screenHeight - paddleHeight;
 double leftY = 140;
 double rightY = 140;
+
 int centreX = screenWidth / 2;
 int centreY = screenHeight / 2;
 int ballRadius = 12;
@@ -15,6 +16,7 @@ double bx = centreX;
 double by = centreY;
 double ballSpeedX = 4;
 double ballSpeedY = 5;
+
 int left = 0;
 int right = 0;
 

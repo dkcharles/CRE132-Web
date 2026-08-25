@@ -11,12 +11,12 @@ Everything in those seventy-odd lines is something you have already written: two
 turn it round, an overlap test, a number that goes up. What you have not done is put them
 together, so the rest of this lesson builds that exact program from nothing, in three steps.
 
-Roughly a third of the file is the block of variables at the top, and that is deliberate. Every
-number the game is built from — how wide a paddle is, how fast it moves, how far down it may go —
-is written down exactly once there, with a name saying what it is, and the rest of the program
-says the name. It is the habit the motion and keyboard lessons started; a game is where it starts
-paying you back, because the same handful of numbers turn up in the drawing, the clamping and the
-collision test all at once.
+About a quarter of the file is the block of variables at the top, and that is deliberate. Every
+number the game is built from — how wide a paddle is, how fast it moves, how far down it may
+go — is written down exactly once there, with a name saying what it is, and the rest of the
+program says the name. It is the habit the motion and keyboard lessons started; a game is where
+it starts paying you back, because the same handful of numbers turn up in the drawing, the
+clamping and the collision test all at once.
 
 Each step is a challenge, and each challenge's starter is the step before it, finished. Get one
 working and you carry it forward — which is how real programs get written, one working version
@@ -172,8 +172,9 @@ the right paddle at frame 69, bounces off the top at 102 and the bottom again at
 reflects off the left paddle at 207, so leaving any one of the five lines out puts it somewhere
 else. The second holds **Down** for 30 frames, which slides the right paddle out of the way; the
 ball leaves the screen on the **right** twice, and only a program that puts it back at
-`(centreX, centreY)`, which is `(320, 180)`, has a ball left to draw at frames 90 and 200. The third holds **S** for 30 frames
-instead, dropping the *left* paddle out of the way, so the ball comes back across the screen and
+`(centreX, centreY)`, which is `(320, 180)`, has a ball left to draw at frames 90 and 200. The
+third holds **S** for 30 frames instead, dropping the *left* paddle out of the way, so the ball
+comes back across the screen and
 leaves on the **left** at frame 219 — the other half of the same test, and the reason the reset
 has to catch both edges. Press **Check** when you are ready.
 :::
@@ -213,6 +214,9 @@ Then replace the miss — the `if (bx < 0 || bx > screenWidth)` block — with t
 - `if (bx > screenWidth)`: set `bx` to `centreX`, set `by` to `centreY`, and set `left` to
   `left + 1`
 
+`screenWidth` is `640`, and `centreX` and `centreY` are `320` and `180` — the middle of the
+screen, where the ball started.
+
 Finally, as the very last line of `Draw`, after all three shapes are drawn, add exactly:
 
 `Screen.Text(300, 10, left + " : " + right, Colour.White);`
@@ -229,7 +233,8 @@ one of the two sides passes one script and fails the other. Press **Check** when
 ## Make it yours
 
 That is Pong: three steps, seventy lines, no idea in it that is younger than the last six
-lessons — and a third of those lines is just the numbers of the game, each written down once.
+lessons — and about a quarter of those lines is just the numbers of the game, written down once
+each.
 This lesson has no editable sample of its own, because you already have three editors full of
 the game — go back up to any of the three challenges and keep typing in it. Nothing you do there
 can break anything, and **Reset** always brings the starter back.

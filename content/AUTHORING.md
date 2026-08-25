@@ -157,9 +157,9 @@ choosing what a sample or challenge may contain:
 | 10 | Scope | Variable scope |
 | 11 | Collections | Arrays, `List<T>`, `foreach` |
 | 12 | Console project: The Snack Machine | Console project (Snack Machine) |
-| 13 | First graphics | `Setup`/`Draw`/`Game.Run`, `Screen.Size/Clear/Rect/Circle/Line/Text`, `Colour`, pixel coordinates |
-| 14 | Motion | A variable changed every frame, speed, wrapping and bouncing at edges, `Screen.Width`, `Frame.Count` |
-| 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, `Screen.Height`, clamping with `if` |
+| 13 | First graphics | `Setup`/`Draw`/`Game.Run`, `Screen.Size/Clear/Rect/Circle/Line/Text`, `Colour`, pixel coordinates, variables declared at the top of the file and used inside `Draw` |
+| 14 | Motion | A variable changed every frame, speed, wrapping and bouncing at edges, `Screen.Width`, `Screen.Height`, `Frame.Count` |
+| 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, clamping with `if` |
 | 16 | The mouse | `Mouse.X/Y/IsDown/WasClicked`, point-in-rect tests |
 | 17 | Many things | `List<double>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
 | 18 | Collision | `Math.Sqrt`, `Math.Abs`, distance, circle/circle and rect/rect overlap as `bool` methods, circle-vs-rect as a rectangle grown by the radius |
@@ -348,9 +348,9 @@ the rules above — deliberately, so copy this shape rather than fighting it:
 
 - **One reference sample, not 3–5.** A single `:::run` at the top shows the finished game, so the
   reader knows what they are building towards. It is the one place a sample may run past a
-  screenful (Pong's is around seventy lines, a third of them the named numbers the game is built
-  from): the whole point is that it is a whole program, and the lesson then takes it apart. Every other sample the lesson would have had is a challenge
-  step instead.
+  screenful (Pong's is around seventy-five lines, about a quarter of them the named numbers the
+  game is built from): the whole point is that it is a whole program, and the lesson then takes
+  it apart. Every other sample the lesson would have had is a challenge step instead.
 - **Chained challenge kits, one per step.** Each step gets its own three-file kit, lettered in
   order, and **each starter is the previous step's solution** — `c19b-ball.start.cs` is
   `c19a-paddles.solution.cs` with the next comment in it. A student who finishes step 1 carries

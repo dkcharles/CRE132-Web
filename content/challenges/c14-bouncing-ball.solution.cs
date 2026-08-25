@@ -16,8 +16,8 @@ void Draw()
     x = x + speedX;
     y = y + speedY;
     // The ball is drawn from its centre, so turn it round one radius in from each edge.
-    if (x < radius || x > 640 - radius) speedX = -speedX;
-    if (y < radius || y > 360 - radius) speedY = -speedY;
+    if (x < radius || x > Screen.Width - radius) speedX = -speedX;
+    if (y < radius || y > Screen.Height - radius) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);

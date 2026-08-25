@@ -15,8 +15,8 @@ void Draw()
     Screen.Circle(x, y, radius, Colour.Pink);
     x = x + speedX;
     y = y + speedY;
-    if (x < radius || x > 640 - radius) speedX = -speedX;
-    if (y < radius || y > 360 - radius) speedY = -speedY;
+    if (x < radius || x > Screen.Width - radius) speedX = -speedX;
+    if (y < radius || y > Screen.Height - radius) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);

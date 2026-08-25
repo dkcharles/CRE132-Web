@@ -48,6 +48,11 @@ So `(320, 180)` is the middle, `(0, 0)` is the top-left, and `(640, 360)` is the
 
 :::run s13a-shapes Three shapes and a line of text make a scene.
 
+The three names above `Setup` — `screenWidth`, `screenHeight` and `groundY` — are ordinary
+variables, exactly the ones from the variables lesson. Anything declared up there, outside both
+methods, can be used inside `Draw`, and that is what lets a number be written down once and then
+used in several calls.
+
 Read that `Draw` against the picture:
 
 - `Screen.Rect(0, groundY, screenWidth, 60, Colour.Green)` — a filled rectangle whose
@@ -101,11 +106,12 @@ where you can look at it. The text at the top still reports the numbers, which i
 ## Challenge
 
 :::challenge c13-house
-The starter already clears the screen and draws the green ground, and the house's numbers are
-declared at the top of the file for you: `wallX` is `220`, `wallY` is `180`, `wallWidth` is
-`200`, `wallHeight` is `120`, and `roofTopY` is `100`. `middleX` is worked out from two of them,
-`wallX + wallWidth / 2`, which comes to `320` — the middle of the walls, where the roof's apex
-and the window both belong.
+The starter already clears the screen and draws the green ground, using the same three names
+`s13a-shapes` did — `screenWidth` (`640`), `screenHeight` (`360`) and `groundY` (`300`). The
+house's own numbers are declared at the top of the file for you too: `wallX` is `220`, `wallY`
+is `180`, `wallWidth` is `200`, `wallHeight` is `120`, and `roofTopY` is `100`. `middleX` is
+worked out from two of them, `wallX + wallWidth / 2`, which comes to `320` — the middle of the
+walls, where the roof's apex and the window both belong.
 
 Add a house standing on the ground, in this order, after it:
 

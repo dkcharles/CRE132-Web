@@ -1,3 +1,6 @@
+int screenWidth = 640;
+int screenHeight = 360;
+int groundY = 300;
 int wallX = 220;
 int wallY = 180;
 int wallWidth = 200;
@@ -7,13 +10,13 @@ int roofTopY = 100;
 
 void Setup()
 {
-    Screen.Size(640, 360);
+    Screen.Size(screenWidth, screenHeight);
 }
 
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    Screen.Rect(0, 300, 640, 60, Colour.Green);
+    Screen.Rect(0, groundY, screenWidth, 60, Colour.Green);
     // Draw your house here: walls, then a window, then two roof lines.
 }
 

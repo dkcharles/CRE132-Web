@@ -132,7 +132,7 @@ The coin does nothing when you reach it.
 Where the comment is — after the four arrow-key lines, before anything is drawn — add an `if`
 with exactly this test, split over two lines the same way:
 
-```
+```csharp
 if (cx > px - coinRadius && cx < px + playerSize + coinRadius &&
     cy > py - coinRadius && cy < py + playerSize + coinRadius)
 ```

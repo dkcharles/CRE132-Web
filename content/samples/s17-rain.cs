@@ -14,7 +14,7 @@ void Draw()
     {
         Screen.Circle(xs[i], ys[i], 12, Colour.Cyan);
         ys[i] = ys[i] + 4;
-        // Send a drop that has fallen past the bottom back to the top, so it rains forever.
+        // Recycled rather than removed, which is what makes it rain forever instead of once.
         if (ys[i] > Screen.Height) ys[i] = 0;
     }
 }

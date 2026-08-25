@@ -5,6 +5,7 @@ double wallX = 400;
 double wallY = 100;
 double wallWidth = 40;
 double wallHeight = 160;
+double playerSpeed = 5;
 
 bool Overlaps(double ax, double ay, double aw, double ah,
               double bx, double by, double bw, double bh)
@@ -20,8 +21,8 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    if (Keys.IsDown(Key.Left)) playerX = playerX - 5;
-    if (Keys.IsDown(Key.Right)) playerX = playerX + 5;
+    if (Keys.IsDown(Key.Left)) playerX = playerX - playerSpeed;
+    if (Keys.IsDown(Key.Right)) playerX = playerX + playerSpeed;
     Screen.Rect(wallX, wallY, wallWidth, wallHeight, Colour.Grey);
     Screen.Rect(playerX, playerY, playerSize, playerSize, Colour.Cyan);
     if (Overlaps(playerX, playerY, playerSize, playerSize, wallX, wallY, wallWidth, wallHeight))

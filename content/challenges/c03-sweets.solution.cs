@@ -1,7 +1,7 @@
 int sweets = 23;
 int friends = 4;
 
-// / shares the sweets out evenly; % is what would not divide up.
+// One division answers two questions: how many each friend gets, and how many will not go round.
 int sweetsEach = sweets / friends;
 int leftOver = sweets % friends;
 Console.WriteLine($"Each friend gets {sweetsEach} sweets");

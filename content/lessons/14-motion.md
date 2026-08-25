@@ -7,9 +7,10 @@ every frame is movement.**
 
 :::run s14-moving A circle crossing the screen at 3 pixels a frame.
 
-`x` and `speed` are declared at the **top of the file**, outside both methods, so they survive
-from one frame to the next. A variable declared *inside* `Draw` would be created fresh every
-frame and never get anywhere — that is the scope rule from the scope lesson, doing real work.
+`x` and `speed` are declared at the **top of the file**, outside both methods, as you saw in the
+last lesson — and here that placement does real work: they survive from one frame to the next. A
+variable declared *inside* `Draw` would be created fresh every frame and never get anywhere,
+which is the scope rule from the scope lesson turning into a bug you can watch.
 
 Each `Draw` does three things: clear the screen, draw the circle at `x`, then `x = x + speed;`.
 
@@ -34,13 +35,13 @@ if (x > Screen.Width) x = 0;
 ```
 
 That is the last line of the sample above. `Screen.Width` is `640` here — the width you set in
-`Setup` — and asking for it beats typing `640` everywhere, because then changing the screen size
-changes only one line.
+`Setup` — and `Screen.Height` is its partner for the other axis, `360`. Asking for them beats
+typing `640` and `360` everywhere, because then changing the screen size changes only one line.
 
 **Bounce** — when it reaches an edge, reverse the speed:
 
 ```csharp
-if (x < radius || x > 640 - radius) speedX = -speedX;
+if (x < radius || x > Screen.Width - radius) speedX = -speedX;
 ```
 
 `speedX = -speedX;` flips the sign: `4` becomes `-4`, and `-4` becomes `4` again. That single
@@ -50,11 +51,12 @@ shape rattles around all four walls:
 :::run s14a-bounce Two speeds, four edges.
 
 `radius` is the circle's radius, `20`, declared at the top of the file alongside the two speeds.
-The circle is drawn from its *centre*, so testing the centre against `radius` and `640 - radius`
-turns it round when its rim touches the wall rather than when half of it is already outside.
+The circle is drawn from its *centre*, so testing the centre against `radius` and
+`Screen.Width - radius` turns it round when its rim touches the wall rather than when half of it
+is already outside.
 
-The radius is wanted in five places — the `Screen.Circle` call and all four edge tests — which is
-exactly when a number has earned a name. Typed out as `20`, `620`, `20` and `340`, a bigger
+The radius is wanted in five places — the `Screen.Circle` call and all four edge tests — which
+is exactly when a number has earned a name. Typed out as `20`, `620`, `20` and `340`, a bigger
 circle means finding and fixing every one of them, and missing one is a bug you only notice when
 the ball sinks halfway into a wall.
 
@@ -69,8 +71,8 @@ have a ball:
 :::try
 Change `gravity` from `0.5` to `0.1` and run — a slow, floaty, moon-sized bounce. Then try `2`
 for something heavy. Then make the ball lose energy each time it lands: change the last line of
-`Draw` to `if (y > 360 - radius) speedY = -speedY * 0.8;` so it comes back with 80% of the
-speed it arrived with, and watch the bounces get smaller until it settles on the floor.
+`Draw` to `if (y > Screen.Height - radius) speedY = -speedY * 0.8;` so it comes back with 80%
+of the speed it arrived with, and watch the bounces get smaller until it settles on the floor.
 :::
 
 ## A free clock
@@ -113,8 +115,8 @@ screen.
 
 Where the comment is, add exactly two lines:
 
-- reverse `speedX` when `x` is less than `radius` **or** greater than `640 - radius`
-- reverse `speedY` when `y` is less than `radius` **or** greater than `360 - radius`
+- reverse `speedX` when `x` is less than `radius` **or** greater than `Screen.Width - radius`
+- reverse `speedY` when `y` is less than `radius` **or** greater than `Screen.Height - radius`
 
 Every one of those four tests is the ball's `radius` in from one edge — `20` and `620` across,
 `20` and `340` down — which is the same pair of lines `s14a-bounce` uses above. Do not change the

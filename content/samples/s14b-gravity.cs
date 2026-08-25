@@ -12,10 +12,10 @@ void Draw()
 {
     Screen.Clear(Colour.Black);
     Screen.Circle(320, y, radius, Colour.Orange);
-    // Gravity is a speed that grows: adding to speedY every frame makes the fall get faster.
     speedY = speedY + gravity;
     y = y + speedY;
-    if (y > 360 - radius) speedY = -speedY;
+    // The floor: flip speedY when the ball reaches it and the fall becomes a rise.
+    if (y > Screen.Height - radius) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);
