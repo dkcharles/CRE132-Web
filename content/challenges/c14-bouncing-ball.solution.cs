@@ -11,11 +11,11 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    Screen.Circle(x, y, 10, Colour.Yellow);
+    Screen.Circle(x, y, 20, Colour.Yellow);
     x = x + speedX;
     y = y + speedY;
-    if (x < 10 || x > 630) speedX = -speedX;
-    if (y < 10 || y > 350) speedY = -speedY;
+    if (x < 20 || x > 620) speedX = -speedX;
+    if (y < 20 || y > 340) speedY = -speedY;
 }
 
 Game.Run(Setup, Draw);

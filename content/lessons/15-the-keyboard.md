@@ -91,6 +91,8 @@ Where the comment is, add:
   less the paddle's)
 
 Leave the `330`, the `100` and the `16` in the `Screen.Rect` call exactly as they are. The
-checker holds `Right` for 40 frames and expects the paddle to have reached `x = 510`, then holds
-`Left` for 80 frames and expects it pinned at `x = 0`. Press **Check** when you are ready.
+checker holds `Right` down and looks twice: at frame 40 the paddle should have reached
+`x = 510`, and at frame 60 it should be pinned against the right-hand edge at `x = 540` rather
+than past it. Then it holds `Left` for 80 frames and expects the paddle pinned at `x = 0`. Press
+**Check** when you are ready.
 :::

@@ -46,7 +46,7 @@ screen.**
 
 So `(320, 180)` is the middle, `(0, 0)` is the top-left, and `(640, 360)` is the bottom-right.
 
-:::run s13a-shapes Four shapes and a line of text make a scene.
+:::run s13a-shapes Three shapes and a line of text make a scene.
 
 Read that `Draw` against the picture:
 
@@ -101,7 +101,7 @@ The starter already clears the screen and draws the green ground. Add a house st
 using these **exact** numbers, in this order, after the ground:
 
 - the walls: `Screen.Rect(220, 180, 200, 120, ...)`
-- a door: `Screen.Rect(300, 240, 40, 60, ...)`
+- a round window: `Screen.Circle(320, 240, 16, ...)`
 - the left roof slope: `Screen.Line(220, 180, 320, 100, ...)`
 - the right roof slope: `Screen.Line(320, 100, 420, 180, ...)`
 

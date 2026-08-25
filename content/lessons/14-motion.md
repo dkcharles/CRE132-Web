@@ -84,7 +84,7 @@ a moving program thinks it is doing without stopping it.
 
 ## What happens without Clear
 
-Here is a bouncing circle with exactly one line missing — the `Screen.Clear` at the top of
+Here is another bouncing circle, and this time there is no `Screen.Clear` at the top of
 `Draw`:
 
 :::run s14c-trails A bouncing circle with nothing wiped between frames.
@@ -101,16 +101,18 @@ frame. The canvas keeps everything you have ever drawn until you clear it.
 ## Challenge
 
 :::challenge c14-bouncing-ball
-The starter draws a ball of radius `10` starting at `(320, 180)` and moves it by `speedX = 4`
+The starter draws a ball of radius `20` starting at `(320, 180)` and moves it by `speedX = 4`
 and `speedY = 3` every frame — so after a couple of seconds it leaves the screen and never comes
 back. Make it bounce off all four edges instead, so its centre never leaves the screen.
 
 Where the comment is, add exactly two lines:
 
-- reverse `speedX` when `x` is less than `10` **or** greater than `630`
-- reverse `speedY` when `y` is less than `10` **or** greater than `350`
+- reverse `speedX` when `x` is less than `20` **or** greater than `620`
+- reverse `speedY` when `y` is less than `20` **or** greater than `340`
 
-Those four numbers are the ball's radius, `10`, in from each of the four edges. Do not change
-the starting position, the radius, or the two speeds — the checker compares where the ball is on
-frames 60, 120 and 200, so its whole path has to match. Press **Check** when you are ready.
+Those four numbers are the ball's radius, `20`, in from each of the four edges — the same numbers
+`s14a-bounce` uses above. Do not change the starting position, the radius, or the two speeds: the
+checker runs 260 frames and compares where the ball is on frames 60, 160 and 260. That is long
+enough for the ball to reach all four walls, so a bounce you leave out will show up. Press
+**Check** when you are ready.
 :::
