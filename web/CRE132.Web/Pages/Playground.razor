@@ -20,6 +20,8 @@
         </button>
     </div>
 
+    <GameStage @ref="stage" />
+
     @if (errors is { Count: > 0 })
     {
         <ul class="errors">
@@ -35,6 +37,7 @@
 
 @code {
     CodeEditor? editor;
+    GameStage? stage;
     string source = "Console.WriteLine(\"Hello, CRE132!\");\n";
     string input = "";
     string? output;
@@ -61,9 +64,16 @@
                 return;
             }
 
-            RunResult run = ProgramRunner.Run(result.Run!, input);
-            output = run.Output;
-            runError = run.Error;
+            // A program that called Game.Run plays on the stage, which owns its own console;
+            // anything else prints into the pane below.
+            GameSession session = GameSession.Start(result.Run!, input);
+            if (session.IsGame) { await stage!.PlayAsync(session); }
+            else
+            {
+                await stage!.ClearAsync();
+                output = session.Result.Output;
+                runError = session.Result.Error;
+            }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         finally

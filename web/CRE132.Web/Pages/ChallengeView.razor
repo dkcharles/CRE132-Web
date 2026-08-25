@@ -10,10 +10,14 @@
         @((MarkupString)TaskHtml)
     </div>
     <CodeEditor @ref="editor" EditorId="@("challenge-" + ChallengeId)" InitialText="@buffer" />
+    <GameStage @ref="stage" />
     <div class="controls">
         <button @onclick="ResetAsync" disabled="@busy">Reset</button>
+        <button @onclick="RunAsync" disabled="@busy">
+            @(Compiler.IsLoading ? "Downloading compiler…" : busy && !checking ? "Working…" : "▶ Run")
+        </button>
         <button @onclick="CheckAsync" disabled="@busy">
-            @(Compiler.IsLoading ? "Downloading compiler…" : busy ? "Checking…" : "Check")
+            @(Compiler.IsLoading ? "Downloading compiler…" : checking ? "Checking…" : "Check")
         </button>
     </div>
     @if (errors is { Count: > 0 })
@@ -23,22 +27,33 @@
         </ul>
     }
     @if (notice is not null) { <p class="notice">@notice</p> }
+    @if (runOutput is not null)
+    {
+        <div class="pane">
+            <div class="pane-label">Your program's output</div>
+            <pre class="console">@runOutput</pre>
+        </div>
+    }
+    @if (runError is not null) { <p class="run-error">@runError</p> }
     @if (results is not null)
     {
         @if (results.All(r => r.Passed))
         {
-            <p class="verdict pass">✓ Passed! Your output matches on @(results.Count == 1 ? "the test" : $"all {results.Count} tests").</p>
+            <p class="verdict pass">✓ Passed! @(results.Any(r => r.Frames is { Count: > 0 }) ? "Your game matched" : "Your output matches") on @(results.Count == 1 ? "the test" : $"all {results.Count} tests").</p>
             @foreach (CaseResult r in results)
             {
-                <div class="pane">
-                    <div class="pane-label">@(results.Count == 1 ? "Your output" : $"Test {r.Index} — your output")@(r.Input.Length > 0 ? " (input: " + r.Input.TrimEnd() + ")" : "")</div>
-                    <div class="console">
-                        @foreach (string line in r.ActualLines)
-                        {
-                            <div class="line">@line</div>
-                        }
+                @if (r.ActualLines.Count > 0)
+                {
+                    <div class="pane">
+                        <div class="pane-label">@(results.Count == 1 ? "Your output" : $"Test {r.Index} — your output")@(r.Input.Length > 0 ? " (input: " + r.Input.TrimEnd() + ")" : "")</div>
+                        <div class="console">
+                            @foreach (string line in r.ActualLines)
+                            {
+                                <div class="line">@line</div>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
             }
         }
         else
@@ -47,6 +62,41 @@
             <p class="verdict fail">✗ Not yet — test @failed.Index didn't match.</p>
             @if (failed.Input.Length > 0) { <p class="case-input">Input given: <code>@failed.Input.TrimEnd()</code></p> }
             @if (failed.Error is not null) { <p class="run-error">@failed.Error</p> }
+            else if (failed.Frames?.FirstOrDefault(f => !f.Passed) is FrameCheck frame)
+            {
+                <p class="case-input">Frame @frame.Frame didn't match. Each row is 16 pixels; <code>#</code> rect, <code>o</code> circle, <code>+</code> line, letters are text.</p>
+                <div class="diff">
+                    <div class="pane">
+                        <div class="pane-label">Your frame @frame.Frame</div>
+                        @* A frame the program never reached has no grid to show: say so, rather than
+                           drawing an empty box and highlighting a row that does not exist. *@
+                        @if (Missing(frame))
+                        {
+                            <div class="console grid">
+                                <div class="line">(no frame — your program stopped before frame @frame.Frame)</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="console grid">
+                                @for (int i = 0; i < frame.ActualRows.Count; i++)
+                                {
+                                    <div class="line @(i + 1 == frame.FirstDiffRow ? "diff-line" : "")">@frame.ActualRows[i]</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="pane">
+                        <div class="pane-label">Expected frame @frame.Frame</div>
+                        <div class="console grid">
+                            @for (int i = 0; i < frame.ExpectedRows.Count; i++)
+                            {
+                                <div class="line @(!Missing(frame) && i + 1 == frame.FirstDiffRow ? "diff-line" : "")">@frame.ExpectedRows[i]</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
             else
             {
                 <div class="diff">
@@ -81,13 +131,19 @@
     [Parameter, EditorRequired] public IReadOnlyList<ChallengeCase> Cases { get; set; } = default!;
 
     CodeEditor? editor;
+    GameStage? stage;
     string buffer = "";
-    string? notice;
+    string? notice, runOutput, runError;
     IReadOnlyList<CompileError>? errors;
     IReadOnlyList<CaseResult>? results;
-    bool busy;
+    bool busy, checking;      // checking keeps Run and Check from both claiming to be checking
 
     string StoreKey => "challenge." + ChallengeId;
+
+    // The checker reports a frame that was never rendered as a single blank row, with row 1
+    // flagged as the difference; an empty grid and a stray highlight would both mislead.
+    static bool Missing(FrameCheck f) =>
+        f.ActualRows.Count == 0 || (f.ActualRows.Count == 1 && f.ActualRows[0].Length == 0);
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,9 +151,48 @@
         buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Starter)) ?? Starter;
     }
 
+    // Run is Check without the marking: the student's own program on the first case's input,
+    // playing on the stage when it is a game.
+    async Task RunAsync()
+    {
+        busy = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
+        try
+        {
+            buffer = await editor!.GetTextAsync();
+            await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Starter));
+
+            CompiledBytes compiled = await Compiler.CompileToBytesAsync(buffer);
+            if (!compiled.Succeeded)
+            {
+                errors = compiled.Errors;
+                await editor.SetErrorsAsync(errors!);
+                return;
+            }
+
+            GameSession session = GameSession.Start(ProgramLoader.FromBytes(compiled.Bytes!), Cases[0].Input);
+            if (session.IsGame) { await stage!.PlayAsync(session); }
+            else
+            {
+                await stage!.ClearAsync();
+                runOutput = session.Result.Output;
+                runError = session.Result.Error;
+            }
+            await editor.SetErrorsAsync(Array.Empty<CompileError>());
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or Microsoft.JSInterop.JSException)
+        {
+            notice = "Could not reach the site just now — check your connection and press Run again.";
+        }
+        finally { busy = false; }
+    }
+
     async Task CheckAsync()
     {
-        busy = true; errors = null; results = null; notice = null;
+        busy = true; checking = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
+        // Marking runs the program again headless: a stage still playing would be a second copy
+        // of the program competing for the same screen.
+        await stage!.StopAsync();
         try
         {
             buffer = await editor!.GetTextAsync();
@@ -119,14 +214,15 @@
         {
             notice = "Could not reach the site just now — check your connection and press Check again.";
         }
-        finally { busy = false; }
+        finally { busy = false; checking = false; }
     }
 
     async Task ResetAsync()
     {
         buffer = Starter;
         await editor!.SetTextAsync(Starter);
-        errors = null; results = null; notice = null;
+        await stage!.ClearAsync();
+        errors = null; results = null; notice = null; runOutput = null; runError = null;
         await Store.ClearAsync(StoreKey);
     }
 

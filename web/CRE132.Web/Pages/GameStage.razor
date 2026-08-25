@@ -1,0 +1,166 @@
+@namespace CRE132.Web.Pages
+@using CRE132.Engine
+@using CRE132.Game
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* The canvas, its Stop button and the console under it. One stage plays at a time on a page:
+   starting this one stops whichever was playing. The loop is a C# timer, not requestAnimationFrame,
+   so Stop, Dispose and errors all live on the .NET side. *@
+<div class="stage @(session is { IsGame: true } ? "" : "hidden")">
+    <canvas @ref="canvas" class="stage-canvas"></canvas>
+    <div class="stage-controls">
+        @if (IsPlaying) { <button @onclick="StopAsync">■ Stop</button> }
+        else if (session is { IsGame: true }) { <span class="stage-hint">@(error is null ? "Stopped — press Run to play again." : "")</span> }
+    </div>
+    @if (notice is not null) { <p class="notice">@notice</p> }
+    @if (lines.Count > 0)
+    {
+        <div class="console stage-console">
+            @foreach (string line in lines) { <div class="line">@line</div> }
+        </div>
+    }
+    @if (error is not null) { <p class="run-error">@error</p> }
+</div>
+
+@code {
+    const int ShownLines = 200;
+    static GameStage? active;
+
+    ElementReference canvas;
+    IJSObjectReference? game, input;
+    GameSession? session;
+    CancellationTokenSource? loop;
+    List<string> lines = new();
+    string? error, notice;
+    int consoleLength;
+
+    public bool IsPlaying { get; private set; }
+
+    sealed class Snapshot
+    {
+        public string[] Keys { get; set; } = Array.Empty<string>();
+        public int MouseX { get; set; }
+        public int MouseY { get; set; }
+        public bool MouseDown { get; set; }
+    }
+
+    public async Task PlayAsync(GameSession s)
+    {
+        if (active is not null && active != this) await active.StopAsync();
+        await StopAsync();
+        active = this;
+        session = s; error = null; notice = null; consoleLength = 0;
+        lines = Tail(s.ConsoleText);
+        if (s.Stopped) { error = s.StopReason; StateHasChanged(); return; }
+
+        try
+        {
+            game ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/game.js");
+            input ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/input.js");
+            StateHasChanged();                     // the canvas must be visible before JS sizes it
+            await game.InvokeVoidAsync("reset", canvas, s.Width, s.Height);
+            await input.InvokeVoidAsync("attach", canvas, s.Width, s.Height);
+        }
+        catch (JSException)
+        {
+            notice = "The game display could not start — reload the page and try again.";
+            StateHasChanged();
+            return;
+        }
+
+        IsPlaying = true;
+        loop = new CancellationTokenSource();
+        _ = LoopAsync(loop.Token);
+        StateHasChanged();
+    }
+
+    async Task LoopAsync(CancellationToken ct)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000.0 / Frame.Rate));
+            while (await timer.WaitForNextTickAsync(ct))
+            {
+                Snapshot snap = await input!.InvokeAsync<Snapshot>("snapshot");
+                var down = new HashSet<Key>();
+                foreach (string k in snap.Keys) if (Enum.TryParse(k, out Key key)) down.Add(key);
+                FrameResult f = session!.Step(new InputState(down, snap.MouseX, snap.MouseY, snap.MouseDown));
+
+                await game!.InvokeVoidAsync("frame", canvas, session.Width, session.Height, Flatten(f.Commands));
+
+                bool changed = f.Console.Length != consoleLength || f.Error is not null;
+                consoleLength = f.Console.Length;
+                if (changed) { lines = Tail(f.Console); error = f.Error; await InvokeAsync(StateHasChanged); }
+                if (f.Error is not null) break;
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (JSException) { notice = "The game display stopped responding — press Run to try again."; }
+        finally
+        {
+            IsPlaying = false;
+            await ReleaseAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // A later Run whose program is NOT a game: stop, then take the canvas off the page so a
+    // console program never sits under a frozen frame from the previous run.
+    public async Task ClearAsync()
+    {
+        await StopAsync();
+        session = null; error = null; notice = null; lines = new();
+        StateHasChanged();
+    }
+
+    public async Task StopAsync()
+    {
+        if (loop is null) return;
+        loop.Cancel();
+        loop = null;
+        IsPlaying = false;
+        await ReleaseAsync();
+    }
+
+    async Task ReleaseAsync()
+    {
+        if (input is null) return;
+        try { await input.InvokeVoidAsync("release"); }
+        catch (Exception ex) when (ex is JSException or JSDisconnectedException) { }
+    }
+
+    // Nine slots per command; primitives only, so JS interop needs no converters.
+    static object[] Flatten(IReadOnlyList<DrawCommand> commands)
+    {
+        var flat = new object[commands.Count * 9];
+        for (int i = 0; i < commands.Count; i++)
+        {
+            DrawCommand c = commands[i];
+            int o = i * 9;
+            flat[o] = (int)c.Kind; flat[o + 1] = c.A; flat[o + 2] = c.B; flat[o + 3] = c.C; flat[o + 4] = c.D;
+            flat[o + 5] = (int)c.Colour.R; flat[o + 6] = (int)c.Colour.G; flat[o + 7] = (int)c.Colour.B;
+            flat[o + 8] = c.Text;
+        }
+        return flat;
+    }
+
+    static List<string> Tail(string console)
+    {
+        IReadOnlyList<string> all = OutputComparer.Lines(console);
+        return all.Skip(Math.Max(0, all.Count - ShownLines)).ToList();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAsync();
+        if (active == this) active = null;
+        try
+        {
+            if (game is not null) await game.DisposeAsync();
+            if (input is not null) await input.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+    }
+}

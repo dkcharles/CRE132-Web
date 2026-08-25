@@ -18,6 +18,7 @@
         </div>
         <CodeEditor @ref="editor" EditorId="@("sample-" + SampleId)" InitialText="@buffer" />
     </div>
+    <GameStage @ref="stage" />
     @if (DeclaredInput is not null)
     {
         <details>
@@ -32,8 +33,8 @@
         </ul>
     }
     @if (notice is not null) { <p class="notice">@notice</p> }
-    @if (output is not null) { <pre class="console">@output</pre> }
-    @if (runError is not null) { <p class="run-error">@runError</p> }
+    @if (!isGame && output is not null) { <pre class="console">@output</pre> }
+    @if (!isGame && runError is not null) { <p class="run-error">@runError</p> }
     @if (Caption is { Length: > 0 }) { <p class="caption">@Caption</p> }
 </div>
 
@@ -44,6 +45,8 @@
     [Parameter] public string? DeclaredInput { get; set; }
 
     CodeEditor? editor;
+    GameStage? stage;
+    bool isGame;
     string buffer = "";
     string input = "";
     string? output, runError, notice;
@@ -72,8 +75,7 @@
             if (SourceText.Normalise(buffer) == SourceText.Normalise(Shipped))
             {
                 byte[] program = await SampleStore.FetchAsync(SampleId);
-                RunResult ready = ProgramRunner.Run(ProgramLoader.FromBytes(program), input ?? "");
-                output = ready.Output; runError = ready.Error;
+                await PlayOrPrintAsync(ProgramLoader.FromBytes(program));
                 await editor.SetErrorsAsync(Array.Empty<CompileError>());
                 return;
             }
@@ -85,8 +87,7 @@
                 await editor.SetErrorsAsync(errors!);
                 return;
             }
-            RunResult run = ProgramRunner.Run(result.Run!, input ?? "");
-            output = run.Output; runError = run.Error;
+            await PlayOrPrintAsync(result.Run!);
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
@@ -97,10 +98,21 @@
         finally { busy = false; }
     }
 
+    // A program that called Game.Run plays on the stage; anything else prints as before.
+    async Task PlayOrPrintAsync(Action program)
+    {
+        GameSession session = GameSession.Start(program, input ?? "");
+        isGame = session.IsGame;
+        if (isGame) { output = null; runError = null; await stage!.PlayAsync(session); }
+        else { await stage!.ClearAsync(); output = session.Result.Output; runError = session.Result.Error; }
+    }
+
     async Task ResetAsync()
     {
         buffer = Shipped;
         await editor!.SetTextAsync(Shipped);
+        await stage!.ClearAsync();
+        isGame = false;
         output = null; runError = null; errors = null; notice = null;
         await Store.ClearAsync(StoreKey);
     }

@@ -14,16 +14,28 @@
             <textarea class="stdin" rows="3" @bind="input"></textarea>
         </details>
     }
-    <div class="pane">
-        <div class="pane-label">
-            Console — what it prints
+    @* A game keeps its own Run button above the stage: the console pane that normally carries
+       one is hidden while the canvas is playing. *@
+    @if (isGame)
+    {
+        <div class="controls">
             <button @onclick="RunAsync" disabled="@busy">@(busy ? "Running…" : "Run this")</button>
         </div>
-        @if (notice is not null) { <p class="notice">@notice</p> }
-        else if (output is null) { <div class="console empty">Press Run this to see the output.</div> }
-        else { <pre class="console">@output</pre> }
-        @if (runError is not null) { <p class="run-error">@runError</p> }
-    </div>
+    }
+    <GameStage @ref="stage" />
+    @if (!isGame)
+    {
+        <div class="pane">
+            <div class="pane-label">
+                Console — what it prints
+                <button @onclick="RunAsync" disabled="@busy">@(busy ? "Running…" : "Run this")</button>
+            </div>
+            @if (notice is not null) { <p class="notice">@notice</p> }
+            else if (output is null) { <div class="console empty">Press Run this to see the output.</div> }
+            else { <pre class="console">@output</pre> }
+            @if (runError is not null) { <p class="run-error">@runError</p> }
+        </div>
+    }
     @if (Caption is { Length: > 0 }) { <p class="caption">@Caption</p> }
 </div>
 
@@ -33,6 +45,8 @@
     [Parameter] public string? Caption { get; set; }
     [Parameter] public string? DeclaredInput { get; set; }
 
+    GameStage? stage;
+    bool isGame;
     string? output, runError, notice;
     string input = "";
     bool busy;
@@ -47,12 +61,17 @@
         try
         {
             byte[] program = await SampleStore.FetchAsync(SampleId);
-            RunResult run = ProgramRunner.Run(ProgramLoader.FromBytes(program), input ?? "");
-            output = run.Output; runError = run.Error;
+            GameSession session = GameSession.Start(ProgramLoader.FromBytes(program), input ?? "");
+            isGame = session.IsGame;
+            if (isGame) { output = null; runError = null; await stage!.PlayAsync(session); }
+            else { await stage!.ClearAsync(); output = session.Result.Output; runError = session.Result.Error; }
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
         {
+            // The notice lives in the console pane, so a failed fetch must show that pane even
+            // if the previous run was a game.
+            isGame = false;
             notice = "Could not fetch this example just now — try again in a moment.";
         }
         finally { busy = false; }
