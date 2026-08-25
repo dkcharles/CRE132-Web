@@ -111,7 +111,12 @@ public static class ChallengeKit
                                   $"content tests with the same variable set to regenerate {fileName}, or delete it if in doubt."
                                 : message);
                         }
-                    if (covered || !bootstrapping) cases[i] = cases[i] with { Frames = snaps };
+                    // Fully covered: attach regardless of mode. Not covered: in normal mode the
+                    // kit is dropped below anyway so attaching is harmless, but attach it too for
+                    // parity with that fully-covered case; in bootstrapping mode leave Frames
+                    // null so the caller can tell this case still needs (re)generating.
+                    if (covered) cases[i] = cases[i] with { Frames = snaps };
+                    else if (!bootstrapping) cases[i] = cases[i] with { Frames = snaps };
                 }
             }
         }

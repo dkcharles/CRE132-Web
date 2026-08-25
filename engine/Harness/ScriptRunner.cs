@@ -40,6 +40,8 @@ public static class ScriptRunner
     // Enum.TryParse also accepts the underlying numeric value as a string (e.g. "3"), silently
     // succeeding even when that number happens to land on a real member's ordinal (3 is Down
     // here) — Enum.IsDefined alone doesn't catch that case, so numeric input is rejected outright.
+    // int.TryParse is deliberately broader than "digits only" (it also accepts a leading +/- and
+    // surrounding whitespace) — that's fine here, since anything it accepts is not a key name.
     public static Key ParseKey(string name) =>
         Enum.TryParse(name, ignoreCase: false, out Key key) && Enum.IsDefined(key) && !int.TryParse(name, out _)
             ? key

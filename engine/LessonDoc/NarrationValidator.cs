@@ -14,7 +14,8 @@ public static class NarrationValidator
         IReadOnlyDictionary<string, string> samples,      // id -> normalised source
         IReadOnlyDictionary<string, string> figures,      // name -> svg
         IReadOnlyDictionary<string, ChallengeFiles> challenges,
-        IReadOnlyDictionary<string, string> sampleInputs) // id -> .in.txt contents
+        IReadOnlyDictionary<string, string> sampleInputs, // id -> .in.txt contents
+        IReadOnlySet<string>? failedChallenges = null)    // ids whose three files exist but whose kit failed to load
     {
         var errors = new List<string>();
         var resolved = new List<Block>(blocks.Count);
@@ -46,6 +47,14 @@ public static class NarrationValidator
                         Code = samples[b.Id!],
                         Input = sampleInputs.TryGetValue(b.Id!, out string? editInput) ? editInput : null
                     });
+                    break;
+
+                // A failed-to-load id is reported by Program from ChallengeKit's own errors
+                // already — repeating "missing one or more of ..." here would be false (the
+                // files exist) and would bury the real reason under a decoy.
+                case "challenge" when !challenges.ContainsKey(b.Id!) && failedChallenges is not null && failedChallenges.Contains(b.Id!):
+                    errors.Add($":::challenge names '{b.Id}', which has errors — see the messages above.");
+                    resolved.Add(b);
                     break;
 
                 case "challenge" when !challenges.ContainsKey(b.Id!):

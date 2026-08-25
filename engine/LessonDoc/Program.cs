@@ -35,6 +35,10 @@ static class Program
             : new Dictionary<string, string>();
 
         var challenges = new Dictionary<string, ChallengeFiles>();
+        // Ids whose three files exist but whose kit still failed to load (bad script, stale
+        // frames.txt in normal mode, ...) - passed to NarrationValidator so it reports the real
+        // failure instead of also claiming the files are missing when they aren't.
+        var failedChallenges = new HashSet<string>();
         bool failed = false;
         // CRE132_UPDATE_GOLDENS=1 is also what the content tests use to (re)generate frames.txt;
         // that generation compiles against this build's refs, so a game challenge bootstrapping
@@ -48,7 +52,7 @@ static class Program
                 (ChallengeFiles? kit, IReadOnlyList<string> kitErrors) = ChallengeKit.Load(challengesDir, id, bootstrapping);
                 foreach (string e in kitErrors)
                     Console.Error.WriteLine(e.StartsWith("challenge ") || e.StartsWith("warning: ") ? e : $"challenge '{id}': {e}");
-                if (kit is null) { failed = true; continue; }
+                if (kit is null) { failed = true; failedChallenges.Add(id); continue; }
                 challenges[id] = kit;
             }
 
@@ -99,7 +103,7 @@ static class Program
             try
             {
                 (IReadOnlyList<Block> blocks, IReadOnlyList<string> errors) =
-                    NarrationValidator.Validate(NarrationParser.Parse(markdown), samples, figures, challenges, inputs);
+                    NarrationValidator.Validate(NarrationParser.Parse(markdown), samples, figures, challenges, inputs, failedChallenges);
 
                 foreach (string e in errors)
                 {

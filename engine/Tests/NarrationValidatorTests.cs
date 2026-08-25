@@ -54,6 +54,19 @@ public class NarrationValidatorTests
     }
 
     [Fact]
+    public void A_challenge_whose_kit_failed_to_load_is_reported_as_such_not_as_missing_files()
+    {
+        var failed = new HashSet<string> { "broken" };
+        var (_, errors) = NarrationValidator.Validate(
+            new[] { new Block("challenge", Id: "broken") },
+            Samples, Figures, Challenges, new Dictionary<string, string>(), failed);
+
+        string message = Assert.Single(errors);
+        Assert.Contains("see the messages above", message);
+        Assert.DoesNotContain("missing one or more of", message);
+    }
+
+    [Fact]
     public void A_sample_with_declared_input_carries_it_on_run_and_edit_blocks()
     {
         var inputs = new Dictionary<string, string> { ["s1"] = "16\n" };
