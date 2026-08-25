@@ -43,6 +43,12 @@ Every lesson needs, at minimum:
       `<id>.solution.cs` + `<id>.cases.json`.
 - [ ] One row in `WebCatalog.Entries` (`web/CRE132.Web/WebCatalog.cs`), inserted in course
       order, pointing at `lessons/<NN-name>.json`.
+- [ ] For a game lesson (13 onward): each game sample kit adds `<id>.frame.txt` (the golden
+      final frame) alongside its `.cs` and `.out.txt`.
+- [ ] For a game lesson, a game challenge case carrying a `game` script needs a matching
+      `<id>.frames.txt` (the golden frames its `snapshot`s are checked against).
+- [ ] For a game challenge, the task statement names the exact positions, sizes, count, or
+      text expected — see "Game lessons (13 onward)" below.
 
 Nothing in this kit is optional scaffolding — a `:::run` naming a sample with no `.cs` file,
 or a `:::challenge` naming an id missing any of its three files, is a build error, not a
@@ -79,7 +85,9 @@ A challenge kit is three files sharing an id: `<id>.start.cs`, `<id>.solution.cs
 - The challenge's task statement (the body of its `:::challenge` block, in the lesson md)
   must **state the exact expected output text**. A student should never have to guess
   capitalisation, punctuation, spacing, or wording — if the output is `CRE132`, the task
-  statement says `CRE132`, not "the course code."
+  statement says `CRE132`, not "the course code." For a game challenge (see "Game lessons
+  (13 onward)" below) the same rule covers geometry: state the exact position, size, count,
+  or text expected, never "somewhere on the right" or a colour alone.
 - A challenge's solution reads input **silently**: it prints only the answer output, never a
   prompt asking for what to type. Samples MAY prompt before a `ReadLine()` (that's fine, even
   helpful, in a `:::run`/`:::edit`); a challenge must not, because the checker compares the
@@ -146,11 +154,168 @@ choosing what a sample or challenge may contain:
 | 10 | Scope | Variable scope |
 | 11 | Collections | Arrays, `List<T>`, `foreach` |
 | 12 | Console project: The Snack Machine | Console project (Snack Machine) |
+| 13 | First graphics | `Setup`/`Draw`/`Game.Run`, `Screen.Size/Clear/Rect/Circle/Line/Text`, `Colour`, pixel coordinates |
+| 14 | Motion | A variable changed every frame, speed, bouncing at edges, `Frame.Count` |
+| 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, clamping with `if` |
+| 16 | The mouse | `Mouse.X/Y/IsDown/WasClicked`, point-in-rect tests |
+| 17 | Many things | `List<double>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
+| 18 | Collision | `Math.Sqrt`, `Math.Abs`, distance, circle/rect overlap as `bool` methods |
+| 19 | Mini-game: Pong | Nothing new — a guided build |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
-arrays or `List<T>` before Lesson 11. String building uses `+` concatenation until Lesson 3
-introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's samples even
-though it would read more naturally, because the reader hasn't met it yet.
+arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `Math.Sqrt`/`Math.Abs`
+before Lesson 18, no `RemoveAt` before Lesson 17. String building uses `+` concatenation until
+Lesson 3 introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's
+samples even though it would read more naturally, because the reader hasn't met it yet.
+
+## Game lessons (13 onward)
+
+Lessons 13–19 teach a Processing-style game API (`Screen`, `Colour`, `Keys`, `Mouse`, `Frame`,
+`Rand`, `Game`) in place of console I/O. The kit for these lessons adds two things a console
+lesson doesn't have: a golden **frame** (what the canvas looks like), alongside the golden
+console output, and a headless renderer the checker uses to compare frames. Everything else —
+the directive grammar, id conventions, a challenge's three-file shape and three constraints,
+the output tolerance rule — still applies exactly as written above.
+
+### The program shape
+
+Every game sample and challenge follows the shape of the spec's complete Part 2 program:
+
+```csharp
+double x = 100;
+double speed = 3;
+
+void Setup()
+{
+    Screen.Size(640, 360);
+}
+
+void Draw()
+{
+    Screen.Clear(Colour.Black);
+    Screen.Circle(x, 180, 12, Colour.Yellow);
+    x = x + speed;
+    if (x > Screen.Width) x = 0;
+}
+
+Game.Run(Setup, Draw);
+```
+
+`Setup` runs once, before the first frame; `Draw` runs 30 times a second, once per frame. The
+program ends with `Game.Run(Setup, Draw);`. Both `Setup` and `Draw` are ordinary local methods
+(Lesson 9), and variables the game needs (`x` and `speed` above) are declared at the top of the
+file, outside either method, so both can see and change them. `Console.WriteLine` still works
+throughout — it prints to the console pane under the canvas, same as any console lesson, and is
+how debugging a game is taught.
+
+### The API
+
+| Type | Members | Notes |
+|------|---------|-------|
+| `Screen` | `Size(int w, int h)`, `Width`, `Height`, `Clear()`, `Clear(Colour)`, `Rect(x, y, w, h, Colour)`, `Circle(x, y, r, Colour)`, `Line(x1, y1, x2, y2, Colour)`, `Text(x, y, string, Colour)` | Coordinates/sizes are `double`. `Size` may be called at any time (renderers read `Width`/`Height` every frame; a change clears the canvas); default 640×360. `Clear()` clears to black. `Rect` is filled; `Text` draws the string with its top-left at (x, y), one character per 16-px cell (the canvas uses a 16-px advance per character, not the font's natural width) so the text renderer and canvas agree on extent. |
+| `Colour` | `readonly record struct Colour(byte R, byte G, byte B)`; statics `Black, White, Grey, Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink`; `Colour.Rgb(r, g, b)` | Named colours are the beginner path; `Rgb` is the escape hatch. |
+| `Keys` | `IsDown(Key)`, `WasPressed(Key)` | `WasPressed` is true only on the first frame the key is down (edge detection in C#, from the per-frame snapshot). |
+| `Key` (enum) | `Left, Right, Up, Down, Space, Enter, Escape, A … Z, D0 … D9` | Names are what the JS maps `e.key` to. |
+| `Mouse` | `X`, `Y` (int, pixels in screen space), `IsDown`, `WasClicked` | `WasClicked` = first frame of a press. |
+| `Frame` | `Count` (int, 0 on the first `Draw`), `Time` (double seconds = Count / 30.0), `Rate` (const 30) | |
+| `Rand` | `Range(int min, int maxExclusive)`, `Range(double min, double max)` | Seeded by the host (see Determinism). |
+| `Game` | `Run(Action setup, Action draw)` | Registers and returns. Calling it twice, or calling it with a null, throws with a plain message. No `Stop`: game-over screens arrive with enums in Lesson 23. |
+
+Every game lesson holds to three rules:
+
+- Pixels are 640×360 by default, `(0, 0)` is top-left, and y increases **downward** — up is
+  negative y, the opposite of a maths graph.
+- Speeds are pixels per frame at a fixed 30 fps: "speed 3" moves a shape 3 pixels each `Draw`
+  call, i.e. 90 pixels a second.
+- The canvas is **not** cleared for you. Call `Screen.Clear()` (or `Screen.Clear(Colour.Black)`)
+  first in `Draw`, every frame — leaving it out draws trails, because every earlier frame's
+  shapes stay on screen and the new frame's shapes pile on top.
+
+### What the checker can see
+
+The headless renderer draws each frame onto a 40×23 grid of 16-px cells: `#` for a filled rect,
+`o` for a circle, `+` for a line, letters for `Screen.Text`, blank for nothing. Later shapes
+overwrite earlier ones in the same cell. Colour is invisible to the grid.
+
+Consequences for authoring:
+
+- A challenge must ask for a change in **position, size, count, or text** — never colour alone.
+  "Make the circle red" is not checkable; "move the circle to x = 300" is.
+- Positions that differ by less than a cell may compare equal. This is a deliberate tolerance,
+  not a bug — but don't rely on a 2-px difference to distinguish a right answer from a wrong
+  one; separate them by at least a cell.
+- A shape that leaves the screen disappears from the grid entirely, same as it would on the
+  real canvas.
+
+### Game sample kit
+
+A game sample is `<id>.cs` + `<id>.frame.txt` + `<id>.out.txt` — the presence of `.frame.txt`
+is what marks a sample as a game sample rather than a console one. `<id>.frame.txt` is the
+golden final frame (the 40×23 grid after the last `Draw` call); `<id>.out.txt` is the console
+golden, same as a console sample — an empty file if the sample prints nothing.
+
+A sample may optionally carry `<id>.game.json`, test-only (it configures the checker's run; the
+student never sees it):
+
+```json
+{ "frames": 60, "keys": { "Right": "10-30" }, "mouse": { "x": 320, "y": 180, "down": "5-8" } }
+```
+
+Defaults are 60 frames and no input. Frame ranges are inclusive and 1-based (`"10-30"` means
+frames 10 through 30, both included); a single number (`"5"`) is one frame.
+
+### Game challenge kit
+
+The usual three files (`<id>.start.cs`, `<id>.solution.cs`, `<id>.cases.json`), under the same
+constraints as any challenge (see "Challenges" above). A game challenge's case may additionally
+carry a `game` script:
+
+```json
+[
+  { "game": { "frames": 60, "snapshot": [30, 60],
+              "keys": { "Right": "10-30" }, "mouse": { "x": 100, "y": 50, "down": "5-8" } } },
+  { "game": { "frames": 20, "snapshot": [20] }, "expected": "Score: 1" }
+]
+```
+
+`frames` is how many `Draw` calls to run; `snapshot` is the list of 1-based frame numbers whose
+grid is compared; `expected` is optional on a game case (when present, the console output is
+compared as well as the frames); `input` still works exactly as on a console challenge.
+
+Expected frames live in `<id>.frames.txt`, one block per case, one `--- frame N ---` block per
+snapshot:
+
+```
+=== case 1 ===
+--- frame 30 ---
+<23 rows of 40 chars>
+--- frame 60 ---
+<23 rows>
+=== case 2 ===
+--- frame 20 ---
+<23 rows>
+```
+
+You never hand-write `frames.txt`. Run `CRE132_UPDATE_GOLDENS=1 dotnet test engine/Tests
+--filter Content` once and the solution gate writes any missing `frames.txt` / `.frame.txt`
+from the reference solution (or the sample) — review the grids in the diff, then commit them.
+Without the environment variable, a missing golden fails the test and prints the grid it would
+have written, so you can see what's wrong without generating anything.
+
+### Determinism rules
+
+Under the checker, `Rand` is seeded (12345) and time is fixed, so the reference solution and a
+student's program get the *same* random numbers only if they call `Rand.Range` the same number
+of times, in the same order. A challenge that uses `Rand` must state exactly when and with what
+arguments to call it — or avoid `Rand` entirely. Keys in a `game` script are held down for
+every frame of their range, so `WasPressed` fires on the first frame of that range, exactly as
+a real keypress would.
+
+### Two gates
+
+A game challenge's reference solution must reproduce `frames.txt` exactly, the same as its
+console `expected` output is checked — and the **starter must not already pass**, the same
+rule that governs every challenge, console ones included.
 
 ## Style
 
@@ -193,3 +358,15 @@ reference to match when a rule in this document leaves a judgement call.
   catalog's `Title` as the lesson's `<h1>`, so a leading `# ...` would duplicate it. Start the
   file with an H1 anyway if you like (it makes the raw file readable on its own on disk /
   GitHub); just don't expect it to appear on the page.
+- **Colour is invisible to the checker.** The frame grid records shape, position, size, count,
+  and text — never colour. A challenge that only asks the student to change a colour has no way
+  to be checked; ask for a geometry or text change instead.
+- **`Rand` call order.** The checker seeds `Rand` the same way for the reference solution and
+  the student's program, so they only see the same random numbers if they call `Rand.Range` the
+  same number of times, in the same order. A `Rand`-using challenge must pin that order down in
+  the task statement.
+- **`Screen.Text` is one character per 16-px cell.** Text longer than 40 characters runs past
+  the right edge of the grid and the overflow simply disappears — it never wraps.
+- **A game sample that never calls `Screen.Clear` accumulates.** Every earlier frame's shapes
+  stay on screen and pile up. That's intended for a trails demo; anywhere else, it's a bug —
+  check that every `Draw` you write starts with `Screen.Clear()`.
