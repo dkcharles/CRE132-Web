@@ -16,6 +16,15 @@ public static class ProgramRunner
     public static RunResult Run(Action program, string input, long budget = RunBudget.DefaultLimit)
     {
         var writer = new BoundedWriter(OutputLimit);
+        string? error = Invoke(program, new StringReader(input), writer, budget);
+        return new RunResult(writer.Text, error);
+    }
+
+    // The redirection core. GameSession calls it for Main, for Setup and for every Draw, so a
+    // frame runs under exactly the rules a console program does - same capture, same culture,
+    // same budget mechanism, same friendly messages.
+    public static string? Invoke(Action program, TextReader stdin, TextWriter stdout, long budget)
+    {
         TextWriter oldOut = Console.Out;
         // On browser WebAssembly the Console.In GETTER itself throws (no stdin exists to wrap),
         // so the save is conditional - and restoration below is too. Desktop keeps full restore.
@@ -25,13 +34,13 @@ public static class ProgramRunner
         CultureInfo oldCulture = CultureInfo.CurrentCulture;
 
         RunBudget.Reset(budget);
-        Console.SetOut(writer);
-        Console.SetIn(new StringReader(input));
+        Console.SetOut(stdout);
+        Console.SetIn(stdin);
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         try
         {
             program();
-            return new RunResult(writer.Text, null);
+            return null;
         }
         catch (Exception ex)
         {
@@ -40,11 +49,9 @@ public static class ProgramRunner
                 ? tie.InnerException!
                 : ex;
 
-            string message = cause is BudgetExceededException or OutputLimitException
+            return cause is BudgetExceededException or OutputLimitException
                 ? cause.Message
                 : $"Your program stopped with an error: {cause.GetType().Name}: {cause.Message}";
-
-            return new RunResult(writer.Text, message);
         }
         finally
         {
