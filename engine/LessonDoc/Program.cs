@@ -40,30 +40,10 @@ static class Program
             foreach (string starter in Directory.GetFiles(challengesDir, "*.start.cs"))
             {
                 string id = Path.GetFileName(starter)[..^".start.cs".Length];
-                string solution = Path.Combine(challengesDir, id + ".solution.cs");
-                string casesFile = Path.Combine(challengesDir, id + ".cases.json");
-                if (!File.Exists(solution) || !File.Exists(casesFile))
-                {
-                    Console.Error.WriteLine(
-                        $"challenge '{id}': needs {id}.solution.cs and {id}.cases.json beside the starter.");
-                    failed = true;
-                    continue;
-                }
-                List<ChallengeCase> cases;
-                try
-                {
-                    cases = JsonSerializer.Deserialize<List<ChallengeCase>>(
-                        File.ReadAllText(casesFile),
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-                }
-                catch (JsonException e)
-                {
-                    Console.Error.WriteLine($"challenge '{id}': cases.json is not valid JSON: {e.Message}");
-                    failed = true;
-                    continue;
-                }
-                challenges[id] = new ChallengeFiles(
-                    SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases);
+                (ChallengeFiles? kit, IReadOnlyList<string> kitErrors) = ChallengeKit.Load(challengesDir, id);
+                foreach (string e in kitErrors) Console.Error.WriteLine(e.StartsWith("challenge ") ? e : $"challenge '{id}': {e}");
+                if (kit is null) { failed = true; continue; }
+                challenges[id] = kit;
             }
 
         // An .in.txt beside a sample's .cs prefills the input panel: what the sample's
