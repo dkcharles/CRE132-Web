@@ -40,6 +40,7 @@ public class ScriptRunnerTests
         Assert.Throws<FormatException>(() => FrameRange.Parse("30-10"));
         Assert.Throws<FormatException>(() => FrameRange.Parse("ten"));
         Assert.Throws<FormatException>(() => ScriptRunner.ParseKey("RightArrow"));
+        Assert.Throws<FormatException>(() => ScriptRunner.ParseKey("3"));
         Assert.Equal(Key.D3, ScriptRunner.ParseKey("D3"));
     }
 

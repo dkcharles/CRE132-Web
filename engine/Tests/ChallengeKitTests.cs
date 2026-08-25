@@ -98,4 +98,28 @@ public class ChallengeKitTests : IDisposable
         Assert.Null(strayKit);
         Assert.Contains(strayErrors, e => e.Contains("c7.frames.txt"));
     }
+
+    [Fact]
+    public void Bootstrapping_turns_a_stale_frames_txt_missing_a_case_into_a_warning_but_keeps_the_covered_case()
+    {
+        Put("c8.start.cs", ""); Put("c8.solution.cs", "");
+        Put("c8.cases.json",
+            "[ { \"game\": { \"frames\": 2, \"snapshot\": [2] } }, " +
+            "{ \"game\": { \"frames\": 2, \"snapshot\": [2] } } ]");
+        string grid = string.Join("\n", Enumerable.Repeat(new string(' ', 40), 23));
+        Put("c8.frames.txt", FramesFile.Format(new Dictionary<int, IReadOnlyList<FrameSnapshot>>
+        {
+            [1] = new[] { new FrameSnapshot(2, grid) }
+        }));
+
+        var (kit, errors) = ChallengeKit.Load(dir, "c8");
+        Assert.Null(kit);
+        Assert.Contains(errors, e => e.Contains("case 2"));
+
+        var (bootKit, bootErrors) = ChallengeKit.Load(dir, "c8", bootstrapping: true);
+        Assert.NotNull(bootKit);
+        Assert.Null(bootKit!.Cases[1].Frames);
+        Assert.Contains(bootErrors, e => e.StartsWith("warning: ") && e.Contains("case 2"));
+        Assert.NotNull(bootKit.Cases[0].Frames);
+    }
 }

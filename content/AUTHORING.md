@@ -246,6 +246,11 @@ Consequences for authoring:
   one; separate them by at least a cell.
 - A shape that leaves the screen disappears from the grid entirely, same as it would on the
   real canvas.
+- A circle's cell is marked only when that cell's **centre** is within the radius. Worst case,
+  the circle's centre lands exactly on a cell corner, and the four surrounding cell centres are
+  all √(8²+8²) ≈ 11.3 px away — so a circle with radius ≤ 11 can render as **zero** cells. Use
+  radius ≥ 12 for anything a challenge must be able to see at all, and prefer ≥ 16 when you want
+  a solid 2×2 blob to show up clearly in a failure diff.
 
 ### Game sample kit
 
@@ -309,6 +314,13 @@ CRE132_UPDATE_GOLDENS='1'` (PowerShell) or `CRE132_UPDATE_GOLDENS=1` (bash), the
 web/CRE132.Web` (this only warns about the missing file instead of failing), then `dotnet test
 engine/Tests --filter Content` to write it. Unset the variable and run a plain `dotnet build
 web/CRE132.Web` plus the full `dotnet test engine/Tests` — both must be green before you commit.
+
+The same trick covers *widening* an existing challenge — adding a new case, or a new snapshot
+frame to one that's already there — instead of creating one from scratch. The old `frames.txt`
+is now stale: it's still present, but no longer covers everything the script needs. With
+`CRE132_UPDATE_GOLDENS=1` set, the build only warns about the gap and proceeds, and the content
+tests regenerate the file to fill it in. Without the variable, the build fails outright, naming
+the exact case or frame block that's missing.
 
 ### Determinism rules
 

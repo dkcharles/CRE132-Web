@@ -10,12 +10,14 @@ public static class ChallengeKit
 {
     static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
 
-    // `bootstrapping` is CRE132_UPDATE_GOLDENS=1: a game challenge with no frames.txt yet is not
-    // fatal, because that variable is what generates the file in the first place (the content
-    // tests compile against the build this runs in — see AUTHORING.md). It becomes a "warning: "
-    // -prefixed entry in the returned list instead, and the kit still loads with Frames left
-    // null on the game case(s). Every other check (including a stray frames.txt on a
-    // non-game kit) is still an error either way.
+    // `bootstrapping` is CRE132_UPDATE_GOLDENS=1: a game challenge with no frames.txt yet, or
+    // with a frames.txt that no longer covers every case/frame the script now needs (widened
+    // after the golden was last generated), is not fatal, because that variable is what
+    // (re)generates the file in the first place (the content tests compile against the build
+    // this runs in — see AUTHORING.md). Each becomes a "warning: "-prefixed entry in the
+    // returned list instead, and the kit still loads, with Frames left null on any case whose
+    // coverage was incomplete. Every other check (including a stray frames.txt on a non-game
+    // kit) is still an error either way.
     public static (ChallengeFiles? Kit, IReadOnlyList<string> Errors) Load(
         string challengesDir, string id, bool bootstrapping = false)
     {
@@ -32,7 +34,7 @@ public static class ChallengeKit
         }
 
         IReadOnlyList<ChallengeCase> cases;
-        try { cases = LoadCases(casesFile, File.Exists(framesFile) ? framesFile : null, errors); }
+        try { cases = LoadCases(casesFile, File.Exists(framesFile) ? framesFile : null, errors, bootstrapping); }
         catch (JsonException e) { errors.Add($"challenge '{id}': cases.json is not valid JSON: {e.Message}"); return (null, errors); }
         catch (FormatException e) { errors.Add($"challenge '{id}': {e.Message}"); return (null, errors); }
 
@@ -54,8 +56,13 @@ public static class ChallengeKit
 
     // Reads cases.json, validates every game script, and attaches snapshots from frames.txt
     // (when given). Throws JsonException/FormatException for unreadable files; script problems
-    // are appended to `errors` so one run reports them all.
-    public static IReadOnlyList<ChallengeCase> LoadCases(string casesFile, string? framesFile, List<string> errors)
+    // are appended to `errors` so one run reports them all. When `bootstrapping` is true (see
+    // Load above), a frames.txt that exists but doesn't yet cover a case — because the case or
+    // one of its snapshot frames is new — reports a "warning: " instead of an error and leaves
+    // that case's Frames null rather than failing the whole kit; the content tests regenerate
+    // the file from the reference solution.
+    public static IReadOnlyList<ChallengeCase> LoadCases(
+        string casesFile, string? framesFile, List<string> errors, bool bootstrapping = false)
     {
         var cases = JsonSerializer.Deserialize<List<ChallengeCase>>(File.ReadAllText(casesFile), Json) ?? new();
         var frames = framesFile is null
@@ -82,14 +89,29 @@ public static class ChallengeKit
 
             if (framesFile is not null && g.Snapshot is not null)
             {
+                string fileName = Path.GetFileName(framesFile);
                 if (!frames.TryGetValue(i + 1, out IReadOnlyList<FrameSnapshot>? snaps))
-                    errors.Add($"{where}: no '=== case {i + 1} ===' section in {Path.GetFileName(framesFile)}.");
+                {
+                    string message = $"{where}: no '=== case {i + 1} ===' section in {fileName}.";
+                    errors.Add(bootstrapping
+                        ? $"warning: {message} Proceeding because CRE132_UPDATE_GOLDENS=1 — run the " +
+                          $"content tests with the same variable set to regenerate {fileName}, or delete it if in doubt."
+                        : message);
+                }
                 else
                 {
+                    bool covered = true;
                     foreach (int n in g.Snapshot)
                         if (!snaps.Any(s => s.Frame == n))
-                            errors.Add($"{where}: {Path.GetFileName(framesFile)} has no '--- frame {n} ---' block — regenerate it.");
-                    cases[i] = cases[i] with { Frames = snaps };
+                        {
+                            covered = false;
+                            string message = $"{where}: {fileName} has no '--- frame {n} ---' block — regenerate it.";
+                            errors.Add(bootstrapping
+                                ? $"warning: {message} Proceeding because CRE132_UPDATE_GOLDENS=1 — run the " +
+                                  $"content tests with the same variable set to regenerate {fileName}, or delete it if in doubt."
+                                : message);
+                        }
+                    if (covered || !bootstrapping) cases[i] = cases[i] with { Frames = snaps };
                 }
             }
         }

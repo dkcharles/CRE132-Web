@@ -37,8 +37,11 @@ public static class ScriptRunner
         return new ScriptResult(snapshots, session.ConsoleText, null);
     }
 
+    // Enum.TryParse also accepts the underlying numeric value as a string (e.g. "3"), silently
+    // succeeding even when that number happens to land on a real member's ordinal (3 is Down
+    // here) — Enum.IsDefined alone doesn't catch that case, so numeric input is rejected outright.
     public static Key ParseKey(string name) =>
-        Enum.TryParse(name, ignoreCase: false, out Key key)
+        Enum.TryParse(name, ignoreCase: false, out Key key) && Enum.IsDefined(key) && !int.TryParse(name, out _)
             ? key
             : throw new FormatException($"'{name}' is not a key name — use Left, Right, Up, Down, Space, Enter, Escape, A–Z or D0–D9.");
 }
