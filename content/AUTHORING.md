@@ -302,6 +302,14 @@ from the reference solution (or the sample) — review the grids in the diff, th
 Without the environment variable, a missing golden fails the test and prints the grid it would
 have written, so you can see what's wrong without generating anything.
 
+For a brand-new game challenge there's no `frames.txt` yet at all, and the content tests compile
+against the refs from `dotnet build web/CRE132.Web` — which normally refuses to build a game
+case with no `frames.txt`. So set the environment variable for *both* steps, in order: `$env:
+CRE132_UPDATE_GOLDENS='1'` (PowerShell) or `CRE132_UPDATE_GOLDENS=1` (bash), then `dotnet build
+web/CRE132.Web` (this only warns about the missing file instead of failing), then `dotnet test
+engine/Tests --filter Content` to write it. Unset the variable and run a plain `dotnet build
+web/CRE132.Web` plus the full `dotnet test engine/Tests` — both must be green before you commit.
+
 ### Determinism rules
 
 Under the checker, `Rand` is seeded (12345) and time is fixed, so the reference solution and a

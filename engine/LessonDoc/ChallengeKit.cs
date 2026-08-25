@@ -10,7 +10,14 @@ public static class ChallengeKit
 {
     static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
 
-    public static (ChallengeFiles? Kit, IReadOnlyList<string> Errors) Load(string challengesDir, string id)
+    // `bootstrapping` is CRE132_UPDATE_GOLDENS=1: a game challenge with no frames.txt yet is not
+    // fatal, because that variable is what generates the file in the first place (the content
+    // tests compile against the build this runs in — see AUTHORING.md). It becomes a "warning: "
+    // -prefixed entry in the returned list instead, and the kit still loads with Frames left
+    // null on the game case(s). Every other check (including a stray frames.txt on a
+    // non-game kit) is still an error either way.
+    public static (ChallengeFiles? Kit, IReadOnlyList<string> Errors) Load(
+        string challengesDir, string id, bool bootstrapping = false)
     {
         var errors = new List<string>();
         string starter = Path.Combine(challengesDir, id + ".start.cs");
@@ -31,11 +38,17 @@ public static class ChallengeKit
 
         bool anyGame = cases.Any(c => c.Game is not null);
         if (anyGame && !File.Exists(framesFile))
-            errors.Add($"challenge '{id}': has a game case but no {id}.frames.txt — run the content tests with CRE132_UPDATE_GOLDENS=1 to generate it.");
+        {
+            if (bootstrapping)
+                errors.Add($"warning: challenge '{id}': no {id}.frames.txt yet — proceeding because " +
+                    "CRE132_UPDATE_GOLDENS=1; run the content tests with the same variable set to generate it.");
+            else
+                errors.Add($"challenge '{id}': has a game case but no {id}.frames.txt — run the content tests with CRE132_UPDATE_GOLDENS=1 to generate it.");
+        }
         if (!anyGame && File.Exists(framesFile))
             errors.Add($"challenge '{id}': {id}.frames.txt exists but no case has a game script.");
 
-        if (errors.Count > 0) return (null, errors);
+        if (errors.Any(e => !e.StartsWith("warning: "))) return (null, errors);
         return (new ChallengeFiles(SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases), errors);
     }
 

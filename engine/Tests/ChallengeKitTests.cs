@@ -75,4 +75,27 @@ public class ChallengeKitTests : IDisposable
         var (_, stray) = ChallengeKit.Load(dir, "c5");
         Assert.Contains(stray, e => e.Contains("c5.frames.txt"));
     }
+
+    [Fact]
+    public void Bootstrapping_turns_a_missing_frames_txt_into_a_warning_but_a_stray_one_is_still_an_error()
+    {
+        Put("c6.start.cs", ""); Put("c6.solution.cs", "");
+        Put("c6.cases.json", "[ { \"game\": { \"frames\": 2, \"snapshot\": [2] } } ]");
+
+        var (kit, errors) = ChallengeKit.Load(dir, "c6");
+        Assert.Null(kit);
+        Assert.Contains(errors, e => e.Contains("c6.frames.txt"));
+
+        var (bootKit, bootMessages) = ChallengeKit.Load(dir, "c6", bootstrapping: true);
+        Assert.NotNull(bootKit);
+        Assert.Null(bootKit!.Cases[0].Frames);
+        string message = Assert.Single(bootMessages);
+        Assert.StartsWith("warning: ", message);
+
+        ConsoleKit("c7");
+        Put("c7.frames.txt", "=== case 1 ===\n");
+        var (strayKit, strayErrors) = ChallengeKit.Load(dir, "c7", bootstrapping: true);
+        Assert.Null(strayKit);
+        Assert.Contains(strayErrors, e => e.Contains("c7.frames.txt"));
+    }
 }

@@ -36,12 +36,18 @@ static class Program
 
         var challenges = new Dictionary<string, ChallengeFiles>();
         bool failed = false;
+        // CRE132_UPDATE_GOLDENS=1 is also what the content tests use to (re)generate frames.txt;
+        // that generation compiles against this build's refs, so a game challenge bootstrapping
+        // its frames.txt for the first time must be able to get through this build too. See
+        // ChallengeKit.Load and AUTHORING.md's "Game challenge kit" section.
+        bool bootstrapping = Environment.GetEnvironmentVariable("CRE132_UPDATE_GOLDENS") == "1";
         if (Directory.Exists(challengesDir))
             foreach (string starter in Directory.GetFiles(challengesDir, "*.start.cs"))
             {
                 string id = Path.GetFileName(starter)[..^".start.cs".Length];
-                (ChallengeFiles? kit, IReadOnlyList<string> kitErrors) = ChallengeKit.Load(challengesDir, id);
-                foreach (string e in kitErrors) Console.Error.WriteLine(e.StartsWith("challenge ") ? e : $"challenge '{id}': {e}");
+                (ChallengeFiles? kit, IReadOnlyList<string> kitErrors) = ChallengeKit.Load(challengesDir, id, bootstrapping);
+                foreach (string e in kitErrors)
+                    Console.Error.WriteLine(e.StartsWith("challenge ") || e.StartsWith("warning: ") ? e : $"challenge '{id}': {e}");
                 if (kit is null) { failed = true; continue; }
                 challenges[id] = kit;
             }
