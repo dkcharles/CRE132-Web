@@ -258,7 +258,7 @@ A sample may optionally carry `<id>.game.json`, test-only (it configures the che
 student never sees it):
 
 ```json
-{ "frames": 60, "keys": { "Right": "10-30" }, "mouse": { "x": 320, "y": 180, "down": "5-8" } }
+{ "frames": 60, "keys": { "Right": "10-30", "Space": "5" }, "mouse": { "x": 320, "y": 180, "down": "5-8" } }
 ```
 
 Defaults are 60 frames and no input. Frame ranges are inclusive and 1-based (`"10-30"` means
