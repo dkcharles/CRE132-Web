@@ -1,0 +1,5 @@
+[
+  { "game": { "frames": 10, "snapshot": [10], "mouse": { "x": 100, "y": 60, "down": "5-6" } } },
+  { "game": { "frames": 10, "snapshot": [10], "mouse": { "x": 500, "y": 300 } } },
+  { "game": { "frames": 12, "snapshot": [12], "mouse": { "x": 560, "y": 296, "down": "3-4" } } }
+]
