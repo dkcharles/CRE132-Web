@@ -4,9 +4,17 @@ public sealed record Entry(string Id, string Title, string NarrationFile);
 
 // One band of the course. FirstId..LastId is the band's slice of the lesson numbering, so a
 // part is defined by the numbers it owns rather than by a list that must be kept in step with
-// Entries. PlannedTitles names the lessons of a part that is not written yet, one per id in the
-// span; the home page shows a planned title only where no Entry exists for that id, so adding
-// the row for lesson 20 turns its greyed title into a working link with no other change.
+// Entries.
+//
+// PlannedTitles is indexed BY POSITION IN THE SPAN: PlannedTitles[id - FirstId] announces that
+// id. An Entry for the same id simply takes precedence, so writing lesson 20 means adding its
+// row and LEAVING its planned title where it is - deleting the title instead would slide every
+// later one up a slot and relabel 21 as "Vectors". WebCatalogTests holds the invariant that
+// makes either mistake fail the build: every id in the span resolves to an Entry, or to a
+// non-blank planned title at its own position.
+//
+// Subtitle overrides the "Lessons a-b" line the home page computes from the span. It is set
+// only where a part needs to say something else, as part 3 says "Coming soon".
 public sealed record Part(
     string Title,
     string Subtitle,
@@ -43,11 +51,12 @@ public static class WebCatalog
     };
 
     // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
-    // and 2 are written, so they name no planned titles; part 3 is all planned titles and no rows.
+    // and 2 are fully written, so their spans need no planned titles and their subtitles are the
+    // computed "Lessons a-b"; part 3 is all planned titles and no rows.
     public static readonly IReadOnlyList<Part> Parts = new[]
     {
-        new Part("Part 1 · Foundations", "Lessons 0–12", 0, 12, Array.Empty<string>()),
-        new Part("Part 2 · Graphics & motion", "Lessons 13–19", 13, 19, Array.Empty<string>()),
+        new Part("Part 1 · Foundations", "", 0, 12, Array.Empty<string>()),
+        new Part("Part 2 · Graphics & motion", "", 13, 19, Array.Empty<string>()),
         new Part("Part 3 · Objects & real games", "Coming soon", 20, 26, new[]
         {
             "Your first class",
@@ -67,4 +76,12 @@ public static class WebCatalog
     public static IReadOnlyList<Entry> EntriesIn(Part p) => Entries
         .Where(e => int.TryParse(e.Id, out int n) && n >= p.FirstId && n <= p.LastId)
         .ToList();
+
+    // The one way to read PlannedTitles: by the id's own position in the span, never by walking
+    // the list. Empty means "nothing announced for this id" - fine when an Entry covers it.
+    public static string PlannedTitle(Part p, int id)
+    {
+        int slot = id - p.FirstId;
+        return slot >= 0 && slot < p.PlannedTitles.Count ? p.PlannedTitles[slot] : "";
+    }
 }

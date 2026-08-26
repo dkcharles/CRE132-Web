@@ -1,6 +1,7 @@
 @namespace CRE132.Web.Pages
 @using CRE132.Engine
 @using Microsoft.JSInterop
+@implements IDisposable
 @inject Samples SampleStore
 
 @* The landing page: what the course is, on the left; what it builds, playing on the right.
@@ -32,7 +33,7 @@
             }
             else
             {
-                <p class="hero-hint">Click the canvas first — <b>W</b> / <b>S</b> move the left paddle, <b>↑</b> / <b>↓</b> the right.</p>
+                <p class="hero-hint">On a keyboard: click the canvas first — <b>W</b> / <b>S</b> move the left paddle, <b>↑</b> / <b>↓</b> the right.</p>
             }
             <p class="caption">What you'll build: Pong, by Lesson 19 — then Snake in Part 3.</p>
         </div>
@@ -44,11 +45,14 @@
             Dictionary<string, Entry> written = WebCatalog.EntriesIn(part).ToDictionary(e => e.Id);
             <div class="part @(written.Count == 0 ? "planned" : "")">
                 <h2>@part.Title</h2>
-                <p class="part-sub">@part.Subtitle</p>
+                @* The span line is computed, so it can never drift from FirstId..LastId; a part
+                   only carries a Subtitle when it needs to say something other than its span. *@
+                <p class="part-sub">@(part.Subtitle is { Length: > 0 } ? part.Subtitle : $"Lessons {part.FirstId}–{part.LastId}")</p>
                 <ol>
                     @* Walk the ids, not the rows: an id with a row is a link, an id without one
-                       shows its planned title greyed out. Writing lesson 20 therefore needs no
-                       edit here - the row appears and the greyed line becomes a link. *@
+                       shows the planned title AT ITS OWN POSITION greyed out. Writing lesson 20
+                       therefore needs no edit here - the row appears and the greyed line becomes
+                       a link, with every later planned title still on its own id. *@
                     @for (int id = part.FirstId; id <= part.LastId; id++)
                     {
                         string key = id.ToString();
@@ -58,8 +62,7 @@
                         }
                         else
                         {
-                            int slot = id - part.FirstId;
-                            <li class="soon">@($"{key}. {(slot < part.PlannedTitles.Count ? part.PlannedTitles[slot] : "")}")</li>
+                            <li class="soon">@($"{key}. {WebCatalog.PlannedTitle(part, id)}")</li>
                         }
                     }
                 </ol>
@@ -76,25 +79,55 @@
 
     GameStage? stage;
     string? notice;
+    bool gone;                              // set by Dispose: this Home is off the page for good
 
     // firstRender only, and only here: PlayAsync hands the canvas element to JS, so it must
     // already be in the document. The stage stops itself when this component goes away
     // (GameStage is IAsyncDisposable), so clicking through to a lesson leaves no loop running,
     // and Back re-creates Home and starts the preview afresh.
+    //
+    // `gone` guards the window between the awaits below. A visitor who clicks Start Lesson 0
+    // while the sample is still downloading has Home and its GameStage disposed FIRST, and the
+    // continuation then resumes with a dead stage in hand. Measured, with the guard removed and
+    // a 60 s delay in front of the fetch: the continuation does reach PlayAsync, which sets
+    // itself as GameStage's static `active` and then fails at game.js reset - the canvas
+    // ElementReference no longer resolves - so its own JSException catch returns with
+    // IsPlaying false. Today that stops short of the real damage only because reset runs
+    // BEFORE input.attach; attach is what sets input.js `running`, which swallows the arrow
+    // keys and Space page-wide for as long as it is set. Nothing in GameStage promises that
+    // ordering, and a dead stage should never be reached at all, so the guard is here rather
+    // than a comment trusting two accidents to keep holding.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
         try
         {
             byte[] program = await SampleStore.FetchAsync(PreviewSample);
+            if (gone) return;
             GameSession session = GameSession.Start(ProgramLoader.FromBytes(program), "");
-            if (session.IsGame) await stage!.PlayAsync(session);
+            if (!session.IsGame)
+            {
+                Notify();
+                return;
+            }
+            await stage!.PlayAsync(session);
+            if (gone) await stage.StopAsync();   // disposed mid-PlayAsync: leave no loop behind
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JSException)
+        catch (Exception)
         {
-            // A decorative preview must never be the reason the contents under it are unreachable.
-            notice = "The preview could not load — the lessons still work.";
-            StateHasChanged();
+            // Deliberately every exception: the preview is decorative, and a corrupt or
+            // renamed .bin must not leave the landing page in an invisible broken state with
+            // the lesson columns unreachable under a Blazor error banner.
+            Notify();
         }
     }
+
+    void Notify()
+    {
+        if (gone) return;
+        notice = "The preview could not load — the lessons still work.";
+        StateHasChanged();
+    }
+
+    public void Dispose() => gone = true;
 }
