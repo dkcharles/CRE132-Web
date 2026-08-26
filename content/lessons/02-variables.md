@@ -37,7 +37,8 @@ program, which is C# helping you, not punishing you.
 
 The little `f` on the end of `4.5f` is part of the number: the `f` tells C# this is a float —
 the number type games use. A whole number needs no `f`, so `float speed = 3;` is written just
-like that. C# has a second decimal type called `double`, which you will meet in other people's
+like that. Leave the `f` off a decimal and C# says it "cannot implicitly convert type 'double'
+to 'float'" and offers you a cast — ignore the cast, that message just means *add the `f`*. C# has a second decimal type called `double`, which you will meet in other people's
 code, but this course writes `float` everywhere, because `float` is the type Unity uses.
 
 :::key

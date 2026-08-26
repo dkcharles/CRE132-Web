@@ -67,6 +67,36 @@ public class GameApiTests
     }
 
     [Fact]
+    public void Rand_Range_with_bare_decimals_still_hands_back_a_float()
+    {
+        using var s = new Installed();
+        // A student who forgets the f suffix must not hit a compile error: the double overload
+        // exists and returns float, so this assignment needs no cast.
+        float d = Rand.Range(1.5, 2.5);
+        Assert.InRange(d, 1.5f, 2.5f);
+    }
+
+    [Fact]
+    public void Rand_Range_rejects_a_backwards_float_range_the_way_the_int_one_does()
+    {
+        using var s = new Installed();
+        ArgumentException e = Assert.Throws<ArgumentException>(() => Rand.Range(5f, 2f));
+        Assert.Contains("bigger than the first", e.Message);
+    }
+
+    [Fact]
+    public void Frame_Time_is_float_seconds_at_thirty_frames_a_second()
+    {
+        using var s = new Installed();
+        Assert.Equal(0f, Frame.Time);
+        s.State.FrameCount = 45;
+        // 45 frames at 30 fps is a second and a half - and it is a float, so student code can
+        // hold it in a float variable without a cast.
+        float t = Frame.Time;
+        Assert.Equal(1.5f, t);
+    }
+
+    [Fact]
     public void Game_Run_registers_once_and_refuses_twice_or_null()
     {
         using var s = new Installed();

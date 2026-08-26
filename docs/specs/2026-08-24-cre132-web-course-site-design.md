@@ -162,7 +162,7 @@ is taught.
 |---|--------|--------------|-------------------|
 | 0 | Welcome | How the site works; run your first program | Change a message and run it |
 | 1 | Your first program | Statements, `Console.WriteLine`, strings, comments | Print a formatted block |
-| 2 | Variables & types | `int`, `double`, `string`, `bool`; declare, assign, change | Swap/track values |
+| 2 | Variables & types | `int`, `float`, `string`, `bool`; declare, assign, change | Swap/track values |
 | 3 | Maths & operators | Arithmetic, precedence, `%`, interpolation | Calculator tasks |
 | 4 | Reading input | `Console.ReadLine`, `int.Parse`, the input panel | Greeting/echo, sums |
 | 5 | Making decisions | `if`/`else`, comparisons, `bool` expressions | Pass/fail grader |

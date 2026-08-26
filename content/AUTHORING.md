@@ -221,7 +221,7 @@ how debugging a game is taught.
 | `Key` (enum) | `Left, Right, Up, Down, Space, Enter, Escape, A … Z, D0 … D9` | Names are what the JS maps `e.key` to. |
 | `Mouse` | `X`, `Y` (int, pixels in screen space), `IsDown`, `WasClicked` | `WasClicked` = first frame of a press. |
 | `Frame` | `Count` (int, 0 on the first `Draw`), `Time` (float seconds = Count / 30f), `Rate` (const 30) | `Time` is `float` so a `float` variable holds it without a cast. |
-| `Rand` | `Range(int min, int maxExclusive)`, `Range(float min, float max)` | Seeded by the host (see Determinism). There is deliberately no `double` overload: `Rand.Range(1.5, 2.5)` does not compile, `Rand.Range(1.5f, 2.5f)` does. |
+| `Rand` | `Range(int min, int maxExclusive)`, `Range(float min, float max)` | Seeded by the host (see Determinism). `Range(double, double)` also exists and returns `float`, so `Rand.Range(1.5, 2.5)` works without the suffix — but write `1.5f` in content, per Style. |
 | `Game` | `Run(Action setup, Action draw)` | Registers and returns. Calling it twice, or calling it with a null, throws with a plain message. No `Stop`: game-over screens arrive with enums in Lesson 23. |
 
 Every game lesson holds to three rules:
