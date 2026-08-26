@@ -80,6 +80,10 @@ not even `void`. It runs once, when `new Ball(...)` is written, and the argument
 arrive as its parameters. So `new Ball(160, 100, 4, 3)` builds a ball already at `(160, 100)`,
 already travelling `4` across and `3` down — one line instead of five.
 
+One catch: once `Ball` has that constructor, the empty `new Ball()` from the previous sample no
+longer compiles. A class with a constructor asks for exactly the arguments it names, so from here
+on you have to pass all four values.
+
 :::run s20a-constructor Two balls, built from one plan, each with its own starting numbers.
 
 Two `Ball` objects, one `class Ball`. The plan is written once; `new` was written twice, and each

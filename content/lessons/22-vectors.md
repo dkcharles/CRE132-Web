@@ -138,7 +138,8 @@ two scripts. The first is 60 frames long and looks at frames 30 and 60, by which
 seeker has covered `120` and `240` pixels of a straight line from `(100, 300)` to `(540, 60)` —
 about a quarter of the way and about half: a seeker moving at the wrong speed, or not
 normalising at all, is nowhere near either mark. The second script runs 200 frames and looks at
-the last one. The gap is about `500` pixels wide, so `4` pixels a frame arrives at around frame
-125 — by frame 200 a seeker that stops is resting on the target, and one that does not is still
-bouncing past it. Press **Check** when you are ready.
+frames 150 and 200. The gap is about `500` pixels wide, so `4` pixels a frame arrives at around
+frame 125 — a seeker that stops is resting on the target by frame 150 and is still resting in
+exactly the same place at frame 200, while one that does not is somewhere else on both, bouncing
+past it. Press **Check** when you are ready.
 :::

@@ -3,7 +3,7 @@ using Xunit;
 
 namespace CRE132.Tests;
 
-// The home page derives its three columns from Parts alone: it walks FirstId..LastId and, for
+// The home page derives its four columns from Parts alone: it walks FirstId..LastId and, for
 // each id, shows either that id's Entry as a link or WebCatalog.PlannedTitle(part, id) greyed
 // out. A part that overlaps another, skips a number, or whose planned titles have slipped out of
 // position produces a lesson listed twice, a blank line, or - worst, because it still looks

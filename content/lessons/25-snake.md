@@ -1,8 +1,8 @@
 # Mini-game: Snake
 
-Six lessons of parts again: a class, a list of objects, states, timers and grids. This
-lesson introduces nothing new. It puts the parts together into the game that shipped on every
-Nokia phone in the world, and it is a much smaller program than you would guess.
+Five lessons of parts: a class, a list of objects, vectors, states, timers and grids. This
+lesson adds one list method and nothing else. It puts the parts together into the game that
+shipped on every Nokia phone in the world, and it is a much smaller program than you would guess.
 
 :::run s25-snake The finished game. Click the canvas first, then press the space bar and steer with the arrow keys.
 

@@ -138,7 +138,7 @@ unpause, push `startFrame` forward by the number of frames the pause lasted.
 ## Challenge
 
 :::challenge c23-game-over
-The starter is the motion lesson's bouncing ball inside the class from your first class lesson:
+The starter is the motion lesson's bouncing ball inside the class from the first-class lesson:
 `new Ball(320, 180, 4, 3)`, a `radius` of `20`, and a `Move()` that bounces it off all four
 edges. It starts playing the moment you press **Run** and it never ends. Give it a title screen
 and a game over. Four numbered comments mark the four places to write.
@@ -179,9 +179,12 @@ and sets `state` to `State.Playing` when `Keys.WasPressed(Key.Space)`.
 `State.GameOver` when `ball.y > Screen.Height + ball.radius` — one radius past the bottom, by
 which point the ball is out of sight.
 
-`case State.GameOver:` draws `Screen.Text(240, 170, "GAME OVER", Colour.White);` and, when
-`Keys.WasPressed(Key.Enter)`, calls `ball.Reset();` and sets `state` back to `State.Title`.
-`Reset()` is already written for you: it puts the ball back at `(320, 180)`.
+`case State.GameOver:` draws two lines of text, at those exact positions:
+`Screen.Text(240, 170, "GAME OVER", Colour.White);` and, under it,
+`Screen.Text(130, 210, "ENTER FOR TITLE", Colour.White);` — a game-over screen that does not say
+which key gets you out of it is a dead end. Then, when `Keys.WasPressed(Key.Enter)`, it calls
+`ball.Reset();` and sets `state` back to `State.Title`. `Reset()` is already written for you: it
+puts the ball back at `(320, 180)`.
 
 Change nothing else — not the starting position, not the two speeds, not the radius.
 
@@ -189,8 +192,9 @@ Three scripts check it. The first runs ten frames and presses nothing: the ball 
 sitting at `(320, 180)` with `Press SPACE` below it, so a ball that moves on the title screen is
 caught on frame 10. The second presses the space bar on frame 5 and runs for 200 frames; the ball
 crosses the bottom edge on frame 72, so frame 60 catches it near the bottom-right corner, at
-`(540, 345)`, and frame 200 must show `GAME OVER` and nothing else. The third presses the space
-bar on frame 5 and **Enter** on frame 150: frame 140 is still the game-over screen, and by frame
-200 the title is back with the ball returned to `(320, 180)` — leave `ball.Reset();` out and
-the title screen comes back without the ball. Press **Check** when you are ready.
+`(540, 345)`, and frame 200 must show the two lines of the game-over screen and nothing else.
+The third presses the space bar on frame 5 and **Enter** on frame 150: frame 140 is still the
+game-over screen, and by frame 200 the title is back with the ball returned to `(320, 180)` —
+leave `ball.Reset();` out and the title screen comes back without the ball. Press **Check** when
+you are ready.
 :::

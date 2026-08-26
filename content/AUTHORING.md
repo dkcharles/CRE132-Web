@@ -44,7 +44,9 @@ Every lesson needs, at minimum:
       `<id>.solution.cs` + `<id>.cases.json`. (A showcase lesson ships none at all — its kit is
       samples only; see "Showcase lessons" under "Classes (20 onward)".)
 - [ ] One row in `WebCatalog.Entries` (`web/CRE132.Web/WebCatalog.cs`), inserted in course
-      order, pointing at `lessons/<NN-name>.json`.
+      order, pointing at `lessons/<NN-name>.json`. A lesson numbered past the last `Part`'s
+      `LastId` also needs that span raised (or a new `Part` added) with a planned title or an
+      Entry in every slot it now covers, or `WebCatalogTests` fails and names the gap.
 - [ ] For a game lesson (13 onward): each game sample kit adds `<id>.frame.txt` (the golden
       final frame) alongside its `.cs` and `.out.txt`.
 - [ ] For a game lesson, a game challenge case carrying a `game` script needs a matching
@@ -171,7 +173,7 @@ choosing what a sample or challenge may contain:
 | 23 | Game state | `enum`, a state field, `switch` on state, restart |
 | 24 | Animation & timing | Countdown timers, `Frame.Count % n`, frame sequences, grid-step movement, cooldowns |
 | 25 | Mini-game: Snake | `List<T>.Insert(0, ...)` (introduced here); otherwise a guided build |
-| 26 | Going further | `int[,]`; showcase only |
+| 26 | Going further | `int[,]`, `Rand.Range(float, float)` (first use in the course); showcase only |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
 arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `MathF.Sqrt`/`MathF.Abs`

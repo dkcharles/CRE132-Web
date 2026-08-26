@@ -24,6 +24,7 @@ void Draw()
             break;
         case State.GameOver:
             Screen.Text(240, 170, "GAME OVER", Colour.White);
+            Screen.Text(130, 210, "ENTER FOR TITLE", Colour.White);
             if (Keys.WasPressed(Key.Enter))
             {
                 ball.Reset();

@@ -32,6 +32,7 @@ class Shot
 {
     public float x, y;
     public float speed = 6;
+    public float radius = 12;
 
     public Shot(float startX, float startY)
     {
@@ -46,6 +47,6 @@ class Shot
 
     public void Draw()
     {
-        Screen.Circle(x, y, 12, Colour.Orange);
+        Screen.Circle(x, y, radius, Colour.Orange);
     }
 }

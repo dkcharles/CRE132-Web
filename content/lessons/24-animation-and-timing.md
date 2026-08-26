@@ -108,11 +108,11 @@ and the `switch` from the game-state lesson.
 
 :::challenge c24-cooldown
 The starter is a ship — a `60` by `20` rectangle at `(290, 340)` — and a `List<Shot>`. `Shot` is
-written for you: `x`, `y`, a `speed` of `6`, a `Move()` that takes `speed` off `y`, and a
-`Draw()` that draws a circle of radius `12`. The trigger works too, and that is the problem.
-`Keys.IsDown(Key.Space)` is true on every frame the key is held, so holding the space bar for two
-seconds fires sixty shots, each one sitting on top of the last. Give it a cooldown. Five numbered
-comments mark the five places to write.
+written for you: `x`, `y`, a `speed` of `6`, a `radius` of `12`, a `Move()` that takes `speed`
+off `y`, and a `Draw()` that draws a circle of that radius. The trigger works too, and that is
+the problem. `Keys.IsDown(Key.Space)` is true on every frame the key is held, so holding the
+space bar for two seconds fires sixty shots, each one sitting on top of the last. Give it a
+cooldown. Five numbered comments mark the five places to write.
 
 Where comment 1 is, at the top of the file:
 
@@ -130,9 +130,9 @@ Where comment 3 is, give the `if` below it a second condition, so it reads
 `if (Keys.IsDown(Key.Space) && cooldown <= 0)`, and add `cooldown = 15;` inside it, on the line
 after `shots.Add(...)`.
 
-Where comment 4 is, inside the loop: when `shots[i].y` is less than `-12` — one radius past the
-top, so the shot is out of sight — remove it with `shots.RemoveAt(i);` and then step the index
-back with `i--;`.
+Where comment 4 is, inside the loop: when `shots[i].y` is less than `-shots[i].radius` — one
+radius past the top, so the shot is out of sight — remove it with `shots.RemoveAt(i);` and then
+step the index back with `i--;`.
 
 Where comment 5 is, after the loop:
 

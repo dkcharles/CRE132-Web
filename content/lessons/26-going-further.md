@@ -167,12 +167,12 @@ Click anywhere on the canvas.
 
 :::run s26b-particles Forty sparks a burst. Click the canvas, and one goes off by itself every three seconds anyway.
 
-A `Particle` is the smallest useful class in the course: an `x` and a `y`, a `speedX` and a
-`speedY`, and an `int life` counting down. `Burst` adds forty of them at the same point, each
-with `Rand.Range(-spread, spread)` for its sideways speed and the same again for its vertical
-one — `spread` is `3.5f` — so forty sparks leave one place in forty different directions.
-`gravity` of `0.2f` is added to `speedY` every frame — the falling from the motion lesson, one
-line — which is what bends a ball of sparks into a firework.
+A `Particle` is a small class, and most of it is numbers you already know: an `x` and a `y`, a
+`speedX` and a `speedY`, and an `int life` counting down. `Burst` adds forty of them at the same
+point, each with `Rand.Range(-spread, spread)` for its sideways speed and the same again for its
+vertical one — `spread` is `3.5f` — so forty sparks leave one place in forty different
+directions. `gravity` of `0.2f` is added to `speedY` every frame — the falling from the motion
+lesson, one line — which is what bends a ball of sparks into a firework.
 
 `life` starts at `75`, drops by one a frame and reaches zero after two and a half seconds. The
 removal loop is the objects-together lesson's, unchanged: an index loop rather than a `foreach`,

@@ -1,4 +1,4 @@
 [
   { "game": { "frames": 60, "snapshot": [30, 60] } },
-  { "game": { "frames": 200, "snapshot": [200] } }
+  { "game": { "frames": 200, "snapshot": [150, 200] } }
 ]

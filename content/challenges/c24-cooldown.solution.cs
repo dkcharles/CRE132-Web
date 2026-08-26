@@ -21,7 +21,7 @@ void Draw()
     {
         shots[i].Move();
         shots[i].Draw();
-        if (shots[i].y < -12)
+        if (shots[i].y < -shots[i].radius)
         {
             shots.RemoveAt(i);
             // Step the index back, or the shot that slid into the gap is skipped this frame.
@@ -38,6 +38,7 @@ class Shot
 {
     public float x, y;
     public float speed = 6;
+    public float radius = 12;
 
     public Shot(float startX, float startY)
     {
@@ -52,6 +53,6 @@ class Shot
 
     public void Draw()
     {
-        Screen.Circle(x, y, 12, Colour.Orange);
+        Screen.Circle(x, y, radius, Colour.Orange);
     }
 }
