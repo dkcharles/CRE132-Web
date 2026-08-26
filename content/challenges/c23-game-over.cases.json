@@ -1,0 +1,5 @@
+[
+  { "game": { "frames": 10, "snapshot": [10] } },
+  { "game": { "frames": 200, "snapshot": [60, 200], "keys": { "Space": "5" } } },
+  { "game": { "frames": 200, "snapshot": [140, 200], "keys": { "Space": "5", "Enter": "150" } } }
+]
