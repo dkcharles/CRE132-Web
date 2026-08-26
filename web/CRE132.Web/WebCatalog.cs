@@ -60,11 +60,12 @@ public static class WebCatalog
     };
 
     // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
-    // and 2 are fully written, so their spans need no planned titles and their subtitles are the
-    // computed "Lessons a-b"; part 3 is part written and keeps a planned title in every slot, and
-    // part 4 is all planned titles and no rows. Part 3 ends on Snake and part 4 holds the showcase
-    // lessons - 26 today, later ones after it - so a reader sees where the taught course stops and
-    // the "read, run, tinker" material starts.
+    // and 2 carry no planned titles at all and their subtitles are the computed "Lessons a-b".
+    // Parts 3 and 4 are written too, but keep a planned title in every slot: an Entry takes
+    // precedence over one, so the titles cost nothing now and are already in place for the next
+    // showcase lesson appended to part 4. Part 3 ends on Snake and part 4 holds the showcase
+    // lessons - 26 today, later ones after it - so a reader sees where the taught course stops
+    // and the "read, run, tinker" material starts.
     public static readonly IReadOnlyList<Part> Parts = new[]
     {
         new Part("Part 1 · Foundations", "", 0, 12, Array.Empty<string>()),

@@ -80,8 +80,9 @@ the distance comes from `cell`. Multiplying the two is what makes every move exa
 whichever way it is going.
 
 Hold an arrow down and the square does not speed up; it travels the same distance per beat in a
-new direction. Let go and it keeps going, because nothing ever sets `stepX` and `stepY` back to
-zero. Both of those are how a snake behaves, and both came free.
+new direction. Let go and it keeps going — straight off the edge of the board and out of sight,
+because nothing ever sets `stepX` and `stepY` back to zero, and nothing here says the board has
+edges. Both of those are how a snake behaves, and both came free.
 
 :::try
 Change `framesPerStep` to `3` and run it: the same distance per step, twice as often. Then try
@@ -100,7 +101,7 @@ if (y > Screen.Height - cell) y = 0;
 
 Drive off the right-hand edge and the square comes back on the left. Then delete those four lines
 and try the other rule instead: end the round when the square leaves the board, using the enum
-and the `switch` from the game state lesson.
+and the `switch` from the game-state lesson.
 :::
 
 ## Challenge

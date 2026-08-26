@@ -10,10 +10,10 @@ Play a round before you read any further. Eat the red squares, do not hit a wall
 into yourself. When it is over, **Enter** takes you back to the title.
 
 Everything on that board is something you have already written. The snake is a `List<Segment>` —
-the same list of objects as the lesson on objects together, with a tiny class holding two `int`
+the same list of objects as the objects-together lesson's, with a tiny class holding two `int`
 fields instead of a `Ball` holding five `float` ones. It moves one whole cell on a beat, which is
 the grid step from the animation lesson. And the three screens are one `enum`, one variable and
-one `switch`, exactly as the game state lesson left them.
+one `switch`, exactly as the game-state lesson left them.
 
 What is new is the arrangement. So the rest of this lesson builds that same program from nothing,
 in three steps. Each step is a challenge, and each challenge's starter is the step before it,
@@ -58,7 +58,7 @@ body.RemoveAt(body.Count - 1);
 the front. Two lines, and the whole snake appears to slide forward by one cell.
 
 The direction is a pair of `int`s — `dirCol` and `dirRow`, each `-1`, `0` or `1`, never anything
-else. That is the grid-step lesson's `stepX` and `stepY` with names that say what they index. The
+else. That is the animation lesson's `stepX` and `stepY` with names that say what they index. The
 arrows set them, and each arrow refuses the one turn that would fold the snake back into its own
 neck:
 
@@ -248,7 +248,7 @@ about to move out of the way and should not count; they are right, and the diffe
 about once a year. Counting it is one line shorter and easier to explain, so that is the rule
 this game uses.
 
-The three screens are the game state lesson's, unchanged. An `enum` at the bottom of the file, a
+The three screens are the game-state lesson's, unchanged. An `enum` at the bottom of the file, a
 `state` variable at the top, and a `switch` in `Draw` with a case each. The space bar starts a
 round from the title, **Enter** goes back to the title from game over — a different key on
 purpose, because the space bar is the one you were leaning on when you died.
@@ -379,8 +379,11 @@ head lands on one. The class you wrote for the snake describes a wall perfectly 
 is a cell, and a cell is a cell whatever is standing on it.
 :::
 
-That is the last game in the course. What is left is Part 4, Going further — one page that runs
-Conway's Game of Life on a grid of ints, and then points at where all of this actually goes.
+That is the last game in the course. What is left is Part 4, Going further — one page with three
+programs on it to read, run and pull apart: a flock of agents that seek and flee, Conway's Game of
+Life on a grid of ints, and a firework of short-lived particles. Nothing there asks you for
+anything, and it ends by pointing at where all of this actually goes.
+
 Everything in Part 3 was chosen because it is what Unity is made of: a `class` with public fields
 you can see and set, an `Update` that runs once a frame, a `List` of objects the game owns, a
 `Vector2` that does its own arithmetic, and a state machine deciding which screen you are looking

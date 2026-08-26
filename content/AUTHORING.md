@@ -170,15 +170,16 @@ choosing what a sample or challenge may contain:
 | 22 | Vectors | A student-written `Vec2` class: `Length`, `Normalised`, `Add`, `Scale` |
 | 23 | Game state | `enum`, a state field, `switch` on state, restart |
 | 24 | Animation & timing | Countdown timers, `Frame.Count % n`, frame sequences, grid-step movement, cooldowns |
-| 25 | Mini-game: Snake | Nothing new — a guided build |
+| 25 | Mini-game: Snake | `List<T>.Insert(0, ...)` (introduced here); otherwise a guided build |
 | 26 | Going further | `int[,]`; showcase only |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
 arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `MathF.Sqrt`/`MathF.Abs`
 before Lesson 18, no `RemoveAt` before Lesson 17. No `class` before Lesson 20, no `enum` before
-Lesson 23, and `int[,]` in Lesson 26 and nowhere else. String building uses `+` concatenation
-until Lesson 3 introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's
-samples even though it would read more naturally, because the reader hasn't met it yet.
+Lesson 23, no `List<T>.Insert` before Lesson 25, and `int[,]` in Lesson 26 and nowhere else.
+String building uses `+` concatenation until Lesson 3 introduces `$"..."` interpolation — don't
+reach for interpolation in Lesson 2's samples even though it would read more naturally, because
+the reader hasn't met it yet.
 
 ## Game lessons (13 onward)
 
@@ -351,16 +352,20 @@ rule that governs every challenge, console ones included.
 
 ### Guided-build lessons
 
-A mini-game lesson — Lesson 19 (Pong) is the shipped example, Lesson 25 (Snake) is the next, and
+A mini-game lesson — Lesson 19 (Pong) and Lesson 25 (Snake) are the two shipped examples, and
 Snake follows Pong's shape exactly, classes and all — is not "lesson plus challenge". It is one
 program built in steps, and the shape it uses bends three of the rules above — deliberately, so
 copy this shape rather than fighting it:
 
 - **One reference sample, not 3–5.** A single `:::run` at the top shows the finished game, so the
-  reader knows what they are building towards. It is the one place a sample may run past a
-  screenful (Pong's is around seventy-five lines, about a quarter of them the named numbers the
-  game is built from): the whole point is that it is a whole program, and the lesson then takes
-  it apart. Every other sample the lesson would have had is a challenge step instead.
+  reader knows what they are building towards. It is the sanctioned exception to "samples fit on
+  one screen": Pong's is 76 lines, about a quarter of them the named numbers the game is built
+  from, and Snake's is 135, because a class, a list of objects, a grid step and a three-state
+  machine all have to be in the file at once. The whole point is that it is a whole program, and
+  the lesson then takes it apart. Every other sample the lesson would have had is a challenge step
+  instead. The reference sample and the last step's `solution.cs` are the same program: Snake's
+  `s25-snake.cs` and `c25c-game-over.solution.cs` are byte-identical, and Pong's two differ only
+  by the why-comments the sample carries and the solution does not.
 - **Chained challenge kits, one per step.** Each step gets its own three-file kit, lettered in
   order, and **each starter is the previous step's solution** — `c19b-ball.start.cs` is
   `c19a-paddles.solution.cs` with the next comment in it. A student who finishes step 1 carries
@@ -495,6 +500,15 @@ The `switch` is Lesson 6's, unchanged — same `case` and `break`, with `State.P
 number or a string used to be. That is the whole trick, and it is worth saying so: a title
 screen and a game-over screen are not an engine feature, they are one variable and a `switch`.
 
+**Space starts, Enter returns to the title** — the convention from Lesson 23 that Snake follows,
+and that every later state machine should. The two keys are deliberately different: space is the
+key the player was leaning on when they lost, so a game-over screen that also listens for space
+clears itself before it can be read. A `Reset()` that puts every one of the round's variables
+back is the other half of it, and *where* it is called follows from what the title screen draws:
+a title screen that shows nothing of the round resets on the way into a round (`s23a-restart`),
+and one that draws the board resets on the way out of game over (Snake, and `c23-game-over`),
+so the title never shows the corpse of the last round.
+
 ### 2D arrays
 
 `int[,] cells = new int[cols, rows];`, read and written as `cells[x, y]`, appears in **Lesson 26
@@ -513,6 +527,17 @@ editor to land in and the reader can change a number without leaving the page. T
 rule and the "at least one `:::try`" rule still hold; "at least one challenge" is the single
 line of the file kit a showcase lesson is exempt from.
 
+A showcase sample is also allowed past the one-screen limit, for the same reason a guided build's
+is: it is a whole program on purpose. Lesson 26 ships three of them — `s26-steering` (agents that
+seek, flee and wander), `s26a-life` (Conway's Life on the course's only `int[,]`) and
+`s26b-particles` (a burst of short-lived objects), plus `s26c-particles-edit`, the `:::edit` copy
+of the third. `s26-steering` runs to about a hundred lines because thirty-one of them are Lesson
+22's `Vec2`, copied in verbatim — a showcase may not reach for a shortcut a reader has not been
+taught, so the class comes with it rather than being replaced by something shorter. Say so in the
+prose when it happens, so a reader who counts the lines knows why they are there. A `:::try` on a
+sample with no `:::edit` of its own points at the **Playground** by name, exactly as a guided
+build's points at a named challenge editor.
+
 ## Style
 
 - Second person ("you"), short paragraphs.
@@ -524,8 +549,11 @@ line of the file kit a showcase lesson is exempt from.
 - At least one `:::try` per lesson, inviting the reader to experiment beyond what the samples
   show.
 - A lesson reads in 5–10 minutes — don't pad it to look thorough.
-- Samples fit on one screen; if a sample needs scrolling to read, it's doing too much. The one
-  exception is a guided-build lesson's single reference sample — see "Guided-build lessons".
+- Samples fit on one screen; if a sample needs scrolling to read, it's doing too much. There are
+  two sanctioned exceptions, both whole programs on purpose: a guided-build lesson's single
+  reference sample (Pong's 76 lines, Snake's 135 — see "Guided-build lessons") and a showcase
+  lesson's samples (Lesson 26's three, the longest around a hundred lines — see "Showcase
+  lessons").
 - **`float`, never `double` — and the `f` goes on decimals only.** Every decimal number a student
   writes is a `float`, because that is the type Unity uses and the course feeds into Unity. The
   convention, held to everywhere in `content/`: a **decimal** literal carries the suffix
