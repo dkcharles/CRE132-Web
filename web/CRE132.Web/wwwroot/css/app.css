@@ -136,10 +136,11 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .stage-canvas { display: block; width: 100%; max-width: 640px; background: #000; border-radius: 6px; aspect-ratio: 16 / 9; }
 .stage-controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.4rem 0; min-height: 1.6rem; }
 .stage-hint { font-size: 0.85rem; opacity: 0.7; }
-/* ▶ Run again: only rendered where the host page has no Run button of its own. The site accent
-   at control size, so it reads as the counterpart to ■ Stop and not as a second call to action
+/* ▶ Run again: only rendered where the host page has no Run button of its own, and only inside
+   a stage - scoped so the name cannot claim a button elsewhere on the site. The site accent at
+   control size, so it reads as the counterpart to ■ Stop and not as a second call to action
    competing with Start Lesson 0. */
-.replay {
+.stage .replay {
     background: #46a;
     color: #fff;
     border: 0;
@@ -149,6 +150,6 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
     font-weight: 600;
     cursor: pointer;
 }
-.replay:hover, .replay:focus-visible { background: #35a; }
+.stage .replay:hover, .stage .replay:focus-visible { background: #35a; }
 .stage-console { max-height: 14rem; overflow-y: auto; }
 .console.grid .line { white-space: pre; font-size: 0.8rem; line-height: 1.05; min-height: 0; }

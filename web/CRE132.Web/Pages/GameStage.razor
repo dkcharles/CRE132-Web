@@ -14,13 +14,15 @@
         @if (IsPlaying) { <button @onclick="StopAsync">■ Stop</button> }
         else if (session is { IsGame: true })
         {
-            @* Only where the host offers a way back. A lesson page's Run button is that way back
-               already, so it passes no OnReplay and this row stays exactly as it was; the
-               landing page, whose preview starts itself and has no Run button anywhere, passes
-               one. Stopped, finished and errored all reach here - a game that ended is as
-               replayable as one that was stopped. *@
+            @* Either a way back or a sentence about one, never both. A lesson page's Run
+               button is the way back already, so it passes no OnReplay and this row stays
+               exactly as it was: the hint, pointing at that button. The landing page's preview
+               starts itself and has no Run button anywhere, so it passes a handler and gets the
+               button - and the hint there would be pointing at a Run that does not exist.
+               Stopped, finished and errored all reach here: a game that ended is as replayable
+               as one that was stopped. *@
             @if (OnReplay.HasDelegate) { <button class="replay" @onclick="() => OnReplay.InvokeAsync()">▶ Run again</button> }
-            <span class="stage-hint">@(error is null ? "Stopped — press Run to play again." : "")</span>
+            else { <span class="stage-hint">@(error is null ? "Stopped — press Run to play again." : "")</span> }
         }
     </div>
     @if (notice is not null) { <p class="notice">@notice</p> }
