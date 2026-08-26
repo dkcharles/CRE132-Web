@@ -17,7 +17,7 @@ public class ScriptRunnerTests
     }
 
     const string Paddle = """
-        double x = 0;
+        float x = 0;
         void Setup() { }
         void Draw()
         {

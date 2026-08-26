@@ -10,5 +10,7 @@ public static class Rand
         return GameHost.State.Random.Next(min, maxExclusive);
     }
 
-    public static double Range(double min, double max) => min + GameHost.State.Random.NextDouble() * (max - min);
+    // float, not double: student code declares positions and speeds as float (Unity's type),
+    // and a float variable must be able to hold this without a cast.
+    public static float Range(float min, float max) => min + (float)GameHost.State.Random.NextDouble() * (max - min);
 }

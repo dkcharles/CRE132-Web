@@ -71,7 +71,7 @@ public class ChallengeCheckerTests
     }
 
     const string Mover = """
-        double x = 0;
+        float x = 0;
         void Setup() { }
         void Draw() { Screen.Clear(); if (Keys.IsDown(Key.Right)) x = x + 16; Screen.Rect(x, 0, 16, 16, Colour.White); Console.WriteLine("x=" + x); }
         Game.Run(Setup, Draw);

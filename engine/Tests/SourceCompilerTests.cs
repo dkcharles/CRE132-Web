@@ -39,7 +39,7 @@ public class SourceCompilerTests
         // from refs, THIS fails - fix the facade lists, not this test.
         RunResult r = await CompileAndRun("""
             int n = int.Parse(Console.ReadLine() ?? "0");
-            double root = Math.Sqrt(n);
+            float root = MathF.Sqrt(n);
             var scores = new List<int> { 3, 1, 2 };
             scores.Sort();
             string joined = string.Join(",", scores);

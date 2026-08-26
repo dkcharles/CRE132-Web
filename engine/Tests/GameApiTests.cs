@@ -62,8 +62,8 @@ public class GameApiTests
         Assert.Equal(a, b);
         using var t = new Installed();
         Assert.Throws<ArgumentException>(() => Rand.Range(5, 5));
-        double d = Rand.Range(1.5, 2.5);
-        Assert.InRange(d, 1.5, 2.5);
+        float d = Rand.Range(1.5f, 2.5f);
+        Assert.InRange(d, 1.5f, 2.5f);
     }
 
     [Fact]

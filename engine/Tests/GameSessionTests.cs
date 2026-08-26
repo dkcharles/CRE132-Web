@@ -17,7 +17,7 @@ public class GameSessionTests
     }
 
     const string Ball = """
-        double x = 0;
+        float x = 0;
         void Setup() { Screen.Size(320, 160); Console.WriteLine("setup"); }
         void Draw() { Screen.Clear(); Screen.Circle(x, 80, 8, Colour.Red); x = x + 10; Console.WriteLine("frame " + Frame.Count); }
         Game.Run(Setup, Draw);
@@ -128,7 +128,7 @@ public class GameSessionTests
     const string StaticCounter = """
         class Program
         {
-            static double x;
+            static float x;
             static void Setup() { }
             static void Draw() { x = x + 10; Console.WriteLine(x); }
             static void Main() { Game.Run(Setup, Draw); }

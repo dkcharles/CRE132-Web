@@ -5,5 +5,5 @@ public static class Frame
 {
     public const int Rate = 30;
     public static int Count => GameHost.State.FrameCount;
-    public static double Time => Count / (double)Rate;
+    public static float Time => Count / (float)Rate;
 }
