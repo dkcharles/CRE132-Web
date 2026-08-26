@@ -1,5 +1,5 @@
-double tx = 320;
-double ty = 180;
+float tx = 320;
+float ty = 180;
 
 void Setup()
 {

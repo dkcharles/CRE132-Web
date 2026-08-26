@@ -1,6 +1,6 @@
 // y counts DOWN from the top of the screen: a bigger y draws the circle lower, not higher.
-double x = 100;
-double y = 100;
+float x = 100;
+float y = 100;
 
 void Setup()
 {

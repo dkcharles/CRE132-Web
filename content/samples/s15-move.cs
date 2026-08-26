@@ -1,7 +1,7 @@
-double x = 300;
-double y = 160;
-double speed = 5;
-double size = 40;
+float x = 300;
+float y = 160;
+float speed = 5;
+float size = 40;
 
 void Setup()
 {

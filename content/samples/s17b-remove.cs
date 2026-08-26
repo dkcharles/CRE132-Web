@@ -1,5 +1,5 @@
-List<double> xs = new List<double>();
-List<double> ys = new List<double>();
+List<float> xs = new List<float>();
+List<float> ys = new List<float>();
 
 void Setup()
 {

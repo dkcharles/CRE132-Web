@@ -1,5 +1,5 @@
-double x = 0;
-double speed = 3;
+float x = 0;
+float speed = 3;
 
 void Setup()
 {

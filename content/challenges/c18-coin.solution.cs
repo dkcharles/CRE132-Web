@@ -1,10 +1,10 @@
-double px = 460;
-double py = 100;
-double cx = 520;
-double cy = 100;
-double playerSize = 30;
-double playerSpeed = 5;
-double coinRadius = 10;
+float px = 460;
+float py = 100;
+float cx = 520;
+float cy = 100;
+float playerSize = 30;
+float playerSpeed = 5;
+float coinRadius = 10;
 int score = 0;
 
 void Setup()

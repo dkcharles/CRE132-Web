@@ -1,5 +1,5 @@
-List<double> xs = new List<double> { 40, 100, 160, 220, 280, 340, 400, 460, 520, 580 };
-List<double> ys = new List<double> { 0, 36, 72, 108, 144, 180, 216, 252, 288, 324 };
+List<float> xs = new List<float> { 40, 100, 160, 220, 280, 340, 400, 460, 520, 580 };
+List<float> ys = new List<float> { 0, 36, 72, 108, 144, 180, 216, 252, 288, 324 };
 
 void Setup()
 {

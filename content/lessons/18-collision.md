@@ -9,22 +9,23 @@ Two points, `(x1, y1)` and `(x2, y2)`. Subtract to get the gap along each axis, 
 gaps into one straight-line distance:
 
 ```csharp
-double dx = x2 - x1;
-double dy = y2 - y1;
-double dist = Math.Sqrt(dx * dx + dy * dy);
+float dx = x2 - x1;
+float dy = y2 - y1;
+float dist = MathF.Sqrt(dx * dx + dy * dy);
 ```
 
-`Math.Sqrt(n)` is the square root of `n` — the number that, multiplied by itself, gives `n`.
-`Math.Sqrt(9)` is `3`. That third line is Pythagoras: the two gaps are the short sides of a
-right-angled triangle and the distance is the long one. You do not have to remember the proof;
-you do have to remember the shape of the line, because you will write it in every game you make.
+`MathF.Sqrt(n)` is the square root of `n` — the number that, multiplied by itself, gives `n`.
+`MathF.Sqrt(9)` is `3`. `MathF` is the maths toolbox for floats — Unity's `Mathf` works the same
+way. That third line is Pythagoras: the two gaps are the short sides of a right-angled triangle
+and the distance is the long one. You do not have to remember the proof; you do have to remember
+the shape of the line, because you will write it in every game you make.
 
 :::run s18-distance A fixed circle, a circle on the pointer, and the distance between them.
 
 The grey line is the straight-line distance made visible — the hypotenuse of the triangle whose
 short sides are `dx` and `dy`. Park the pointer 48 pixels across and 36 down from the middle and
 the distance reads exactly `60`; move it anywhere else and you get a long tail of decimals,
-because `Math.Sqrt` hands back every digit it worked out rather than a tidy answer.
+because `MathF.Sqrt` hands back every digit it worked out rather than a tidy answer.
 
 The fixed circle has radius `40` and the pointer's has radius `30`. They are touching the moment
 the gap between their **centres** drops below `40 + 30` — when the distance is less than the two
@@ -37,12 +38,12 @@ if (dist < 70) { ... }
 That is the whole of circle-to-circle collision. Nothing about the shapes on screen, just two
 centres and two radii.
 
-When you only care about one axis there is a shorter tool: `Math.Abs(n)` throws away a number's
-minus sign, so `Math.Abs(-12)` and `Math.Abs(12)` are both `12`. `Math.Abs(px - qx) < 30` asks
+When you only care about one axis there is a shorter tool: `MathF.Abs(n)` throws away a number's
+minus sign, so `MathF.Abs(-12)` and `MathF.Abs(12)` are both `12`. `MathF.Abs(px - qx) < 30` asks
 "are these two within 30 pixels of each other across?" without caring which is on the left.
 
 :::key
-Distance is `Math.Sqrt(dx * dx + dy * dy)`. Two circles are touching when that distance is less
+Distance is `MathF.Sqrt(dx * dx + dy * dy)`. Two circles are touching when that distance is less
 than their two radii **added together**.
 :::
 
@@ -55,8 +56,8 @@ the same are exactly what a method is for:
 :::run s18a-rect-overlap A square driven into a wall with the arrow keys. Click the canvas first, then hold Right.
 
 ```csharp
-bool Overlaps(double ax, double ay, double aw, double ah,
-              double bx, double by, double bw, double bh)
+bool Overlaps(float ax, float ay, float aw, float ah,
+              float bx, float by, float bw, float bh)
 {
     return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }
@@ -113,10 +114,10 @@ the catches. The test is a circle-to-circle one — the coin's radius is `15` an
 `25`, so `< 40` is "the two rims have met".
 
 :::try
-Make the coin harder to catch as you go. Add `double size = 15;` at the top of the file, draw the
+Make the coin harder to catch as you go. Add `float size = 15;` at the top of the file, draw the
 coin with `Screen.Circle(cx, cy, size, Colour.Yellow);`, and add `size = size - 1;` next to
 `score = score + 1;`. Then fix the collision test, which still says `40`: it should now read
-`if (Math.Sqrt(dx * dx + dy * dy) < size + 25)`, because the coin's radius is no longer a fixed
+`if (MathF.Sqrt(dx * dx + dy * dy) < size + 25)`, because the coin's radius is no longer a fixed
 number. Catch enough coins and it shrinks to nothing — which is a bug, and a reason to clamp it.
 :::
 

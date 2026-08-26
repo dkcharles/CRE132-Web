@@ -1,14 +1,14 @@
-double playerX = 100;
-double playerY = 160;
-double playerSize = 40;
-double wallX = 400;
-double wallY = 100;
-double wallWidth = 40;
-double wallHeight = 160;
-double playerSpeed = 5;
+float playerX = 100;
+float playerY = 160;
+float playerSize = 40;
+float wallX = 400;
+float wallY = 100;
+float wallWidth = 40;
+float wallHeight = 160;
+float playerSpeed = 5;
 
-bool Overlaps(double ax, double ay, double aw, double ah,
-              double bx, double by, double bw, double bh)
+bool Overlaps(float ax, float ay, float aw, float ah,
+              float bx, float by, float bw, float bh)
 {
     return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }

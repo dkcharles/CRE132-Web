@@ -66,12 +66,13 @@ If a speed can be reversed, it can also be nudged a little every frame. Add a sm
 `speedY` on every `Draw` and the shape falls faster and faster; bounce it off the floor and you
 have a ball:
 
-:::edit s14b-gravity `speedY` grows by `0.5` every frame, and the floor flips it.
+:::edit s14b-gravity `speedY` grows by `0.5f` every frame, and the floor flips it.
 
 :::try
-Change `gravity` from `0.5` to `0.1` and run — a slow, floaty, moon-sized bounce. Then try `2`
-for something heavy. Then make the ball lose energy each time it lands: change the last line of
-`Draw` to `if (y > Screen.Height - radius) speedY = -speedY * 0.8;` so it comes back with 80%
+Change `gravity` from `0.5f` to `0.1f` and run — a slow, floaty, moon-sized bounce. Then try `2`
+for something heavy — a whole number needs no `f`. Then make the ball lose energy each time it
+lands: change the last line of `Draw` to
+`if (y > Screen.Height - radius) speedY = -speedY * 0.8f;` so it comes back with 80%
 of the speed it arrived with, and watch the bounces get smaller until it settles on the floor.
 :::
 

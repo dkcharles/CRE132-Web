@@ -1,6 +1,6 @@
-double circleX = 320;
-double circleY = 180;
-double radius = 40;
+float circleX = 320;
+float circleY = 180;
+float radius = 40;
 
 void Setup()
 {
@@ -10,10 +10,10 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    double dx = Mouse.X - circleX;
-    double dy = Mouse.Y - circleY;
+    float dx = Mouse.X - circleX;
+    float dy = Mouse.Y - circleY;
     // Pythagoras: dx and dy are the short sides of a triangle, dist is the long one.
-    double dist = Math.Sqrt(dx * dx + dy * dy);
+    float dist = MathF.Sqrt(dx * dx + dy * dy);
     Screen.Line(circleX, circleY, Mouse.X, Mouse.Y, Colour.Grey);
     // Two circles touch once the gap between their centres drops below 40 + 30, their two radii.
     if (dist < 70) Screen.Circle(circleX, circleY, radius, Colour.Red);

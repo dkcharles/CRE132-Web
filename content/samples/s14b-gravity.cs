@@ -1,7 +1,7 @@
-double y = 60;
-double speedY = 0;
-double gravity = 0.5;
-double radius = 20;
+float y = 60;
+float speedY = 0;
+float gravity = 0.5f;
+float radius = 20;
 
 void Setup()
 {

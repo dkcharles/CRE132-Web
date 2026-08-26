@@ -28,18 +28,18 @@ When more than one appears in the same expression, `*` and `/` run **before** `+
 ## Whole numbers divide differently
 
 Divide two `int`s and C# throws away anything after the decimal point — it doesn't round, it
-just drops it. Divide when at least one side is a `double` and you get the full answer:
+just drops it. Divide when at least one side is a `float` and you get the full answer:
 
-:::run s03a-division `7 / 2` versus `7.0 / 2` — same numbers, different type.
+:::run s03a-division `7 / 2` versus `7.0f / 2` — same numbers, different type.
 
 `a` and `b` are both `int`, so `a / b` computes `3` and stops — the `.5` is gone, not rounded
-away, just never calculated. `x` is a `double` holding `7.0`, so `x / b` gives the real answer,
+away, just never calculated. `x` is a `float` holding `7.0f`, so `x / b` gives the real answer,
 `3.5`. Same numbers, different type, different answer — worth remembering the first time your
 own program divides two whole numbers and the decimals go missing.
 
 :::key
 `/` between two `int`s **throws away the remainder** — `7 / 2` is `3`, not `3.5`. Make one side
-a `double` to get a decimal answer.
+a `float` to get a decimal answer.
 :::
 
 ## The leftover: `%`

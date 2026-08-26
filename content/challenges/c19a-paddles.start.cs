@@ -6,8 +6,8 @@ int paddleSpeed = 6;
 int leftX = 20;
 int rightX = screenWidth - paddleWidth - leftX;
 int paddleMaxY = screenHeight - paddleHeight;
-double leftY = 140;
-double rightY = 140;
+float leftY = 140;
+float rightY = 140;
 
 void Setup()
 {

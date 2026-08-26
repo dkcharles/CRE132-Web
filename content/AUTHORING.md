@@ -146,7 +146,7 @@ choosing what a sample or challenge may contain:
 |---|--------|------------|
 | 0 | Welcome | How the site works |
 | 1 | Your first program | Statements, `Console.WriteLine`, comments |
-| 2 | Variables and types | Variables, types |
+| 2 | Variables and types | Variables, types (`int`, `float` with its `f` suffix, `string`, `bool`) |
 | 3 | Maths and operators | Arithmetic operators, `$"..."` interpolation |
 | 4 | Reading input | `Console.ReadLine`, the input panel, `int.Parse` |
 | 5 | Making decisions | `if`/`else`, comparisons, `bool` |
@@ -161,12 +161,12 @@ choosing what a sample or challenge may contain:
 | 14 | Motion | A variable changed every frame, speed, wrapping and bouncing at edges, `Screen.Width`, `Screen.Height`, `Frame.Count` |
 | 15 | The keyboard | `Keys.IsDown`, `Keys.WasPressed`, `Key`, clamping with `if` |
 | 16 | The mouse | `Mouse.X/Y/IsDown/WasClicked`, point-in-rect tests |
-| 17 | Many things | `List<double>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
-| 18 | Collision | `Math.Sqrt`, `Math.Abs`, distance, circle/circle and rect/rect overlap as `bool` methods, circle-vs-rect as a rectangle grown by the radius |
+| 17 | Many things | `List<float>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
+| 18 | Collision | `MathF.Sqrt`, `MathF.Abs`, distance, circle/circle and rect/rect overlap as `bool` methods, circle-vs-rect as a rectangle grown by the radius |
 | 19 | Mini-game: Pong | Nothing new — a guided build |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
-arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `Math.Sqrt`/`Math.Abs`
+arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `MathF.Sqrt`/`MathF.Abs`
 before Lesson 18, no `RemoveAt` before Lesson 17. String building uses `+` concatenation until
 Lesson 3 introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's
 samples even though it would read more naturally, because the reader hasn't met it yet.
@@ -185,8 +185,8 @@ the output tolerance rule — still applies exactly as written above.
 Every game sample and challenge follows the shape of the spec's complete Part 2 program:
 
 ```csharp
-double x = 100;
-double speed = 3;
+float x = 100;
+float speed = 3;
 
 void Setup()
 {
@@ -215,13 +215,13 @@ how debugging a game is taught.
 
 | Type | Members | Notes |
 |------|---------|-------|
-| `Screen` | `Size(int w, int h)`, `Width`, `Height`, `Clear()`, `Clear(Colour)`, `Rect(x, y, w, h, Colour)`, `Circle(x, y, r, Colour)`, `Line(x1, y1, x2, y2, Colour)`, `Text(x, y, string, Colour)` | Coordinates/sizes are `double`. `Size` may be called at any time (renderers read `Width`/`Height` every frame; a change clears the canvas); default 640×360. `Clear()` clears to black. `Rect` is filled; `Text` draws the string with its top-left at (x, y), one character per 16-px cell (the canvas uses a 16-px advance per character, not the font's natural width) so the text renderer and canvas agree on extent. |
+| `Screen` | `Size(int w, int h)`, `Width`, `Height`, `Clear()`, `Clear(Colour)`, `Rect(x, y, w, h, Colour)`, `Circle(x, y, r, Colour)`, `Line(x1, y1, x2, y2, Colour)`, `Text(x, y, string, Colour)` | Coordinates/sizes are `float` in student code (the parameters are `double`, and a `float` argument converts implicitly, so student code never needs a cast). `Size` may be called at any time (renderers read `Width`/`Height` every frame; a change clears the canvas); default 640×360. `Clear()` clears to black. `Rect` is filled; `Text` draws the string with its top-left at (x, y), one character per 16-px cell (the canvas uses a 16-px advance per character, not the font's natural width) so the text renderer and canvas agree on extent. |
 | `Colour` | `readonly record struct Colour(byte R, byte G, byte B)`; statics `Black, White, Grey, Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink`; `Colour.Rgb(r, g, b)` | Named colours are the beginner path; `Rgb` is the escape hatch. |
 | `Keys` | `IsDown(Key)`, `WasPressed(Key)` | `WasPressed` is true only on the first frame the key is down (edge detection in C#, from the per-frame snapshot). |
 | `Key` (enum) | `Left, Right, Up, Down, Space, Enter, Escape, A … Z, D0 … D9` | Names are what the JS maps `e.key` to. |
 | `Mouse` | `X`, `Y` (int, pixels in screen space), `IsDown`, `WasClicked` | `WasClicked` = first frame of a press. |
-| `Frame` | `Count` (int, 0 on the first `Draw`), `Time` (double seconds = Count / 30.0), `Rate` (const 30) | |
-| `Rand` | `Range(int min, int maxExclusive)`, `Range(double min, double max)` | Seeded by the host (see Determinism). |
+| `Frame` | `Count` (int, 0 on the first `Draw`), `Time` (float seconds = Count / 30f), `Rate` (const 30) | `Time` is `float` so a `float` variable holds it without a cast. |
+| `Rand` | `Range(int min, int maxExclusive)`, `Range(float min, float max)` | Seeded by the host (see Determinism). There is deliberately no `double` overload: `Rand.Range(1.5, 2.5)` does not compile, `Rand.Range(1.5f, 2.5f)` does. |
 | `Game` | `Run(Action setup, Action draw)` | Registers and returns. Calling it twice, or calling it with a null, throws with a plain message. No `Stop`: game-over screens arrive with enums in Lesson 23. |
 
 Every game lesson holds to three rules:
@@ -378,9 +378,19 @@ points at the next part of the course by name, never by a `#n` hash.
 - A lesson reads in 5–10 minutes — don't pad it to look thorough.
 - Samples fit on one screen; if a sample needs scrolling to read, it's doing too much. The one
   exception is a guided-build lesson's single reference sample — see "Guided-build lessons".
+- **`float`, never `double` — and the `f` goes on decimals only.** Every decimal number a student
+  writes is a `float`, because that is the type Unity uses and the course feeds into Unity. The
+  convention, held to everywhere in `content/`: a **decimal** literal carries the suffix
+  (`float gravity = 0.5f;`, `speedY * 0.8f`), a **whole** number does not (`float speed = 3;`,
+  `float radius = 20;`) — the implicit int-to-float conversion covers it and the bare number reads
+  better to a beginner. `List<double>` is `List<float>`; `Math.Sqrt`/`Math.Abs` are
+  `MathF.Sqrt`/`MathF.Abs`, which return `float`, so no cast is ever needed and no cast is ever
+  taught. Prose follows the same rule: a quoted line or a `:::key` naming the type says `float`.
+  Lesson 2 is the one place `double` is named at all, in a single sentence saying the course does
+  not use it.
 - **A number used twice gets a name.** When the same literal appears two or more times in one
   program with the same meaning — a radius, a paddle height, a speed, a screen edge — declare it
-  once as a plain variable at the top of the file (`double radius = 20;`, `int screenWidth = 640;`)
+  once as a plain variable at the top of the file (`float radius = 20;`, `int screenWidth = 640;`)
   and use the name everywhere, writing derived values as expressions of it (`640 - radius`, not
   `620`). A literal used once stays a literal. Plain variables only: `const`, `static` and
   `readonly` are never taught, and Lessons 0–1 have no variables at all.

@@ -1,8 +1,8 @@
-double x = 20;
-double y = 20;
-double speedX = 4;
-double speedY = 3;
-double radius = 12;
+float x = 20;
+float y = 20;
+float speedX = 4;
+float speedY = 3;
+float radius = 12;
 
 void Setup()
 {

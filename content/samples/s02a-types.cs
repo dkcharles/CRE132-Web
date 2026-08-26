@@ -1,5 +1,5 @@
 int age = 20;
-double price = 4.5;
+float price = 4.5f;
 string course = "CRE132";
 bool passed = true;
 

@@ -1,7 +1,7 @@
-double bx = 240;
-double by = 140;
-double bw = 160;
-double bh = 80;
+float bx = 240;
+float by = 140;
+float bw = 160;
+float bh = 80;
 
 void Setup()
 {

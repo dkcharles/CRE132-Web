@@ -1,5 +1,5 @@
-double cx = 400;
-double cy = 120;
+float cx = 400;
+float cy = 120;
 int score = 0;
 
 void Setup()
@@ -10,9 +10,9 @@ void Setup()
 void Draw()
 {
     Screen.Clear(Colour.Black);
-    double dx = Mouse.X - cx;
-    double dy = Mouse.Y - cy;
-    if (Math.Sqrt(dx * dx + dy * dy) < 40)
+    float dx = Mouse.X - cx;
+    float dy = Mouse.Y - cy;
+    if (MathF.Sqrt(dx * dx + dy * dy) < 40)
     {
         // Caught: the coin jumps to a new random spot and the score goes up.
         cx = Rand.Range(40, 600);

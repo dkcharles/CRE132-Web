@@ -245,10 +245,10 @@ Two changes worth trying, both in the step 3 editor.
 Make the rally get harder. Each of the two paddle `if`s controls a single statement with no
 `{ }` around it, so put braces round that statement first — otherwise the line you add runs on
 every frame instead of only on a hit. Then, next to `ballSpeedX = -ballSpeedX;`, add
-`ballSpeedY = ballSpeedY * 1.1;` so every return makes the ball a little steeper. Play until you
-lose, then try `1.3` and find out how quickly a good idea becomes an unplayable one.
+`ballSpeedY = ballSpeedY * 1.1f;` so every return makes the ball a little steeper. Play until you
+lose, then try `1.3f` and find out how quickly a good idea becomes an unplayable one.
 
-Then add a second ball. The many-things lesson's `List<double>` is exactly the tool: keep
+Then add a second ball. The many-things lesson's `List<float>` is exactly the tool: keep
 `bxs`, `bys`, `sxs` and `sys` as four lists, add two balls to them in `Setup`, and replace the
 ball's own lines with a `for` loop over `bxs.Count` doing the same work at index `i`. It is
 fiddly — four lists that must stay in step is a lot of bookkeeping for one bouncing circle.

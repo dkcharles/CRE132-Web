@@ -24,16 +24,21 @@ A variable is a **named box**. `int score = 0;` creates the box and puts a value
 of value you'll store. The four you'll use constantly:
 
 - `int` — whole numbers, like `20` or `-5`.
-- `double` — numbers with a decimal point, like `4.5`.
+- `float` — numbers with a decimal point, like `4.5f`.
 - `string` — text, always in double quotes, like `"CRE132"`.
 - `bool` — one of exactly two values: `true` or `false`.
 
 :::run s02a-types One variable of each type, printed with a label.
 
-Notice the type comes right before the name every time a variable is created: `double price =
-4.5;`, `bool passed = true;`. The type tells C# — and tells *you*, reading it later — what kind
+Notice the type comes right before the name every time a variable is created: `float price =
+4.5f;`, `bool passed = true;`. The type tells C# — and tells *you*, reading it later — what kind
 of value belongs in that box. Put the wrong kind of value in and C# will refuse to compile the
 program, which is C# helping you, not punishing you.
+
+The little `f` on the end of `4.5f` is part of the number: the `f` tells C# this is a float —
+the number type games use. A whole number needs no `f`, so `float speed = 3;` is written just
+like that. C# has a second decimal type called `double`, which you will meet in other people's
+code, but this course writes `float` everywhere, because `float` is the type Unity uses.
 
 :::key
 The type says **what fits in the box**. A `string` box holds text; an `int` box holds a whole

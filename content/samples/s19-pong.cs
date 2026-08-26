@@ -8,16 +8,16 @@ int leftX = 20;
 int rightX = screenWidth - paddleWidth - leftX;
 // A rectangle is drawn from its top edge, so 360 - 80 = 280 is as low as a paddle may sit.
 int paddleMaxY = screenHeight - paddleHeight;
-double leftY = 140;
-double rightY = 140;
+float leftY = 140;
+float rightY = 140;
 
 int centreX = screenWidth / 2;
 int centreY = screenHeight / 2;
 int ballRadius = 12;
-double bx = centreX;
-double by = centreY;
-double ballSpeedX = 4;
-double ballSpeedY = 5;
+float bx = centreX;
+float by = centreY;
+float ballSpeedX = 4;
+float ballSpeedY = 5;
 
 int left = 0;
 int right = 0;

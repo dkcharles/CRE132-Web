@@ -4,7 +4,7 @@ Every moving thing so far has had its own pair of variables — `x` and `y`, `sp
 `speedY`. That works for one ball. It does not work for a hundred raindrops, and you are not
 going to type `x1` to `x100`.
 
-The collections lesson already gave you the answer: a `List<double>` holds as many numbers as
+The collections lesson already gave you the answer: a `List<float>` holds as many numbers as
 you like and grows while the program runs. Use **two** lists, one for the across positions and
 one for the down positions, and agree that the drop at index `3` is `xs[3]` paired with `ys[3]`:
 
