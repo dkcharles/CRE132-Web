@@ -76,6 +76,36 @@ public class ContentTests
         Assert.Null(OutputComparer.FirstDifference(golden, run.Console));
     }
 
+    // A sample can match its golden frame and still be broken a minute later. s14b-gravity's
+    // floor flipped speedY without putting the ball back on the floor, so every landing started
+    // a little lower and came back a little faster; at frame 1281 a single step carried the ball
+    // through the floor and it left the screen for good - long after the 60-frame golden had
+    // passed, and exactly where a student watching their own edit would see it. A game a student
+    // leaves running must still be drawing something they can see.
+    const int StabilityFrames = 3000;
+    static readonly int[] StabilityCheckpoints = { 500, 1500, StabilityFrames };
+
+    [Theory]
+    [MemberData(nameof(SampleIds))]
+    public async Task Every_game_sample_still_draws_on_screen_after_a_long_run(string id)
+    {
+        string source = File.ReadAllText(Content("samples", id + ".cs"));
+        CompiledBytes compiled = await Compiler.CompileToBytesAsync(source);
+        Assert.True(compiled.Succeeded, string.Join("\n",
+            compiled.Errors.Select(e => $"line {e.Line}: {e.Message}")));
+
+        GameSession session = GameSession.StartHeadless(ProgramLoader.FromBytes(compiled.Bytes!), "");
+        if (!session.IsGame) return;
+
+        ScriptResult run = ScriptRunner.Run(session, new GameScript(StabilityFrames, StabilityCheckpoints));
+        Assert.Null(run.Error);
+        foreach (FrameSnapshot snapshot in run.Snapshots)
+            Assert.True(snapshot.Text.Any(c => c is not (' ' or '\n')),
+                $"{id}: the screen is empty at frame {snapshot.Frame}. Something has left the "
+                + "canvas and is not coming back - a bounce that adds energy, a position that "
+                + "runs away, or a list that empties itself.");
+    }
+
     static IReadOnlyList<ChallengeCase> Cases(string id)
     {
         var errors = new List<string>();

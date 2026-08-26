@@ -14,8 +14,14 @@ void Draw()
     Screen.Circle(320, y, radius, Colour.Orange);
     speedY = speedY + gravity;
     y = y + speedY;
-    // The floor: flip speedY when the ball reaches it and the fall becomes a rise.
-    if (y > Screen.Height - radius) speedY = -speedY;
+    // The floor: put the ball back on it, then flip speedY so the fall becomes a rise. Setting y
+    // matters as much as flipping speedY - a ball that bounces from wherever it sank to leaves
+    // the floor lower and faster every time, and eventually falls straight through.
+    if (y > Screen.Height - radius)
+    {
+        y = Screen.Height - radius;
+        speedY = -speedY;
+    }
 }
 
 Game.Run(Setup, Draw);
