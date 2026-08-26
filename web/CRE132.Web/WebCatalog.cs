@@ -56,6 +56,7 @@ public static class WebCatalog
         new Entry("23", "Game state", "lessons/23-game-state.json"),
         new Entry("24", "Animation & timing", "lessons/24-animation-and-timing.json"),
         new Entry("25", "Mini-game: Snake", "lessons/25-snake.json"),
+        new Entry("26", "Going further", "lessons/26-going-further.json"),
     };
 
     // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
