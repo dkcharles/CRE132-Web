@@ -27,16 +27,16 @@ void DrawBoard()
 // One whole cell, in whichever direction the arrows last chose.
 void Step()
 {
-    // 3. Work out the next head cell, wrap it round the edges, and move the snake here.
+    // 1. Work out the next head cell, wrap it round the edges, and move the snake here.
 }
 
 void Draw()
 {
     Screen.Clear(Colour.Black);
 
-    // 1. Let the four arrow keys change dirCol and dirRow here.
+    // 2. Let the four arrow keys change dirCol and dirRow here.
 
-    // 2. Call Step() once every framesPerStep frames here.
+    // 3. Call Step() once every framesPerStep frames here.
 
     DrawBoard();
 }

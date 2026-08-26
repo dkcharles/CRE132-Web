@@ -1,6 +1,6 @@
 # Mini-game: Snake
 
-Six lessons of parts again: a class, a list of objects, vectors, states, timers and grids. This
+Six lessons of parts again: a class, a list of objects, states, timers and grids. This
 lesson introduces nothing new. It puts the parts together into the game that shipped on every
 Nokia phone in the world, and it is a much smaller program than you would guess.
 
@@ -11,7 +11,7 @@ into yourself. When it is over, **Enter** takes you back to the title.
 
 Everything on that board is something you have already written. The snake is a `List<Segment>` —
 the same list of objects as the lesson on objects together, with a tiny class holding two `int`
-fields instead of a `Ball` holding four `float` ones. It moves one whole cell on a beat, which is
+fields instead of a `Ball` holding five `float` ones. It moves one whole cell on a beat, which is
 the grid step from the animation lesson. And the three screens are one `enum`, one variable and
 one `switch`, exactly as the game state lesson left them.
 
@@ -84,7 +84,16 @@ row `9`, columns `2`, `1` and `0`, with `dirCol` at `1` and `dirRow` at `0` — 
 `body[0]`, heading right. `DrawBoard()` already draws every segment as an `18` by `18` rectangle
 at `part.col * cell, part.row * cell`. Three numbered comments mark the three places to write.
 
-Where comment 1 is, in `Draw`, add the four arrow lines exactly as printed here:
+Where comment 1 is, inside `Step()`, write five things in this order:
+
+1. `int nextCol = body[0].col + dirCol;` and `int nextRow = body[0].row + dirRow;`
+2. wrap the column: if `nextCol` is less than `0`, set it to `cols - 1`, which is `31`; if
+   `nextCol` is more than `cols - 1`, set it to `0`
+3. wrap the row the same way, with `rows - 1`, which is `17`, and `0`
+4. `body.Insert(0, new Segment(nextCol, nextRow));`
+5. `body.RemoveAt(body.Count - 1);`
+
+Where comment 2 is, in `Draw`, add the four arrow lines exactly as printed here:
 
 ```csharp
 if (Keys.IsDown(Key.Left) && dirCol != 1) { dirCol = -1; dirRow = 0; }
@@ -93,17 +102,8 @@ if (Keys.IsDown(Key.Up) && dirRow != 1) { dirCol = 0; dirRow = -1; }
 if (Keys.IsDown(Key.Down) && dirRow != -1) { dirCol = 0; dirRow = 1; }
 ```
 
-Where comment 2 is, still in `Draw`, add `if (Frame.Count % framesPerStep == 0) Step();` — one
+Where comment 3 is, still in `Draw`, add `if (Frame.Count % framesPerStep == 0) Step();` — one
 step every `6` frames, five a second.
-
-Where comment 3 is, inside `Step()`, write five things in this order:
-
-1. `int nextCol = body[0].col + dirCol;` and `int nextRow = body[0].row + dirRow;`
-2. wrap the column: if `nextCol` is less than `0`, set it to `cols - 1`, which is `31`; if
-   `nextCol` is more than `cols - 1`, set it to `0`
-3. wrap the row the same way, with `rows - 1`, which is `17`, and `0`
-4. `body.Insert(0, new Segment(nextCol, nextRow));`
-5. `body.RemoveAt(body.Count - 1);`
 
 Change nothing else — not `DrawBoard`, not `Setup`, not the `Segment` class.
 
@@ -162,8 +162,10 @@ should have gone did not go, and that is the entire growth mechanic.
 
 :::key
 Growing is not adding a segment. It is **skipping the removal** — the head goes on either way, and
-the tail only comes off when nothing was eaten. `Rand` is only fair if every program calls it in
-the same order, so a game that uses it has to say exactly when and with what.
+the tail only comes off when nothing was eaten. The thing doing the growing is the
+objects-together lesson's list of objects, unchanged — `body` gains and loses `Segment`s exactly
+as that lesson's list gained and lost balls. `Rand` is only fair if every program calls it in the
+same order, so a game that uses it has to say exactly when and with what.
 :::
 
 :::challenge c25b-grow
@@ -173,7 +175,9 @@ mark the six places to write.
 Where comment 1 is, at the top of the file: `int foodCol = 0;`, `int foodRow = 0;` and
 `int score = 0;`.
 
-Where comment 2 is, above `DrawBoard`, a new method:
+Where comment 2 is, as the last line of `Setup`: `PlaceFood();`.
+
+Where comment 3 is, above `DrawBoard`, the method that call needs:
 
 ```csharp
 void PlaceFood()
@@ -184,10 +188,8 @@ void PlaceFood()
 ```
 
 The column first and the row second, `Rand.Range(0, cols)` and `Rand.Range(0, rows)` — that is
-`0` to `31` and `0` to `17` — and called in exactly two places: comment 3 and comment 6, and
+`0` to `31` and `0` to `17` — and called in exactly two places: comment 2 and comment 6, and
 nowhere else.
-
-Where comment 3 is, as the last line of `Setup`: `PlaceFood();`.
 
 Where comment 4 is, at the top of `DrawBoard`, before the loop, exactly:
 
@@ -270,8 +272,9 @@ round starts exactly the way every later one does.
 
 :::key
 Two ways to die, one `bool`: off the board, or onto yourself. Three screens, one `enum` and one
-`switch` — and a `Reset()` called when you leave the game-over screen, so the title always shows a
-new snake rather than the one that just died.
+`switch` — the game-state lesson's, unchanged, down to the space bar starting a round and
+**Enter** leaving one — and a `Reset()` called when you leave the game-over screen, so the title
+always shows a new snake rather than the one that just died.
 :::
 
 :::challenge c25c-game-over
@@ -362,8 +365,8 @@ Three changes, all in the step 3 editor.
 Make it speed up. `framesPerStep` is a plain variable, so nothing stops you changing it while the
 game runs. Inside the `if` where you score, add `if (score % 5 == 0 && framesPerStep > 2)
 framesPerStep = framesPerStep - 1;` — a cell faster every five points, down to a floor of two
-frames a step. Take the floor away and find out how quickly six becomes zero, and what a
-`%` by zero does about it.
+frames a step. Take the floor away and find out whether you can survive long enough to reach
+zero, and what a `%` by zero does about it.
 
 Add a second food. Two more variables, `foodCol2` and `foodRow2`, a second `PlaceFood`-style
 method for them, a second `Screen.Rect` in `DrawBoard`, and a second test in `Step`. It works,

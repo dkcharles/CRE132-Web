@@ -16,10 +16,10 @@ void Setup()
     // body[0] is the head; the two behind it trail away to the left.
     for (int i = 0; i < 3; i++) body.Add(new Segment(startCol - i, startRow));
 
-    // 3. Put the first food on the board here.
+    // 2. Put the first food on the board here.
 }
 
-// 2. PlaceFood() goes here.
+// 3. PlaceFood() goes here.
 
 // 18 rather than a full 20 leaves a two-pixel gap, so the segments can be counted.
 void DrawBoard()
