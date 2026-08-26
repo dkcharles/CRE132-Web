@@ -1,0 +1,61 @@
+@namespace CRE132.Web.Pages
+
+@* One part of the course: its heading and the lessons it owns. The landing page's columns and
+   the sidebar's contents list are the same list at two sizes, so they are ONE component - a
+   lesson renamed, added or reordered can never show up in one place and not the other.
+
+   Compact is the sidebar: a small uppercase heading instead of the title-and-span pair, and the
+   current lesson marked. Links are wired identically in both - an href plus an @onclick that
+   preventDefaults and calls back into Index.Go. Index's comment explains why the handler is the
+   path that matters: a Blazor-intercepted hash click raises neither LocationChanged nor
+   hashchange, so the href on its own would move the URL and nothing else. *@
+<div class="@(Compact ? "part-group" : written.Count == 0 ? "part planned" : "part")">
+    @if (Compact)
+    {
+        <h3 class="part-head">@Part.Title</h3>
+    }
+    else
+    {
+        <h2>@Part.Title</h2>
+        @* The span line is computed, so it can never drift from FirstId..LastId; a part
+           only carries a Subtitle when it needs to say something other than its span. *@
+        <p class="part-sub">@(Part.Subtitle is { Length: > 0 } ? Part.Subtitle : $"Lessons {Part.FirstId}–{Part.LastId}")</p>
+    }
+    <ol>
+        @* Walk the ids, not the rows: an id with a row is a link, an id without one shows the
+           planned title AT ITS OWN POSITION greyed out. Writing lesson 20 therefore needs no
+           edit here - the row appears and the greyed line becomes a link, with every later
+           planned title still on its own id. *@
+        @for (int id = Part.FirstId; id <= Part.LastId; id++)
+        {
+            string key = id.ToString();
+            if (written.GetValueOrDefault(key) is Entry lesson)
+            {
+                <li class="@(lesson.Id == CurrentId ? "current" : null)"><a href="@("#" + lesson.Id)" @onclick="() => OnNavigate.InvokeAsync(lesson.Id)" @onclick:preventDefault>@($"{lesson.Id}. {lesson.Title}")</a></li>
+            }
+            else
+            {
+                <li class="@(Compact ? "planned" : "soon")">@($"{key}. {WebCatalog.PlannedTitle(Part, id)}")</li>
+            }
+        }
+    </ol>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Part Part { get; set; } = default!;
+
+    // The lesson to mark as current, or null on the landing page - where no lesson is open and
+    // the class is simply never written.
+    [Parameter] public string? CurrentId { get; set; }
+
+    [Parameter, EditorRequired] public EventCallback<string> OnNavigate { get; set; }
+
+    // The sidebar rendering: smaller heading, no subtitle line, and planned lessons under
+    // .contents' own greying rather than the landing page's.
+    [Parameter] public bool Compact { get; set; }
+
+    Dictionary<string, Entry> written = new();
+
+    protected override void OnParametersSet() =>
+        written = WebCatalog.EntriesIn(Part).ToDictionary(e => e.Id);
+}

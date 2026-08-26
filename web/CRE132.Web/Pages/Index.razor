@@ -15,14 +15,15 @@ else
     <div class="page">
         <nav class="contents">
             <a class="home" href="#" @onclick="GoHome" @onclick:preventDefault>CRE132</a>
-            <ol>
-                @foreach (Entry e in WebCatalog.Entries)
-                {
-                    <li class="@(e.Id == current.Id ? "current" : "")">
-                        <a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@($"{e.Id}. {e.Title}")</a>
-                    </li>
-                }
-            </ol>
+            @* Grouped by part, from the same component the landing page uses: the two lists say
+               the same thing about the course, so they are one piece of markup with a Compact
+               flag rather than two that have to be kept in step. The links inside are wired
+               exactly as they were - @onclick + preventDefault calling Go - because PartList
+               calls OnNavigate, which is Go. *@
+            @foreach (Part part in WebCatalog.Parts)
+            {
+                <PartList Part="part" CurrentId="@current.Id" OnNavigate="Go" Compact="true" />
+            }
         </nav>
         <LessonView Entry="@current" OnNavigate="Go" />
     </div>

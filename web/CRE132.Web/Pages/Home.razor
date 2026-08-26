@@ -24,9 +24,11 @@
         </div>
 
         <div class="hero-preview">
-            @* A plain GameStage, unchanged: its own ■ Stop is the only control a visitor needs
-               here, because the game starts itself as soon as the page has rendered. *@
-            <GameStage @ref="stage" />
+            @* The game starts itself as soon as the page has rendered, so GameStage's own ■ Stop
+               is the only control a visitor needs to pause it - and OnReplay is the way back:
+               with a handler passed, a stopped stage offers "▶ Run again", which runs the same
+               start path from the beginning. Lesson pages pass no OnReplay and show no button. *@
+            <GameStage @ref="stage" OnReplay="StartPreviewAsync" />
             @if (notice is not null)
             {
                 <p class="notice">@notice</p>
@@ -39,34 +41,12 @@
         </div>
     </section>
 
+    @* The columns and the lesson sidebar are the same list: PartList renders both, so neither
+       can drift from the other or from the catalog. *@
     <section class="parts">
         @foreach (Part part in WebCatalog.Parts)
         {
-            Dictionary<string, Entry> written = WebCatalog.EntriesIn(part).ToDictionary(e => e.Id);
-            <div class="part @(written.Count == 0 ? "planned" : "")">
-                <h2>@part.Title</h2>
-                @* The span line is computed, so it can never drift from FirstId..LastId; a part
-                   only carries a Subtitle when it needs to say something other than its span. *@
-                <p class="part-sub">@(part.Subtitle is { Length: > 0 } ? part.Subtitle : $"Lessons {part.FirstId}–{part.LastId}")</p>
-                <ol>
-                    @* Walk the ids, not the rows: an id with a row is a link, an id without one
-                       shows the planned title AT ITS OWN POSITION greyed out. Writing lesson 20
-                       therefore needs no edit here - the row appears and the greyed line becomes
-                       a link, with every later planned title still on its own id. *@
-                    @for (int id = part.FirstId; id <= part.LastId; id++)
-                    {
-                        string key = id.ToString();
-                        if (written.GetValueOrDefault(key) is Entry lesson)
-                        {
-                            <li><a href="@("#" + lesson.Id)" @onclick="() => OnNavigate.InvokeAsync(lesson.Id)" @onclick:preventDefault>@($"{lesson.Id}. {lesson.Title}")</a></li>
-                        }
-                        else
-                        {
-                            <li class="soon">@($"{key}. {WebCatalog.PlannedTitle(part, id)}")</li>
-                        }
-                    }
-                </ol>
-            </div>
+            <PartList Part="part" OnNavigate="OnNavigate" />
         }
     </section>
 </main>
@@ -81,10 +61,20 @@
     string? notice;
     bool gone;                              // set by Dispose: this Home is off the page for good
 
-    // firstRender only, and only here: PlayAsync hands the canvas element to JS, so it must
-    // already be in the document. The stage stops itself when this component goes away
-    // (GameStage is IAsyncDisposable), so clicking through to a lesson leaves no loop running,
-    // and Back re-creates Home and starts the preview afresh.
+    // firstRender only: PlayAsync hands the canvas element to JS, so it must already be in the
+    // document. The stage stops itself when this component goes away (GameStage is
+    // IAsyncDisposable), so clicking through to a lesson leaves no loop running, and Back
+    // re-creates Home and starts the preview afresh.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await StartPreviewAsync();
+    }
+
+    // Also the ▶ Run again handler, and deliberately the SAME path rather than a resume: a fresh
+    // GameSession is a fresh Pong, paddles centred and score zero. The bytes are cached by
+    // Samples after the first fetch, so a replay is a load-and-start with no network in it, and
+    // both guards below apply to a click exactly as they do to the first render.
     //
     // `gone` guards the window between the awaits below. A visitor who clicks Start Lesson 0
     // while the sample is still downloading has Home and its GameStage disposed FIRST, and the
@@ -97,9 +87,8 @@
     // keys and Space page-wide for as long as it is set. Nothing in GameStage promises that
     // ordering, and a dead stage should never be reached at all, so the guard is here rather
     // than a comment trusting two accidents to keep holding.
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    async Task StartPreviewAsync()
     {
-        if (!firstRender) return;
         try
         {
             byte[] program = await SampleStore.FetchAsync(PreviewSample);

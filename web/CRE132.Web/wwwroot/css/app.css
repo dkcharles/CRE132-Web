@@ -74,6 +74,13 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .contents .home { font-weight: 700; text-decoration: none; }
 .contents ol { list-style: none; padding-left: 0.5rem; }
 .contents .current { font-weight: 700; }
+/* The contents list is the landing page's part columns at sidebar size - one PartList component
+   renders both. Only the chrome differs: a small uppercase part heading instead of the title and
+   computed span, and its own greying for the lessons not yet written. The group's ol drops the
+   default block margin so each heading sits with the list it introduces. */
+.contents .part-head { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #46a; margin: 0.8rem 0 0.3rem; }
+.contents .part-group ol { margin: 0; }
+.contents .planned { opacity: 0.55; }
 .lesson { text-align: left; max-width: 46rem; }
 .lesson .runnable, .lesson .challenge { margin: 1.5rem 0; }
 .pane { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 6px; margin: 0.5rem 0; overflow: hidden; }
@@ -129,5 +136,19 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .stage-canvas { display: block; width: 100%; max-width: 640px; background: #000; border-radius: 6px; aspect-ratio: 16 / 9; }
 .stage-controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.4rem 0; min-height: 1.6rem; }
 .stage-hint { font-size: 0.85rem; opacity: 0.7; }
+/* ▶ Run again: only rendered where the host page has no Run button of its own. The site accent
+   at control size, so it reads as the counterpart to ■ Stop and not as a second call to action
+   competing with Start Lesson 0. */
+.replay {
+    background: #46a;
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.replay:hover, .replay:focus-visible { background: #35a; }
 .stage-console { max-height: 14rem; overflow-y: auto; }
 .console.grid .line { white-space: pre; font-size: 0.8rem; line-height: 1.05; min-height: 0; }

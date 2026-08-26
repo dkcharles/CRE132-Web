@@ -12,7 +12,16 @@
     <canvas @ref="canvas" class="stage-canvas"></canvas>
     <div class="stage-controls">
         @if (IsPlaying) { <button @onclick="StopAsync">■ Stop</button> }
-        else if (session is { IsGame: true }) { <span class="stage-hint">@(error is null ? "Stopped — press Run to play again." : "")</span> }
+        else if (session is { IsGame: true })
+        {
+            @* Only where the host offers a way back. A lesson page's Run button is that way back
+               already, so it passes no OnReplay and this row stays exactly as it was; the
+               landing page, whose preview starts itself and has no Run button anywhere, passes
+               one. Stopped, finished and errored all reach here - a game that ended is as
+               replayable as one that was stopped. *@
+            @if (OnReplay.HasDelegate) { <button class="replay" @onclick="() => OnReplay.InvokeAsync()">▶ Run again</button> }
+            <span class="stage-hint">@(error is null ? "Stopped — press Run to play again." : "")</span>
+        }
     </div>
     @if (notice is not null) { <p class="notice">@notice</p> }
     @if (lines.Count > 0)
@@ -27,6 +36,11 @@
 @code {
     const int ShownLines = 200;
     static GameStage? active;
+
+    // Optional: a host that has no Run button of its own supplies the restart itself, and the
+    // stage renders ▶ Run again for it while it is not playing. The stage never restarts a
+    // session by itself - only the host knows what a fresh run of its program means.
+    [Parameter] public EventCallback OnReplay { get; set; }
 
     ElementReference canvas;
     IJSObjectReference? game, input;
