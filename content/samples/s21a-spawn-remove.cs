@@ -24,7 +24,7 @@ void Draw()
             i--;
         }
     }
-    Screen.Text(10, 10, "drops: " + drops.Count, Colour.White);
+    Screen.Text(10, 10, "Drops: " + drops.Count, Colour.White);
 }
 
 Game.Run(Setup, Draw);

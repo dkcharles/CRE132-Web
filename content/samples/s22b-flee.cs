@@ -1,6 +1,7 @@
 Vec2 position = new Vec2(320, 180);
 float speed = 4;
 float scaredWithin = 200;
+float radius = 16;
 
 void Setup()
 {
@@ -12,47 +13,47 @@ void Draw()
     Screen.Clear(Colour.Black);
     Vec2 pointer = new Vec2(Mouse.X, Mouse.Y);
     // Position minus pointer points the other way: from the pointer towards the dot.
-    Vec2 away = new Vec2(position.X - pointer.X, position.Y - pointer.Y);
+    Vec2 away = new Vec2(position.x - pointer.x, position.y - pointer.y);
     float distance = away.Length();
     // Nothing to normalise when the pointer is right on top of it: that arrow has no direction.
     if (distance > speed && distance < scaredWithin)
     {
         position = position.Add(away.Normalised().Scale(speed));
     }
-    Screen.Circle(pointer.X, pointer.Y, 12, Colour.Grey);
-    Screen.Circle(position.X, position.Y, 16, Colour.Pink);
+    Screen.Circle(pointer.x, pointer.y, 12, Colour.Grey);
+    Screen.Circle(position.x, position.y, radius, Colour.Pink);
 }
 
 Game.Run(Setup, Draw);
 
 class Vec2
 {
-    public float X, Y;
+    public float x, y;
 
-    public Vec2(float x, float y)
+    public Vec2(float startX, float startY)
     {
-        X = x;
-        Y = y;
+        x = startX;
+        y = startY;
     }
 
     public float Length()
     {
-        return MathF.Sqrt(X * X + Y * Y);
+        return MathF.Sqrt(x * x + y * y);
     }
 
     public Vec2 Normalised()
     {
         float length = Length();
-        return new Vec2(X / length, Y / length);
+        return new Vec2(x / length, y / length);
     }
 
     public Vec2 Add(Vec2 other)
     {
-        return new Vec2(X + other.X, Y + other.Y);
+        return new Vec2(x + other.x, y + other.y);
     }
 
     public Vec2 Scale(float amount)
     {
-        return new Vec2(X * amount, Y * amount);
+        return new Vec2(x * amount, y * amount);
     }
 }

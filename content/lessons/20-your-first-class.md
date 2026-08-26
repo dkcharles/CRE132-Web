@@ -77,7 +77,7 @@ public Ball(float startX, float startY, float startSpeedX, float startSpeedY)
 
 It is a method with two peculiarities: its name is the class's name, and it has no return type,
 not even `void`. It runs once, when `new Ball(...)` is written, and the arguments in the brackets
-arrive as its parameters. So `new Ball(160, 100, 4, 3)` builds a ball already at `(160, 100)`
+arrive as its parameters. So `new Ball(160, 100, 4, 3)` builds a ball already at `(160, 100)`,
 already travelling `4` across and `3` down — one line instead of five.
 
 :::run s20a-constructor Two balls, built from one plan, each with its own starting numbers.

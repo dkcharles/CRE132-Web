@@ -53,14 +53,16 @@ public static class WebCatalog
         new Entry("20", "Your first class", "lessons/20-your-first-class.json"),
         new Entry("21", "Objects together", "lessons/21-objects-together.json"),
         new Entry("22", "Vectors", "lessons/22-vectors.json"),
+        new Entry("23", "Game state", "lessons/23-game-state.json"),
+        new Entry("24", "Animation & timing", "lessons/24-animation-and-timing.json"),
     };
 
     // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
     // and 2 are fully written, so their spans need no planned titles and their subtitles are the
-    // computed "Lessons a-b"; part 3 is part written and keeps a planned title in every slot,
-    // and part 4 is all planned titles and no rows. Part 3 ends on
-    // Snake and part 4 holds the showcase lessons - 26 today, later ones after it - so a reader
-    // sees where the taught course stops and the "read, run, tinker" material starts.
+    // computed "Lessons a-b"; part 3 is part written and keeps a planned title in every slot, and
+    // part 4 is all planned titles and no rows. Part 3 ends on Snake and part 4 holds the showcase
+    // lessons - 26 today, later ones after it - so a reader sees where the taught course stops and
+    // the "read, run, tinker" material starts.
     public static readonly IReadOnlyList<Part> Parts = new[]
     {
         new Part("Part 1 · Foundations", "", 0, 12, Array.Empty<string>()),

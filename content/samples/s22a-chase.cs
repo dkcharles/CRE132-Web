@@ -11,45 +11,45 @@ void Draw()
     Screen.Clear(Colour.Black);
     Vec2 target = new Vec2(Mouse.X, Mouse.Y);
     // Target minus position is the arrow from here to there: direction and distance in one.
-    Vec2 toTarget = new Vec2(target.X - position.X, target.Y - position.Y);
+    Vec2 toTarget = new Vec2(target.x - position.x, target.y - position.y);
     if (toTarget.Length() > speed)
     {
         position = position.Add(toTarget.Normalised().Scale(speed));
     }
-    Screen.Circle(target.X, target.Y, 12, Colour.Grey);
-    Screen.Circle(position.X, position.Y, 16, Colour.Yellow);
+    Screen.Circle(target.x, target.y, 12, Colour.Grey);
+    Screen.Circle(position.x, position.y, 16, Colour.Yellow);
 }
 
 Game.Run(Setup, Draw);
 
 class Vec2
 {
-    public float X, Y;
+    public float x, y;
 
-    public Vec2(float x, float y)
+    public Vec2(float startX, float startY)
     {
-        X = x;
-        Y = y;
+        x = startX;
+        y = startY;
     }
 
     public float Length()
     {
-        return MathF.Sqrt(X * X + Y * Y);
+        return MathF.Sqrt(x * x + y * y);
     }
 
     public Vec2 Normalised()
     {
         float length = Length();
-        return new Vec2(X / length, Y / length);
+        return new Vec2(x / length, y / length);
     }
 
     public Vec2 Add(Vec2 other)
     {
-        return new Vec2(X + other.X, Y + other.Y);
+        return new Vec2(x + other.x, y + other.y);
     }
 
     public Vec2 Scale(float amount)
     {
-        return new Vec2(X * amount, Y * amount);
+        return new Vec2(x * amount, y * amount);
     }
 }

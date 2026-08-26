@@ -3,7 +3,7 @@ List<Ball> balls = new List<Ball>();
 void Setup()
 {
     Screen.Size(640, 360);
-    // Setup runs once, so the cast is built here rather than thirty times a second in Draw.
+    // Setup runs once, so the five balls are built here rather than thirty times a second in Draw.
     for (int i = 0; i < 5; i++)
     {
         balls.Add(new Ball(80 + i * 120, 60 + i * 50, 3 + i, 2 + i));

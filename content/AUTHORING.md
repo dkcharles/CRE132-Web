@@ -450,8 +450,10 @@ The engine knows exactly two methods: the top-level `Setup` and the top-level `D
 `Game.Run`. A method called `Draw()` or `Update()` on a student class is an ordinary method that
 happens to carry a conventional name — nothing calls it for you. `ball.Draw()` inside the
 top-level `Draw` is what puts the ball on the screen, and the prose has to say so plainly the
-first time, or a reader who has met Unity will assume the engine finds it. Name them `Update`
-and `Draw` anyway: that habit is exactly what Part 3 is feeding into.
+first time, or a reader who has met Unity will assume the engine finds it. Name an object's
+per-frame methods `Update` and `Draw` — the Unity habit Part 3 is feeding into — or a plain
+verb like `Move` where that reads better; the engine only knows the top-level `Setup` and
+`Draw`, so either is fine. Lessons 20–22 use `Move`.
 
 ### Checking a class program
 

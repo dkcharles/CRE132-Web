@@ -11,8 +11,8 @@ and the class lesson gave you exactly the box to keep one in:
 
 :::run s22-vec2 A vector's length, and the same vector with its length taken away.
 
-`Length()` is the collision lesson's distance formula with a shorter name: `MathF.Sqrt(X * X + Y * Y)`,
-the long side of the triangle whose short sides are `X` and `Y`. The arrow `(3, 4)` is `5` long.
+`Length()` is the collision lesson's distance formula with a shorter name:
+`MathF.Sqrt(x * x + y * y)`, the long side of the triangle whose short sides are `x` and `y`. The arrow `(3, 4)` is `5` long.
 
 `Normalised()` divides both parts by that length. The arrow still points the same way, and it is
 now exactly `1` long — `(0.6, 0.8)`, whose own `Length()` comes back `1`. A vector of length `1`
@@ -20,7 +20,7 @@ is nothing but a direction, and that is the point of it: once the size is gone y
 whichever size you want.
 
 :::key
-A vector is an `X` and a `Y` used as an arrow: a direction and a distance together. `Length()` is
+A vector is an `x` and a `y` used as an arrow: a direction and a distance together. `Length()` is
 how long it is. `Normalised()` is the same arrow shrunk to length `1` — direction with the size
 thrown away.
 :::
@@ -32,12 +32,12 @@ thrown away.
 ```csharp
 public Vec2 Add(Vec2 other)
 {
-    return new Vec2(X + other.X, Y + other.Y);
+    return new Vec2(x + other.x, y + other.y);
 }
 
 public Vec2 Scale(float amount)
 {
-    return new Vec2(X * amount, Y * amount);
+    return new Vec2(x * amount, y * amount);
 }
 ```
 
@@ -49,7 +49,7 @@ With those four methods, chasing is one line of English. The arrow from where yo
 you want to be is the target minus your position:
 
 ```csharp
-Vec2 toTarget = new Vec2(target.X - position.X, target.Y - position.Y);
+Vec2 toTarget = new Vec2(target.x - position.x, target.y - position.y);
 ```
 
 Normalise it to throw the distance away, scale it by the speed you want, and add it to where you
@@ -74,7 +74,7 @@ Direction is **target minus position**. Constant-speed movement is
 scale to set the speed. Never normalise an arrow of length `0`.
 :::
 
-Unity's `Vector2` is this class, ready-made: the same two fields, the same `magnitude` and
+Unity's `Vector2` is this class, ready-made: the same `x` and `y`, the same `magnitude` and
 `normalized`, with `+` and `*` written as symbols instead of methods. Everything you do with
 `Vec2` here you will do there with the same words in the same order.
 
@@ -88,23 +88,23 @@ Run it and herd the dot into a corner. It walks straight off the edge of the scr
 nothing in the program says the screen has edges.
 
 :::try
-Give it walls. After the `if` that moves it, add four lines — `16` is the dot's radius, so it
-stops with its rim against each wall:
+Give it walls. After the `if` that moves it, add four lines. `radius` is the `16` already
+declared at the top of the file, so the dot stops with its rim against each wall:
 
 ```csharp
-if (position.X < 16) position.X = 16;
-if (position.X > Screen.Width - 16) position.X = Screen.Width - 16;
-if (position.Y < 16) position.Y = 16;
-if (position.Y > Screen.Height - 16) position.Y = Screen.Height - 16;
+if (position.x < radius) position.x = radius;
+if (position.x > Screen.Width - radius) position.x = Screen.Width - radius;
+if (position.y < radius) position.y = radius;
+if (position.y > Screen.Height - radius) position.y = Screen.Height - radius;
 ```
 
 Now corner it and it stays cornered. Then add a hunter: `Vec2 hunter = new Vec2(60, 60);` at the
 top of the file, and in `Draw`, before the two `Screen.Circle` lines:
 
 ```csharp
-Vec2 toDot = new Vec2(position.X - hunter.X, position.Y - hunter.Y);
+Vec2 toDot = new Vec2(position.x - hunter.x, position.y - hunter.y);
 if (toDot.Length() > 3) hunter = hunter.Add(toDot.Normalised().Scale(3));
-Screen.Circle(hunter.X, hunter.Y, 14, Colour.Red);
+Screen.Circle(hunter.x, hunter.y, 14, Colour.Red);
 ```
 
 The red dot chases the pink one at `3` pixels a frame while you chase it at `4`.
@@ -117,18 +117,21 @@ The starter has the finished `Vec2` class — `Length`, `Normalised`, `Add` and 
 written for you — a yellow `seeker` at `(100, 300)` drawn with radius `14`, a red `target` at
 `(540, 60)` drawn with radius `12`, and `float speed = 4;`. The seeker never moves.
 
-Where the comment is, before the two `Screen.Circle` lines, add four lines:
+Where the comment is, before the two `Screen.Circle` lines, do two things.
+
+First, build the arrow from the seeker to the target: a `new Vec2` whose two numbers are
+`target.x - seeker.x` and `target.y - seeker.y`. Call it `toTarget`.
+
+Then step along it, but only while there is still a step's worth of ground to cover:
 
 ```csharp
-Vec2 toTarget = new Vec2(target.X - seeker.X, target.Y - seeker.Y);
 if (toTarget.Length() > speed)
-{
-    seeker = seeker.Add(toTarget.Normalised().Scale(speed));
-}
 ```
 
-The `if` is not decoration: without it the seeker overshoots the target and jitters across it
-forever instead of stopping.
+Inside that `if`, one line: set `seeker` to `seeker.Add(...)` of `toTarget` **normalised** and
+then **scaled** by `speed` — `Normalised()` throws the distance away and `Scale(speed)` puts back
+the `4` pixels you want, exactly as `s22a-chase` does above. The `if` is not decoration: without
+it the seeker overshoots the target and jitters across it forever instead of stopping.
 
 Change nothing else — not the two positions, not the two radii, not `speed`. The checker runs
 two scripts. The first is 60 frames long and looks at frames 30 and 60, by which time the

@@ -11,40 +11,40 @@ void Draw()
 {
     Screen.Clear(Colour.Black);
     // 1. Work out the arrow to the target and step along it here.
-    Screen.Circle(target.X, target.Y, 12, Colour.Red);
-    Screen.Circle(seeker.X, seeker.Y, 14, Colour.Yellow);
+    Screen.Circle(target.x, target.y, 12, Colour.Red);
+    Screen.Circle(seeker.x, seeker.y, 14, Colour.Yellow);
 }
 
 Game.Run(Setup, Draw);
 
 class Vec2
 {
-    public float X, Y;
+    public float x, y;
 
-    public Vec2(float x, float y)
+    public Vec2(float startX, float startY)
     {
-        X = x;
-        Y = y;
+        x = startX;
+        y = startY;
     }
 
     public float Length()
     {
-        return MathF.Sqrt(X * X + Y * Y);
+        return MathF.Sqrt(x * x + y * y);
     }
 
     public Vec2 Normalised()
     {
         float length = Length();
-        return new Vec2(X / length, Y / length);
+        return new Vec2(x / length, y / length);
     }
 
     public Vec2 Add(Vec2 other)
     {
-        return new Vec2(X + other.X, Y + other.Y);
+        return new Vec2(x + other.x, y + other.y);
     }
 
     public Vec2 Scale(float amount)
     {
-        return new Vec2(X * amount, Y * amount);
+        return new Vec2(x * amount, y * amount);
     }
 }
