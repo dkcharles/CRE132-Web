@@ -2,6 +2,26 @@ namespace CRE132.Web;
 
 public sealed record Entry(string Id, string Title, string NarrationFile);
 
+// One band of the course. FirstId..LastId is the band's slice of the lesson numbering, so a
+// part is defined by the numbers it owns rather than by a list that must be kept in step with
+// Entries.
+//
+// PlannedTitles is indexed BY POSITION IN THE SPAN: PlannedTitles[id - FirstId] announces that
+// id. An Entry for the same id simply takes precedence, so writing lesson 20 means adding its
+// row and LEAVING its planned title where it is - deleting the title instead would slide every
+// later one up a slot and relabel 21 as "Vectors". WebCatalogTests holds the invariant that
+// makes either mistake fail the build: every id in the span resolves to an Entry, or to a
+// non-blank planned title at its own position.
+//
+// Subtitle overrides the "Lessons a-b" line the home page computes from the span. It is set
+// only where a part needs to say something else, as part 3 says "Coming soon".
+public sealed record Part(
+    string Title,
+    string Subtitle,
+    int FirstId,
+    int LastId,
+    IReadOnlyList<string> PlannedTitles);
+
 // What the site offers, in course order. One row per lesson; the contents list, the hash
 // router and the pager all read this. Adding a lesson = one row + its markdown/samples.
 public static class WebCatalog
@@ -30,5 +50,38 @@ public static class WebCatalog
         new Entry("19", "Mini-game: Pong", "lessons/19-pong.json"),
     };
 
+    // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
+    // and 2 are fully written, so their spans need no planned titles and their subtitles are the
+    // computed "Lessons a-b"; part 3 is all planned titles and no rows.
+    public static readonly IReadOnlyList<Part> Parts = new[]
+    {
+        new Part("Part 1 · Foundations", "", 0, 12, Array.Empty<string>()),
+        new Part("Part 2 · Graphics & motion", "", 13, 19, Array.Empty<string>()),
+        new Part("Part 3 · Objects & real games", "Coming soon", 20, 26, new[]
+        {
+            "Your first class",
+            "Objects together",
+            "Vectors",
+            "Game state",
+            "Animation & timing",
+            "Mini-game: Snake",
+            "Going further",
+        }),
+    };
+
     public static Entry? Find(string id) => Entries.FirstOrDefault(e => e.Id == id);
+
+    // Catalog order, not numeric order: Entries is the single source of sequence, and the
+    // contents list and pager already read it that way.
+    public static IReadOnlyList<Entry> EntriesIn(Part p) => Entries
+        .Where(e => int.TryParse(e.Id, out int n) && n >= p.FirstId && n <= p.LastId)
+        .ToList();
+
+    // The one way to read PlannedTitles: by the id's own position in the span, never by walking
+    // the list. Empty means "nothing announced for this id" - fine when an Entry covers it.
+    public static string PlannedTitle(Part p, int id)
+    {
+        int slot = id - p.FirstId;
+        return slot >= 0 && slot < p.PlannedTitles.Count ? p.PlannedTitles[slot] : "";
+    }
 }

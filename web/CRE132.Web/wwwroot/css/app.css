@@ -11,8 +11,54 @@ body {
     background: #ffffff;
     color: #1a1a1a;
 }
-.placeholder { text-align: center; }
-.placeholder .proof { font-family: monospace; }
+/* The landing page. body centres its single child, so like .page this wants an explicit width
+   and place-self: start, or the whole page floats in the middle of tall viewports.
+   Tagged main.home on purpose: .home is ALSO the sidebar's "CRE132" link on every lesson page,
+   and an unqualified .home rule would reach across and lay that anchor out as a page. */
+main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; place-self: start center; }
+/* align-items: center, not start: the text column is much shorter than the canvas, and left
+   aligned to the top it left a conspicuous empty quadrant under the button at desktop widths. */
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
+.hero-text h1 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); line-height: 1.15; margin: 0 0 0.9rem; }
+.hero-text .blurb { font-size: 1.1rem; line-height: 1.5; max-width: 32rem; margin: 0 0 1.5rem; }
+.hero-text .cta-row { margin: 0 0 0.9rem; }
+.cta {
+    display: inline-block;
+    background: #46a;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 0.7rem 1.4rem;
+    border-radius: 6px;
+}
+.cta:hover, .cta:focus-visible { background: #35a; }
+.hero-aside { font-size: 0.9rem; margin: 0; }
+/* Reserves the canvas's height before the preview has loaded, so the parts below do not jump
+   up the page and then back down when the game starts. */
+.hero-preview { min-height: 14rem; }
+.hero-preview .stage.hidden { display: block; visibility: hidden; }
+.hero-preview .stage-canvas { max-width: 100%; }
+.hero-hint { font-size: 0.85rem; opacity: 0.75; margin: 0.4rem 0 0.2rem; }
+.hero-preview .caption { margin: 0.7rem 0 0; font-size: 0.95rem; opacity: 1; }
+
+.parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+.part h2 { font-size: 1rem; color: #46a; margin: 0 0 0.2rem; }
+.part .part-sub { font-size: 0.85rem; opacity: 0.7; margin: 0 0 0.6rem; }
+.part ol { list-style: none; padding-left: 0; margin: 0; font-size: 0.92rem; line-height: 1.75; }
+/* The site's accent rather than the browser's default blue, so a column of twenty lessons reads
+   as one list and not as raw hypertext. The underline comes back on hover and on keyboard focus,
+   which is where it carries information. */
+.part a { color: #46a; text-decoration: none; }
+.part a:hover, .part a:focus-visible { text-decoration: underline; }
+/* Planned lessons are text, not links: greyed enough to read as unavailable, dark enough to
+   still be legible on white. The whole column is dimmed while none of its lessons exist. */
+.part .soon { opacity: 0.45; }
+.part.planned h2 { color: color-mix(in srgb, #46a 60%, #fff); }
+@media (max-width: 50rem) {
+    .hero { grid-template-columns: 1fr; gap: 1.5rem; }
+    .parts { grid-template-columns: 1fr; gap: 1.75rem; margin-top: 2rem; }
+}
 #blazor-error-ui { display: none; padding: 1rem; background: #b00020; color: white; }
 
 .playground { width: min(60rem, 92vw); margin: 2rem auto; text-align: left; place-self: start center; }
@@ -26,9 +72,8 @@ body {
 .page { display: grid; grid-template-columns: 14rem 1fr; gap: 2rem; width: min(70rem, 94vw); margin: 2rem auto; align-items: start; place-self: start center; }
 .contents { position: sticky; top: 1rem; font-size: 0.9rem; }
 .contents .home { font-weight: 700; text-decoration: none; }
-.contents ol, .contents-home ol { list-style: none; padding-left: 0.5rem; }
+.contents ol { list-style: none; padding-left: 0.5rem; }
 .contents .current { font-weight: 700; }
-.contents-home ol { text-align: left; display: inline-block; }
 .lesson { text-align: left; max-width: 46rem; }
 .lesson .runnable, .lesson .challenge { margin: 1.5rem 0; }
 .pane { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 6px; margin: 0.5rem 0; overflow: hidden; }

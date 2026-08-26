@@ -6,19 +6,9 @@
 
 @if (current is null)
 {
-    <main class="placeholder">
-        <h1>CRE132</h1>
-        <p>Learn C# in your browser. Nothing to install — code runs right here in the page.</p>
-        <nav class="contents-home">
-            <ol>
-                @foreach (Entry e in WebCatalog.Entries)
-                {
-                    <li><a href="@("#" + e.Id)" @onclick="() => Go(e.Id)" @onclick:preventDefault>@($"{e.Id}. {e.Title}")</a></li>
-                }
-            </ol>
-        </nav>
-        <p><a href="playground">Or open the free-form playground →</a></p>
-    </main>
+    @* No hash: the landing page. It calls Go for every lesson link, so the home route uses
+       exactly the same navigation path as the sidebar contents list. *@
+    <Home OnNavigate="Go" />
 }
 else
 {
