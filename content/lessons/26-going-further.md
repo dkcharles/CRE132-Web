@@ -35,7 +35,10 @@ case Behaviour.Flee: push = new Vec2(position.x - pointer.x, position.y - pointe
 ```
 
 Seek is target minus position. Flee is the same subtraction the other way round. Wander is two
-calls to `Rand.Range(-0.5f, 0.5f)`, a small shove in no particular direction.
+calls to `Rand.Range(-0.5f, 0.5f)`, a shove in no particular direction. All three arrows are
+normalised on the line below, which throws the length away and keeps only which way the arrow
+points — so the wanderer's `0.5f` is not a speed. It only decides which way the nudge leans, and
+making it bigger or smaller changes nothing you can see.
 
 The three lines after the `switch` are the whole of the movement, and they are the same three
 for all five agents. The `push` is normalised and scaled by `steerForce`, which is `0.4f`, and
@@ -82,7 +85,7 @@ neighbours comes alive, and everything else is dead next generation.
 
 That is all of it. There is no more to the rules than that paragraph, and yet:
 
-:::run s26a-life A glider crawling out of the top-left corner, and an r-pentomino below the middle that keeps the board changing for as long as you care to watch.
+:::run s26a-life A glider crawling out of the top-left corner, and an r-pentomino below the middle that keeps the board boiling for a couple of minutes before it settles into a few blinkers.
 
 The board needs somewhere to live, and this is the one place in the course where a `List` is the
 wrong shape. A board is not a queue of things, it is rows and columns, so it gets a **grid of
@@ -92,7 +95,8 @@ ints**:
 int[,] cells = new int[32, 18];
 ```
 
-Two numbers in the square brackets instead of one, and two numbers to read a square back out —
+which the program writes as `new int[cols, rows]`, `cols` being `32` and `rows` being `18`. Two
+numbers in the square brackets instead of one, and two numbers to read a square back out —
 `cells[col, row]`, `0` for dead and `1` for alive. Everything else about it is an array as the
 collections lesson taught it: fixed size, and every square starts at `0` for free.
 
@@ -112,19 +116,23 @@ int nearCol = (col + dx + cols) % cols;
 The `% cols` wraps column `32` back round to column `0`, and adding `cols` first keeps the answer
 positive when `col + dx` is `-1`. The board has no edges: it is a loop left-to-right and a loop
 top-to-bottom, joined into a ring in both directions. That matters for what you are watching.
-A glider that reaches the right-hand wall of an ordinary board dies against it; on this board it
-sails off the right-hand edge and arrives on the left, and it keeps going until it runs into
-whatever the r-pentomino has scattered in its path.
+A glider that reaches the right-hand wall of an ordinary board comes apart against it and stops
+being a glider; on this board it sails off the right-hand edge and arrives on the left, and it
+keeps going until it runs into whatever the r-pentomino has scattered in its path.
 
 Drawing is two loops and one `if`: an `18` by `18` green square at `col * cell, row * cell` for
 every `1` in the grid, the same square the Snake board was drawn with.
 
 :::try
-Copy this program into the **Playground** too, and start by breaking the loop.
+Copy this program into the **Playground** too, and take it apart from the seed outwards.
 
-Take the wrapping out. In `Neighbours`, replace the two `%` lines with `int nearCol = col + dx;`
-and `int nearRow = row + dy;`, and widen the test on the line that counts so that a square off
-the board is never read at all:
+First, thin it out. Delete the r-pentomino's five lines from `Setup` and leave the glider on its
+own. Nothing is left to interfere with it, so it crosses the board forever — off the right-hand
+edge, back on at the left, round and round.
+
+Now break that loop, with the glider still on its own. In `Neighbours`, replace the two `%` lines
+with `int nearCol = col + dx;` and `int nearRow = row + dy;`, and widen the test on the line that
+counts so that a square off the board is never read at all:
 
 ```csharp
 if ((dx != 0 || dy != 0) && nearCol >= 0 && nearCol < cols && nearRow >= 0 && nearRow < rows)
@@ -133,14 +141,14 @@ if ((dx != 0 || dy != 0) && nearCol >= 0 && nearCol < cols && nearRow >= 0 && ne
 }
 ```
 
-Now the board has walls, everything outside them counts as dead, and the glider crashes into the
-bottom one at about generation `66` and collapses into a four-square block that sits there,
-unchanged, forever.
+The board has walls now, everything outside them counts as dead, and the glider is not immortal
+any more: it crashes into the bottom wall and by generation `64` has come apart into a
+four-square block at columns `16` and `17`, rows `16` and `17`, which sits there unchanged
+forever.
 
-Then change the seed. Delete the r-pentomino's five lines from `Setup` and leave the glider on
-its own, and the board becomes one shape crossing an empty grid forever. Or seed it at random
-instead — a loop over every square with `if (Rand.Range(0, 5) == 0) cells[col, row] = 1;` fills
-about a fifth of the board, and no two runs look alike.
+Or fill the board at random rather than seeding it by hand — a loop over every square with
+`if (Rand.Range(0, 5) == 0) cells[col, row] = 1;` fills about a fifth of it, and no two runs look
+alike.
 
 Last, change the speed. `framesPerStep` is `6`, which is five generations a second. Set it to
 `1` and the pattern boils; set it to `30` and you get one generation a second, slow enough to
@@ -161,10 +169,10 @@ Click anywhere on the canvas.
 
 A `Particle` is the smallest useful class in the course: an `x` and a `y`, a `speedX` and a
 `speedY`, and an `int life` counting down. `Burst` adds forty of them at the same point, each
-with `Rand.Range(-3.5f, 3.5f)` for its sideways speed and the same again for its vertical one,
-so forty sparks leave one place in forty different directions. `gravity` of `0.2f` is added to
-`speedY` every frame — the falling from the motion lesson, one line — which is what bends a ball
-of sparks into a firework.
+with `Rand.Range(-spread, spread)` for its sideways speed and the same again for its vertical
+one — `spread` is `3.5f` — so forty sparks leave one place in forty different directions.
+`gravity` of `0.2f` is added to `speedY` every frame — the falling from the motion lesson, one
+line — which is what bends a ball of sparks into a firework.
 
 `life` starts at `75`, drops by one a frame and reaches zero after two and a half seconds. The
 removal loop is the objects-together lesson's, unchanged: an index loop rather than a `foreach`,
@@ -177,9 +185,14 @@ The one number worth stealing is in `Draw`:
 float radius = smallRadius + (bigRadius - smallRadius) * life / fullLife;
 ```
 
-`life / fullLife` is `1` at birth and `0` at death, so the radius slides from `16` down to `12`
-and stops there. A spark that faded all the way to nothing would spend its last frames too small
-to see; one that stops at `12` fades and then vanishes cleanly.
+`life` and `fullLife` are both `int`, so `life / fullLife` written on its own would be the
+whole-number division of the maths lesson: `0` from the second frame of a spark's life onwards,
+the remainder thrown away. It is not that, because `*` and `/` run left to right, and
+`bigRadius - smallRadius` is a `float`. The multiply goes first, and dividing a `float` by an
+`int` keeps the fraction. So `4 * life / fullLife` slides from `4` at birth down to `0` at death,
+and the radius with it, from `16` down to `12`. A spark that faded all the way to
+nothing would spend its last frames too small to see; one that stops at `12` fades and then
+vanishes cleanly.
 
 :::edit s26c-particles-edit The same program, in an editor. Change a number, press Run, click the canvas.
 

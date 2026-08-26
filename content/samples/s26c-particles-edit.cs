@@ -42,6 +42,7 @@ class Particle
 {
     public float x, y;
     public float speedX, speedY;
+    public float spread = 3.5f;
     public float gravity = 0.2f;
     public int fullLife = 75;
     public int life;
@@ -54,8 +55,8 @@ class Particle
         y = startY;
         life = fullLife;
         // Two calls to Rand per spark, in this order: sideways first, then up or down.
-        speedX = Rand.Range(-3.5f, 3.5f);
-        speedY = Rand.Range(-3.5f, 3.5f);
+        speedX = Rand.Range(-spread, spread);
+        speedY = Rand.Range(-spread, spread);
     }
 
     public void Update()
