@@ -30,7 +30,9 @@ State state = State.Title;
 ```
 
 And then the decisions lesson's `switch` — same `case`, same `break`, a value of a new type —
-picks which screen to draw:
+picks which screen to draw. There is no `default:` on it, and there does not need to be: the enum
+has exactly three values, all three have a case of their own, and there is no fourth thing `state`
+could possibly be.
 
 :::run s23-states Three screens, one variable, one switch.
 
@@ -122,11 +124,15 @@ case State.Paused:
     break;
 ```
 
-Run it and press **P**. The ball stops dead, because the line that moves it lives in the
-`Playing` case and the `Playing` case is not running. Now pause for a few seconds and unpause:
-the clock carried on without you, because `Frame.Count` never stops. Fixing that is a couple of
-lines — remember the frame you paused on, and when you unpause, push `startFrame` forward by the
-number of frames the pause lasted.
+Run it and press **P**. The ball does not just stop — it disappears, and that is worth a moment.
+The line that moves it and the line that *draws* it both live in the `Playing` case, and the
+`Playing` case is not running, so neither happens. A paused game normally still shows the board,
+so put the drawing back: add `Screen.Circle(ballX, 180, radius, Colour.Cyan);` above the
+`Screen.Text` in the `Paused` case and the ball sits frozen exactly where you left it.
+
+Now pause for a few seconds and unpause: the clock carried on without you, because `Frame.Count`
+never stops. Fixing that is a couple of lines — remember the frame you paused on, and when you
+unpause, push `startFrame` forward by the number of frames the pause lasted.
 :::
 
 ## Challenge
@@ -182,9 +188,9 @@ Change nothing else — not the starting position, not the two speeds, not the r
 Three scripts check it. The first runs ten frames and presses nothing: the ball must still be
 sitting at `(320, 180)` with `Press SPACE` below it, so a ball that moves on the title screen is
 caught on frame 10. The second presses the space bar on frame 5 and runs for 200 frames; the ball
-crosses the bottom edge on frame 72, so frame 60 catches it in mid-fall at `(540, 345)` and frame
-200 must show `GAME OVER` and nothing else. The third presses the space bar on frame 5 and
-**Enter** on frame 150: frame 140 is still the game-over screen, and by frame 200 the title is
-back with the ball returned to `(320, 180)` — leave `ball.Reset();` out and the title screen
-comes back empty. Press **Check** when you are ready.
+crosses the bottom edge on frame 72, so frame 60 catches it near the bottom-right corner, at
+`(540, 345)`, and frame 200 must show `GAME OVER` and nothing else. The third presses the space
+bar on frame 5 and **Enter** on frame 150: frame 140 is still the game-over screen, and by frame
+200 the title is back with the ball returned to `(320, 180)` — leave `ball.Reset();` out and
+the title screen comes back without the ball. Press **Check** when you are ready.
 :::
