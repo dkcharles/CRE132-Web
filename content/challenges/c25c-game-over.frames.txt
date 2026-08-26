@@ -1,0 +1,75 @@
+=== case 1 ===
+--- frame 200 ---
+Score: 0                                
+  ##                                    
+  ##                                    
+                                        
+                                        
+                                        
+                                        
+                                        
+           GAME OVER                    
+                                        
+                                        
+        ENTER FOR TITLE             ####
+                                    ####
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+=== case 2 ===
+--- frame 240 ---
+Score: 0                                
+  ##                                    
+  ##                                    
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+       SNAKE - SPACE TO PLAY            
+####                                    
+####                                    
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+=== case 3 ===
+--- frame 100 ---
+Score: 1                                
+  ###                                   
+  ###                                   
+  ###                                   
+                                        
+                                        
+                                        
+                                        
+           GAME OVER                    
+                                        
+                                        
+        ENTER FOR TITLE       #         
+                              #         
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
