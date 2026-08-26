@@ -14,8 +14,9 @@ public sealed record Entry(string Id, string Title, string NarrationFile);
 // non-blank planned title at its own position.
 //
 // Subtitle overrides the "Lessons a-b" line the home page computes from the span. It is set
-// only where a part needs to say something else: part 3 says "Coming soon" until lesson 20
-// lands and then drops it, part 4 says what its showcase lessons are for and keeps saying it.
+// only where a part needs to say something else: part 3 said "Coming soon" until lesson 20
+// landed and now shows the computed line, part 4 says what its showcase lessons are for and
+// keeps saying it.
 public sealed record Part(
     string Title,
     string Subtitle,
@@ -49,18 +50,22 @@ public static class WebCatalog
         new Entry("17", "Many things", "lessons/17-many-things.json"),
         new Entry("18", "Collision", "lessons/18-collision.json"),
         new Entry("19", "Mini-game: Pong", "lessons/19-pong.json"),
+        new Entry("20", "Your first class", "lessons/20-your-first-class.json"),
+        new Entry("21", "Objects together", "lessons/21-objects-together.json"),
+        new Entry("22", "Vectors", "lessons/22-vectors.json"),
     };
 
     // Contiguous and non-overlapping: between them the parts cover 0..26 exactly once. Parts 1
     // and 2 are fully written, so their spans need no planned titles and their subtitles are the
-    // computed "Lessons a-b"; parts 3 and 4 are all planned titles and no rows. Part 3 ends on
+    // computed "Lessons a-b"; part 3 is part written and keeps a planned title in every slot,
+    // and part 4 is all planned titles and no rows. Part 3 ends on
     // Snake and part 4 holds the showcase lessons - 26 today, later ones after it - so a reader
     // sees where the taught course stops and the "read, run, tinker" material starts.
     public static readonly IReadOnlyList<Part> Parts = new[]
     {
         new Part("Part 1 · Foundations", "", 0, 12, Array.Empty<string>()),
         new Part("Part 2 · Graphics & motion", "", 13, 19, Array.Empty<string>()),
-        new Part("Part 3 · Objects & real games", "Coming soon", 20, 25, new[]
+        new Part("Part 3 · Objects & real games", "", 20, 25, new[]
         {
             "Your first class",
             "Objects together",
