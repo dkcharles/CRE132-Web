@@ -41,7 +41,8 @@ Every lesson needs, at minimum:
       output), plus `<id>.in.txt` only if the sample reads input. (A guided-build lesson may ship
       a single reference sample instead — see "Guided-build lessons" below.)
 - [ ] At least one challenge kit in `content/challenges/`: `<id>.start.cs` +
-      `<id>.solution.cs` + `<id>.cases.json`.
+      `<id>.solution.cs` + `<id>.cases.json`. (A showcase lesson ships none at all — its kit is
+      samples only; see "Showcase lessons" under "Classes (20 onward)".)
 - [ ] One row in `WebCatalog.Entries` (`web/CRE132.Web/WebCatalog.cs`), inserted in course
       order, pointing at `lessons/<NN-name>.json`.
 - [ ] For a game lesson (13 onward): each game sample kit adds `<id>.frame.txt` (the golden
@@ -164,11 +165,19 @@ choosing what a sample or challenge may contain:
 | 17 | Many things | `List<float>` positions, `Rand.Range`, spawning, `RemoveAt`, index loops over lists |
 | 18 | Collision | `MathF.Sqrt`, `MathF.Abs`, distance, circle/circle and rect/rect overlap as `bool` methods, circle-vs-rect as a rectangle grown by the radius |
 | 19 | Mini-game: Pong | Nothing new — a guided build |
+| 20 | Your first class | `class`, public fields, methods, a constructor, `new`, classes at the bottom of the file |
+| 21 | Objects together | `List<Ball>`, `foreach` over objects, spawning and removing objects |
+| 22 | Vectors | A student-written `Vec2` class: `Length`, `Normalised`, `Add`, `Scale` |
+| 23 | Game state | `enum`, a state field, `switch` on state, restart |
+| 24 | Animation & timing | Countdown timers, `Frame.Count % n`, frame sequences, grid-step movement, cooldowns |
+| 25 | Mini-game: Snake | Nothing new — a guided build |
+| 26 | Going further | `int[,]`; showcase only |
 
 Concretely: no `if` before Lesson 5, no loops before Lesson 7, no methods before Lesson 9, no
 arrays or `List<T>` before Lesson 11. No `Rand` before Lesson 17, no `MathF.Sqrt`/`MathF.Abs`
-before Lesson 18, no `RemoveAt` before Lesson 17. String building uses `+` concatenation until
-Lesson 3 introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's
+before Lesson 18, no `RemoveAt` before Lesson 17. No `class` before Lesson 20, no `enum` before
+Lesson 23, and `int[,]` in Lesson 26 and nowhere else. String building uses `+` concatenation
+until Lesson 3 introduces `$"..."` interpolation — don't reach for interpolation in Lesson 2's
 samples even though it would read more naturally, because the reader hasn't met it yet.
 
 ## Game lessons (13 onward)
@@ -342,9 +351,10 @@ rule that governs every challenge, console ones included.
 
 ### Guided-build lessons
 
-A mini-game lesson (Lesson 19 is the shipped example, and Lesson 25 will be the next) is not
-"lesson plus challenge". It is one program built in steps, and the shape it uses bends three of
-the rules above — deliberately, so copy this shape rather than fighting it:
+A mini-game lesson — Lesson 19 (Pong) is the shipped example, Lesson 25 (Snake) is the next, and
+Snake follows Pong's shape exactly, classes and all — is not "lesson plus challenge". It is one
+program built in steps, and the shape it uses bends three of the rules above — deliberately, so
+copy this shape rather than fighting it:
 
 - **One reference sample, not 3–5.** A single `:::run` at the top shows the finished game, so the
   reader knows what they are building towards. It is the one place a sample may run past a
@@ -364,6 +374,142 @@ the rules above — deliberately, so copy this shape rather than fighting it:
 Nothing else bends. Every step's statement still names exact numbers, every starter still
 compiles, every solution still uses only what the course has taught, and the closing paragraph
 points at the next part of the course by name, never by a `#n` hash.
+
+## Classes (20 onward)
+
+Lessons 20–26 put classes on top of the Part 2 game API: Lesson 14's ball stops being five loose
+variables and becomes one object that owns its own data and the code that moves it. Nothing else
+changes — a class lesson is a game lesson, with the same kit, the same goldens, the same checker
+and the same directive grammar as "Game lessons (13 onward)" above. What follows is only what is
+different about writing one.
+
+### The file layout
+
+A student program is still top-level statements, and C# allows type declarations *after*
+top-level code, so every class program has the same four bands, in this order: the variables and
+objects the game needs, then `Setup` and `Draw`, then `Game.Run(Setup, Draw);`, then the `class`
+and `enum` declarations underneath it.
+
+```csharp
+Ball ball = new Ball(320, 180);
+
+void Setup()
+{
+    Screen.Size(640, 360);
+}
+
+void Draw()
+{
+    Screen.Clear(Colour.Black);
+    ball.Move();
+    ball.Draw();
+}
+
+Game.Run(Setup, Draw);
+
+class Ball
+{
+    public float x, y;                                   // fields: what a ball is
+    public Ball(float startX, float startY) { ... }      // constructor: how a new one starts
+    public void Move() { ... }                           // methods: what a ball does
+    public void Draw() { ... }
+}
+```
+
+Lesson 20 shows this layout once and hands it over as a given, the way Lesson 13 hands over
+`Game.Run` — the reader does not need to know *why* the classes sit at the bottom, only that
+that is where they go. It is not a house style: a class declared above the top-level statements
+is a compiler error, so this is the only order that builds.
+
+### Everything is `public`
+
+Every field and every method of a student class is written `public`. The reason, for you: the
+top-level code that calls `ball.Move()` is compiled into a class of its own — the compiler's
+`Program` — so the call comes from *outside* `Ball`, and an unmarked C# member is private, which
+would not compile. The one line a student reads is: "`public` means code outside the class can
+use it." Say it once, in Lesson 20, and move on: `private` is never taught, so there is no second
+case to weigh it against and no access levels to explain.
+
+### What is not taught
+
+Fields, methods, constructors, `new`, and lists of objects — that is the whole of it. **No
+inheritance, no properties, no `static` members, no interfaces, no operator overloading, no
+structs, no `private`.** None of these may appear in a sample, a starter or a solution, however
+much shorter they would make it; the same "nothing before it's taught" rule as everywhere else,
+except that these are never taught at all.
+
+A student class must also not be named `Game`, `Screen`, `Keys`, `Mouse`, `Frame`, `Rand`,
+`Colour` or `Key` — those are the API's own types, and a class of the same name shadows one, so
+the API call that used to work stops compiling for reasons a beginner cannot read. `Colour` and
+`Key` are on that list because students use them as types (`Colour.Red`, `Key.Space`), not just
+as namespaces to call into. Lesson 20 says this in prose, once.
+
+### `Update` and `Draw` on an object are ordinary methods
+
+The engine knows exactly two methods: the top-level `Setup` and the top-level `Draw` handed to
+`Game.Run`. A method called `Draw()` or `Update()` on a student class is an ordinary method that
+happens to carry a conventional name — nothing calls it for you. `ball.Draw()` inside the
+top-level `Draw` is what puts the ball on the screen, and the prose has to say so plainly the
+first time, or a reader who has met Unity will assume the engine finds it. Name them `Update`
+and `Draw` anyway: that habit is exactly what Part 3 is feeding into.
+
+### Checking a class program
+
+Nothing changes. `Screen.Circle` called from inside `Ball.Draw()` marks the same cell of the
+same 40×23 grid as the identical call written inline, so the frame goldens, `frames.txt`, the
+snapshot rule, the two gates and the golden bootstrap all behave exactly as described above.
+The loop budget reaches inside class methods too — the rewriter instruments every loop in the
+file, not only the ones in `Draw` — so a runaway `while` in a method is caught the same way.
+
+### Enums
+
+An `enum` is a type declaration, so it goes at the bottom of the file with the classes, and the
+field that holds the state goes at the top with the other variables:
+
+```csharp
+State state = State.Title;
+
+// Setup elided; the shape below is what matters.
+void Draw()
+{
+    Screen.Clear(Colour.Black);
+    switch (state)
+    {
+        case State.Title:
+            Screen.Text(200, 170, "PRESS SPACE", Colour.White);
+            break;
+        case State.Playing:
+            Screen.Circle(x, y, 16, Colour.Yellow);
+            break;
+    }
+}
+
+Game.Run(Setup, Draw);
+
+enum State { Title, Playing, GameOver }
+```
+
+The `switch` is Lesson 6's, unchanged — same `case` and `break`, with `State.Playing` where a
+number or a string used to be. That is the whole trick, and it is worth saying so: a title
+screen and a game-over screen are not an engine feature, they are one variable and a `switch`.
+
+### 2D arrays
+
+`int[,] cells = new int[cols, rows];`, read and written as `cells[x, y]`, appears in **Lesson 26
+and nowhere else** — Conway's Life needs a grid and nothing before it does. Everything else that
+holds many things is a `List<T>` (Lesson 11) or a list of objects (Lesson 21). Lesson 26's prose
+calls it "a grid of ints" and leaves it there; array rank is not a concept the course teaches.
+
+### Showcase lessons (Part 4)
+
+Lesson 26 is the first of a different kind of page: read it, run it, tinker with it. A showcase
+lesson is `:::run` samples and `:::try` prompts and **no challenges at all** — nothing is being
+tested, so there is nothing to check beyond each sample's own goldens. Its file kit is therefore
+samples only: `<id>.cs` + `<id>.frame.txt` + `<id>.out.txt` per sample, and nothing in
+`content/challenges/`. Ship one `:::edit` copy of a sample so the `:::try` prompts have an
+editor to land in and the reader can change a number without leaving the page. The 2–3 `:::key`
+rule and the "at least one `:::try`" rule still hold; "at least one challenge" is the single
+line of the file kit a showcase lesson is exempt from.
 
 ## Style
 

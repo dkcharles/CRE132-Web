@@ -42,7 +42,7 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .hero-hint { font-size: 0.85rem; opacity: 0.75; margin: 0.4rem 0 0.2rem; }
 .hero-preview .caption { margin: 0.7rem 0 0; font-size: 0.95rem; opacity: 1; }
 
-.parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+.parts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3rem; }
 .part h2 { font-size: 1rem; color: #46a; margin: 0 0 0.2rem; }
 .part .part-sub { font-size: 0.85rem; opacity: 0.7; margin: 0 0 0.6rem; }
 .part ol { list-style: none; padding-left: 0; margin: 0; font-size: 0.92rem; line-height: 1.75; }
@@ -55,6 +55,13 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
    still be legible on white. The whole column is dimmed while none of its lessons exist. */
 .part .soon { opacity: 0.45; }
 .part.planned h2 { color: color-mix(in srgb, #46a 60%, #fff); }
+/* Four parts fit side by side on a desktop; below that they pair up rather than shrinking to
+   columns too narrow for "12. Console project: The Snack Machine". This block must stay ABOVE
+   the 50rem one: both queries match a narrow phone, they have equal specificity, and the later
+   rule is the one that wins. */
+@media (max-width: 60rem) {
+    .parts { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 50rem) {
     .hero { grid-template-columns: 1fr; gap: 1.5rem; }
     .parts { grid-template-columns: 1fr; gap: 1.75rem; margin-top: 2rem; }
