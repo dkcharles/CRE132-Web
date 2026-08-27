@@ -33,7 +33,14 @@
         </ul>
     }
     @if (notice is not null) { <p class="notice">@notice</p> }
-    @if (!isGame && output is not null) { <pre class="console">@output</pre> }
+    @if (!isGame && output is not null)
+    {
+        <pre class="console">@ConsoleLines.Shown(output, showAll)</pre>
+        @if (!showAll && ConsoleLines.IsCapped(output))
+        {
+            <button class="show-all" @onclick="() => showAll = true">Show all @ConsoleLines.Count(output) lines</button>
+        }
+    }
     @if (!isGame && runError is not null) { <p class="run-error">@runError</p> }
     @if (Caption is { Length: > 0 }) { <p class="caption">@Caption</p> }
 </div>
@@ -52,6 +59,7 @@
     string? output, runError, notice;
     IReadOnlyList<CompileError>? errors;
     bool busy;
+    bool showAll;      // the console shows the last 200 lines until the reader asks for the rest
 
     string StoreKey => "sample." + SampleId;
 
@@ -64,7 +72,7 @@
 
     async Task RunAsync()
     {
-        busy = true; errors = null; output = null; runError = null; notice = null;
+        busy = true; errors = null; output = null; runError = null; notice = null; showAll = false;
         try
         {
             buffer = await editor!.GetTextAsync();
@@ -90,6 +98,9 @@
             await PlayOrPrintAsync(result.Run!);
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
+        // The compiler could not be fetched. Almost always a deploy landing under an open
+        // page, which no retry fixes - so it gets its own sentence, before the general one.
+        catch (CompilerUnavailableException ex) { notice = ex.Message; }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
         {
@@ -113,7 +124,7 @@
         await editor!.SetTextAsync(Shipped);
         await stage!.ClearAsync();
         isGame = false;
-        output = null; runError = null; errors = null; notice = null;
+        output = null; runError = null; errors = null; notice = null; showAll = false;
         await Store.ClearAsync(StoreKey);
     }
 

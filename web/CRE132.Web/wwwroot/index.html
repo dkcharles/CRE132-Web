@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="lib/codemirror/codemirror.min.css" />
     <link rel="stylesheet" href="lib/codemirror/material-darker.min.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 </head>
 <body>
     <div id="app">
@@ -22,6 +23,10 @@
 
     <script src="lib/codemirror/codemirror.min.js"></script>
     <script src="lib/codemirror/clike.min.js"></script>
+    <!-- The other half of 404.html: Pages served that file for a deep link, it stashed the
+         real URL and bounced here, and this puts the URL back before Blazor reads it. Must
+         run BEFORE blazor.webassembly.js. -->
+    <script>(function(){var r=sessionStorage.redirect; if(r){delete sessionStorage.redirect; history.replaceState(null,'',r);}})();</script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>

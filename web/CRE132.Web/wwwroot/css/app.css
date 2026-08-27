@@ -110,8 +110,17 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
    pre-wrap keeps spaces WITHIN a line; min-height keeps empty lines visible. */
 .console .line { display: block; white-space: pre-wrap; min-height: 1.2em; }
 .notice { color: #b06000; }
+/* "Show all N lines" under a capped console: a link, not a call to action - the 200 lines
+   above it are usually the whole answer. */
+.show-all { background: none; border: 0; padding: 0.2rem 0; color: #46a; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
 .caption { font-size: 0.85rem; opacity: 0.8; }
 @media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .contents { position: static; } }
+/* Phones. A grid item's default min-width is auto - the width of its widest child - so one long
+   listing (Lesson 12 has several) pushed the whole column wider than the screen and the page
+   scrolled sideways. Letting the column shrink puts the scrolling back inside the listing,
+   which already has overflow-x: auto. */
+.page, .lesson { min-width: 0; }
+.listing, .console, .code-editor .CodeMirror { max-width: 100%; }
 
 .pager { margin-top: 2.5rem; border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent); padding-top: 0.75rem; font-size: 0.9rem; }
 .pager-position { opacity: 0.7; margin-bottom: 0.4rem; }
@@ -139,8 +148,25 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 
 /* The game stage: a black canvas that keeps the program's aspect ratio, its Stop button, and
    the last 200 console lines under it. Hidden until a run turns out to be a game. */
+.stage { position: relative; }
 .stage.hidden { display: none; }
+/* Canvas and pause overlay only: the buttons and console below stay usable while paused, and
+   the box takes the canvas's own maximum so the overlay cannot spill past its right edge. */
+.stage-box { position: relative; max-width: 640px; }
 .stage-canvas { display: block; width: 100%; max-width: 640px; background: #000; border-radius: 6px; aspect-ratio: 16 / 9; }
+.stage-paused {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1rem;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, .6);
+    color: #fff;
+    font-size: 1.1rem;
+}
 .stage-controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.4rem 0; min-height: 1.6rem; }
 .stage-hint { font-size: 0.85rem; opacity: 0.7; }
 /* ▶ Run again: only rendered where the host page has no Run button of its own, and only inside

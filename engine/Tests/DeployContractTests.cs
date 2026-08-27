@@ -90,4 +90,30 @@ public class DeployContractTests
         Assert.Equal(fromTargets, fromSource);
         Assert.Equal(6, fromTargets.Count);
     }
+
+    [Fact]
+    public void The_404_page_exists_with_the_same_base_href_and_a_redirect()
+    {
+        // GitHub Pages serves 404.html for any path the static host does not have, which is
+        // every deep link into this SPA. It stashes the requested URL and bounces to the app
+        // root; index.html puts the URL back. It carries the SAME base href string as
+        // index.html so the deploy's sed rewrites both - without that, the bounce lands on
+        // the domain root instead of /CRE132-Web/.
+        string path = Path.Combine(WwwRoot, "404.html");
+        Assert.True(File.Exists(path), "404.html is missing from wwwroot");
+        string html = File.ReadAllText(path);
+        Assert.Contains("<base href=\"/\" />", html);
+        Assert.Contains("sessionStorage", html);
+    }
+
+    [Fact]
+    public void Index_links_the_favicon()
+    {
+        // Without it every page load logs a 404 for /favicon.ico and the tab shows the
+        // browser's blank page icon.
+        string html = File.ReadAllText(Path.Combine(WwwRoot, "index.html"));
+        Assert.Contains("favicon.svg", html);
+        Assert.True(File.Exists(Path.Combine(WwwRoot, "favicon.svg")),
+            "favicon.svg is missing from wwwroot");
+    }
 }

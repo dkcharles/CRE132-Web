@@ -31,7 +31,15 @@
             }
         </ul>
     }
-    @if (output is not null) { <pre class="console">@output</pre> }
+    @if (notice is not null) { <p class="notice">@notice</p> }
+    @if (output is not null)
+    {
+        <pre class="console">@ConsoleLines.Shown(output, showAll)</pre>
+        @if (!showAll && ConsoleLines.IsCapped(output))
+        {
+            <button class="show-all" @onclick="() => showAll = true">Show all @ConsoleLines.Count(output) lines</button>
+        }
+    }
     @if (runError is not null) { <p class="run-error">@runError</p> }
 </main>
 
@@ -42,8 +50,10 @@
     string input = "";
     string? output;
     string? runError;
+    string? notice;
     IReadOnlyList<CompileError>? errors;
     bool busy;
+    bool showAll;      // the console shows the last 200 lines until the reader asks for the rest
 
     protected override void OnInitialized() => Compiler.StateChanged += StateHasChanged;
 
@@ -52,7 +62,7 @@
     async Task RunAsync()
     {
         busy = true;
-        errors = null; output = null; runError = null;
+        errors = null; output = null; runError = null; notice = null; showAll = false;
         try
         {
             source = await editor!.GetTextAsync();
@@ -76,6 +86,9 @@
             }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
+        // The compiler could not be fetched. Almost always a deploy landing under an open
+        // page, which no retry fixes: the page itself is the stale part.
+        catch (CompilerUnavailableException ex) { notice = ex.Message; }
         finally
         {
             busy = false;

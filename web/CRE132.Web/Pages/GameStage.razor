@@ -9,7 +9,12 @@
    starting this one stops whichever was playing. The loop is a C# timer, not requestAnimationFrame,
    so Stop, Dispose and errors all live on the .NET side. *@
 <div class="stage @(session is { IsGame: true } ? "" : "hidden")">
-    <canvas @ref="canvas" class="stage-canvas"></canvas>
+    @* The overlay must cover the CANVAS, not the whole stage (the console and buttons below
+       stay readable while paused), so canvas and overlay share their own positioned box. *@
+    <div class="stage-box">
+        <canvas @ref="canvas" class="stage-canvas"></canvas>
+        @if (paused) { <div class="stage-paused">Paused — come back to this tab to continue</div> }
+    </div>
     <div class="stage-controls">
         @if (IsPlaying) { <button @onclick="StopAsync">■ Stop</button> }
         else if (session is { IsGame: true })
@@ -52,6 +57,8 @@
     List<string> lines = new();
     string? error, notice;
     int consoleLength;
+    bool paused;                            // the tab is hidden: the timer ticks, the game does not
+    DotNetObjectReference<GameStage>? self; // handed to input.js so it can report tab visibility
 
     public bool IsPlaying { get; private set; }
 
@@ -68,7 +75,7 @@
         if (active is not null && active != this) await active.StopAsync();
         await StopAsync();
         active = this;
-        session = s; error = null; notice = null; consoleLength = 0;
+        session = s; error = null; notice = null; consoleLength = 0; paused = false;
         lines = Tail(s.ConsoleText);
         // Setup threw: show why, and blank the canvas so the previous run's last frame is not
         // left sitting under an error message as if this program had drawn it.
@@ -93,6 +100,11 @@
             StateHasChanged();                     // the canvas must be visible before JS sizes it
             await game.InvokeVoidAsync("reset", canvas, s.Width, s.Height);
             await input.InvokeVoidAsync("attach", canvas, s.Width, s.Height);
+            // After attach, so a stage that failed to start never registers. input.js keeps one
+            // document listener and only the newest reference, and release() drops it - so the
+            // stage that is playing is the only one a tab switch can reach.
+            self ??= DotNetObjectReference.Create(this);
+            await input.InvokeVoidAsync("onVisibility", self);
         }
         catch (JSException)
         {
@@ -121,8 +133,17 @@
             while (await timer.WaitForNextTickAsync(cts.Token))
             {
                 if (!Current()) return;
+                // Paused keeps ticking but skips Step and the frame, so nothing moves while the
+                // student is in another tab and Frame.Count picks up where it left off rather
+                // than jumping by however many seconds they were away.
+                if (paused) continue;
                 Snapshot snap = await input!.InvokeAsync<Snapshot>("snapshot");
                 if (!Current()) return;
+                // Escape stops the game from the keyboard, for a student whose program has
+                // filled the screen or taken the arrow keys. Breaking out rather than calling
+                // StopAsync: StopAsync awaits the running loop, which here is THIS one, so it
+                // would wait on itself forever. The finally below is the same teardown.
+                if (snap.Keys.Contains("Escape")) break;
                 var down = new HashSet<Key>();
                 foreach (string k in snap.Keys) if (Enum.TryParse(k, out Key key)) down.Add(key);
                 FrameResult f = session!.Step(new InputState(down, snap.MouseX, snap.MouseY, snap.MouseDown));
@@ -145,7 +166,7 @@
             if (Current())
             {
                 loop = null; loopTask = null;
-                IsPlaying = false;
+                IsPlaying = false; paused = false;
                 await ReleaseAsync();
                 await InvokeAsync(StateHasChanged);
             }
@@ -157,7 +178,7 @@
     public async Task ClearAsync()
     {
         await StopAsync();
-        session = null; error = null; notice = null; lines = new();
+        session = null; error = null; notice = null; lines = new(); paused = false;
         StateHasChanged();
     }
 
@@ -171,6 +192,7 @@
         loop = null; loopTask = null;      // supersede FIRST: an inline continuation must see it
         cts.Cancel();
         IsPlaying = false;
+        paused = false;
         if (running is not null)
         {
             try { await running; }
@@ -179,6 +201,24 @@
         }
         cts.Dispose();
         await ReleaseAsync();
+    }
+
+    // Called by input.js on every visibilitychange while this stage holds the reference.
+    // Hiding clears the keyboard (a key released in another window sends no keyup here, so it
+    // would still read as held on return) but keeps the reference, or nothing would be
+    // listening when the tab comes back.
+    [JSInvokable]
+    public async Task OnVisibility(bool hidden)
+    {
+        if (!IsPlaying || input is null) return;
+        try
+        {
+            if (hidden) { paused = true; await input.InvokeVoidAsync("clear"); }
+            else { await input.InvokeVoidAsync("attach", canvas, session!.Width, session.Height); paused = false; }
+        }
+        catch (Exception ex) when (ex is JSException or JSDisconnectedException
+                                      or ObjectDisposedException) { }
+        await InvokeAsync(StateHasChanged);
     }
 
     async Task ReleaseAsync()
@@ -214,6 +254,8 @@
     {
         await StopAsync();                 // awaits the loop: nothing can call into the modules now
         if (active == this) active = null;
+        self?.Dispose();                   // after StopAsync: release() has already dropped it in JS
+        self = null;
         try
         {
             if (game is not null) await game.DisposeAsync();

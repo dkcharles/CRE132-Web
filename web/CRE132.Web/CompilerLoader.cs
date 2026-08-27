@@ -82,12 +82,16 @@ public sealed class CompilerLoader
 
             compiler = Make();
         }
-        catch
+        catch (Exception ex)
         {
             // A failed download must not poison every later attempt: clear the gate so the
             // next Run retries the load instead of awaiting a permanently faulted Task.
             loading = null;
-            throw;
+            // Retyped so the owners can say something a beginner can act on. The usual cause
+            // is a deploy: the fingerprinted lazy assemblies this page was built against were
+            // replaced minutes ago, and only a reload learns the new names - retrying cannot
+            // help. The original failure rides along as InnerException for the browser console.
+            throw new CompilerUnavailableException(ex);
         }
         finally
         {

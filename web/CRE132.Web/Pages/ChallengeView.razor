@@ -31,8 +31,12 @@
     {
         <div class="pane">
             <div class="pane-label">Your program's output</div>
-            <pre class="console">@runOutput</pre>
+            <pre class="console">@ConsoleLines.Shown(runOutput, showAll)</pre>
         </div>
+        @if (!showAll && ConsoleLines.IsCapped(runOutput))
+        {
+            <button class="show-all" @onclick="() => showAll = true">Show all @ConsoleLines.Count(runOutput) lines</button>
+        }
     }
     @if (runError is not null) { <p class="run-error">@runError</p> }
     @if (results is not null)
@@ -137,6 +141,7 @@
     IReadOnlyList<CompileError>? errors;
     IReadOnlyList<CaseResult>? results;
     bool busy, checking;      // checking keeps Run and Check from both claiming to be checking
+    bool showAll;             // the output pane shows the last 200 lines until asked for the rest
 
     string StoreKey => "challenge." + ChallengeId;
 
@@ -156,6 +161,7 @@
     async Task RunAsync()
     {
         busy = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
+        showAll = false;
         try
         {
             buffer = await editor!.GetTextAsync();
@@ -179,6 +185,9 @@
             }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
+        // The compiler could not be fetched. Almost always a deploy landing under an open
+        // page, which no retry fixes - so it gets its own sentence, before the general one.
+        catch (CompilerUnavailableException ex) { notice = ex.Message; }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
         {
@@ -190,6 +199,7 @@
     async Task CheckAsync()
     {
         busy = true; checking = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
+        showAll = false;
         try
         {
             // Marking runs the program again headless: a stage still playing would be a second
@@ -220,6 +230,7 @@
             }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
         }
+        catch (CompilerUnavailableException ex) { notice = ex.Message; }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
                                       or Microsoft.JSInterop.JSException)
         {
@@ -233,7 +244,7 @@
         buffer = Starter;
         await editor!.SetTextAsync(Starter);
         await stage!.ClearAsync();
-        errors = null; results = null; notice = null; runOutput = null; runError = null;
+        errors = null; results = null; notice = null; runOutput = null; runError = null; showAll = false;
         await Store.ClearAsync(StoreKey);
     }
 

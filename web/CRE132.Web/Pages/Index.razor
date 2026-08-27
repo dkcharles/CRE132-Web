@@ -76,12 +76,14 @@ else
     {
         Nav.NavigateTo("#" + id);
         current = WebCatalog.Find(id);
+        _ = JS.InvokeVoidAsync("window.scrollTo", 0, 0);
     }
 
     void GoHome()
     {
         Nav.NavigateTo(Nav.BaseUri);
         current = null;
+        _ = JS.InvokeVoidAsync("window.scrollTo", 0, 0);
     }
 
     public void Dispose() => self?.Dispose();

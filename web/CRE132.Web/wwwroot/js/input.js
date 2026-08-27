@@ -76,10 +76,36 @@ function onBlur() { held.clear(); heldByCode.clear(); pressedSinceSnapshot.clear
 
 let listening = false;
 
+// The playing stage, so a hidden tab can pause it. ONE document listener for the life of the
+// page (idempotent like the key listeners above); the reference is swapped, never the
+// listener. release() drops it, so a stage that has stopped is never woken by a tab switch -
+// and because release() is also what teardown calls, a disposed component's reference cannot
+// be invoked after Blazor has thrown it away.
+let visibilityRef = null;
+let visibilityListening = false;
+
+function onVisibilityChange() {
+    if (visibilityRef) visibilityRef.invokeMethodAsync('OnVisibility', document.hidden);
+}
+
+// Registered by GameStage right after attach, with itself as the reference.
+export function onVisibility(dotnetRef) {
+    visibilityRef = dotnetRef;
+    if (!visibilityListening) {
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        visibilityListening = true;
+    }
+}
+
 // Idempotent: called every time a stage starts. One stage plays at a time, so the newest
 // canvas simply takes over.
 export function attach(canvas, width, height) {
     world = { width, height };
+    // A key tapped while NOTHING was playing is still latched in pressedSinceSnapshot, and the
+    // new loop's first snapshot would read it as a press belonging to this run. Escape made it
+    // obvious - stop a game with it, press Run, and the fresh game stopped on frame 1 - but it
+    // was always wrong: a run starts from no input at all.
+    clear();
     if (!listening) {
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
@@ -101,6 +127,15 @@ export function attach(canvas, width, height) {
 
 export function release() {
     running = false;
+    visibilityRef = null;
+    clear();
+}
+
+// Everything release() forgets EXCEPT the stage itself: pausing on a hidden tab must not
+// leave a key latched down from before the switch (alt-tab holds Alt, and a key released in
+// another window sends no keyup here), but the paused stage still has to be told when the
+// tab comes back.
+export function clear() {
     held.clear(); heldByCode.clear(); pressedSinceSnapshot.clear(); mouse.down = false;
 }
 

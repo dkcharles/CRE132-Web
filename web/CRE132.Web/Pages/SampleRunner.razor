@@ -32,7 +32,14 @@
             </div>
             @if (notice is not null) { <p class="notice">@notice</p> }
             else if (output is null) { <div class="console empty">Press Run this to see the output.</div> }
-            else { <pre class="console">@output</pre> }
+            else
+            {
+                <pre class="console">@ConsoleLines.Shown(output, showAll)</pre>
+                @if (!showAll && ConsoleLines.IsCapped(output))
+                {
+                    <button class="show-all" @onclick="() => showAll = true">Show all @ConsoleLines.Count(output) lines</button>
+                }
+            }
             @if (runError is not null) { <p class="run-error">@runError</p> }
         </div>
     }
@@ -50,6 +57,7 @@
     string? output, runError, notice;
     string input = "";
     bool busy;
+    bool showAll;      // the console shows the last 200 lines until the reader asks for the rest
 
     protected override void OnInitialized() => input = DeclaredInput ?? "";
 
@@ -57,7 +65,7 @@
     // buttons downloads no compiler at all.
     async Task RunAsync()
     {
-        busy = true; notice = null; runError = null;
+        busy = true; notice = null; runError = null; showAll = false;
         try
         {
             byte[] program = await SampleStore.FetchAsync(SampleId);

@@ -48,6 +48,12 @@ jobs:
       - name: Rewrite base href
         run: sed -i 's|<base href="/" />|<base href="/CRE132-Web/" />|' publish/wwwroot/index.html && grep -q '<base href="/CRE132-Web/" />' publish/wwwroot/index.html
 
+      # 404.html is the SPA fallback: Pages serves it for any deep link, and it bounces to
+      # document.baseURI. That resolves through the SAME base href, so it needs the SAME
+      # rewrite - without it, a deep link lands on the domain root instead of /CRE132-Web/.
+      - name: Rewrite base href in the 404 fallback
+        run: sed -i 's|<base href="/" />|<base href="/CRE132-Web/" />|' publish/wwwroot/404.html && grep -q '<base href="/CRE132-Web/" />' publish/wwwroot/404.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: publish/wwwroot
