@@ -5,6 +5,47 @@ lesson, and use it as a checklist while you work. The pilot lesson,
 `content/lessons/01-first-program.md`, is the exemplar for voice and structure — when in
 doubt about tone, read it again.
 
+## Editing a lesson week to week
+
+The short version, for the lecturer amending pages as the module runs. Everything below
+this section is the full rulebook; this is the routine.
+
+**Where things live.** A lesson is one file, `content/lessons/NN-name.md`. The programs it
+shows are `content/samples/<id>.cs`, named by the `:::run` / `:::edit` lines in the
+lesson. A challenge is three files in `content/challenges/`: `<id>.start.cs` (what the
+student sees), `<id>.solution.cs` (the reference answer), `<id>.cases.json` (what is
+checked). Goldens sit beside them (`<id>.out.txt`, `<id>.frame.txt`, `<id>.frames.txt`)
+and are generated, never hand-written.
+
+**Prose-only edits** (wording, a key idea, a try-it, a challenge statement's words but not
+its numbers): edit the `.md`, then commit and push — or say "check and push". The build
+validates every directive line and fails loudly (file and line) if a `:::` is stray or a
+sample id is wrong; nothing deploys until it passes, and the previous site stays up. Two
+rules that bite: `:::run`/`:::edit` are single lines with no closing `:::`, and
+`:::try`/`:::key`/`:::challenge` bodies close with a bare `:::`. Never link to another
+lesson with `#n`; name it in words.
+
+**Code edits** (a sample, a starter, a solution, a number in a statement): the goldens
+must be regenerated and read. Either describe the change and let Claude make it, or edit
+the file and say "check and push" — the routine is then: build; run
+`CRE132_UPDATE_GOLDENS=1` for the web build and the content tests (see "Game challenge
+kit" below); read every regenerated grid; make sure the challenge statement still names
+the exact numbers the solution uses and that every behaviour it asks for is still pinned
+by a snapshot (see "Two gates" and "Determinism rules"); run the plain build and the full
+test suite; commit; push; open the deployed lesson and press Run. A change to a sample's
+numbers is safe; a change to a challenge's rules usually also needs its `cases.json` and
+its statement to move together.
+
+**New lesson or new sample**: a new sample needs its `.cs` and an empty `.out.txt` (plus
+`.frame.txt` generated if it draws) and the `:::run`/`:::edit` line in the lesson; a new
+lesson also needs a row in `web/CRE132.Web/WebCatalog.cs` and, if it falls outside the
+last part's numbering, that part's `LastId` raised — the tests say so if you forget.
+
+**Checking it landed.** The deploy takes about two minutes after a push (Actions tab on
+GitHub); the Pages cache can show the old page for ten more, so hard-refresh or add
+`?v=anything` to the address when looking. If a Check button ever hangs right after a
+deploy, reload the page once — the browser fetched a file from before the deploy.
+
 ## The directive grammar
 
 A lesson `.md` file is ordinary Markdown plus six block directives. Every directive line
