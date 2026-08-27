@@ -26,7 +26,7 @@
     <!-- The other half of 404.html: Pages served that file for a deep link, it stashed the
          real URL and bounced here, and this puts the URL back before Blazor reads it. Must
          run BEFORE blazor.webassembly.js. -->
-    <script>(function(){var r=sessionStorage.redirect; if(r){delete sessionStorage.redirect; history.replaceState(null,'',r);}})();</script>
+    <script>(function(){try{var r=sessionStorage.redirect; if(r){delete sessionStorage.redirect; history.replaceState(null,'',r);}}catch(e){}})();</script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>

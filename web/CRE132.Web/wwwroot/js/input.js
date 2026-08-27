@@ -85,7 +85,9 @@ let visibilityRef = null;
 let visibilityListening = false;
 
 function onVisibilityChange() {
-    if (visibilityRef) visibilityRef.invokeMethodAsync('OnVisibility', document.hidden);
+    // Fire and forget: a stage disposed between the event and the call rejects, and an
+    // unhandled rejection in a listener is noise a student should never see.
+    if (visibilityRef) visibilityRef.invokeMethodAsync('OnVisibility', document.hidden).catch(function () {});
 }
 
 // Registered by GameStage right after attach, with itself as the reference.

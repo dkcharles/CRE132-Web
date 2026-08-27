@@ -211,14 +211,36 @@
     public async Task OnVisibility(bool hidden)
     {
         if (!IsPlaying || input is null) return;
+        // The run this call belongs to, captured BEFORE the JS round trip. A Stop, or the
+        // opposite visibilitychange, can land while that trip is in flight; without the check
+        // afterwards a stale answer could pause a stage that has since restarted, or leave
+        // `paused` set on one that has stopped.
+        CancellationTokenSource? cts = loop;
+        bool Still() => IsPlaying && ReferenceEquals(loop, cts);
         try
         {
-            if (hidden) { paused = true; await input.InvokeVoidAsync("clear"); }
-            else { await input.InvokeVoidAsync("attach", canvas, session!.Width, session.Height); paused = false; }
+            if (hidden)
+            {
+                await input.InvokeVoidAsync("clear");
+                if (!Still()) return;
+                paused = true;
+            }
+            else
+            {
+                await input.InvokeVoidAsync("attach", canvas, session!.Width, session.Height);
+                if (!Still())
+                {
+                    // The run ended mid-await, so that attach re-armed the keyboard for a game
+                    // that is no longer playing: undo it, or JS keeps swallowing the arrow keys.
+                    await input.InvokeVoidAsync("release");
+                    return;
+                }
+                paused = false;
+            }
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex) when (ex is JSException or JSDisconnectedException
                                       or ObjectDisposedException) { }
-        await InvokeAsync(StateHasChanged);
     }
 
     async Task ReleaseAsync()
