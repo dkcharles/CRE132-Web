@@ -1,0 +1,1 @@
+Two new lines, each declaring an `int` worked out from `sweets` and `friends` — one with `/`, one with `%`. Then print each with the words around it: `$"Each friend gets {sweetsEach} sweets"` puts a variable inside the text.

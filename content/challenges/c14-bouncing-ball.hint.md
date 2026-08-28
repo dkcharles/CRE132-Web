@@ -1,0 +1,1 @@
+Each bounce is one `if` with two tests joined by `||`: `if (x < radius || x > Screen.Width - radius) speedX = -speedX;`. The second line is the same shape with `y`, `Screen.Height` and `speedY`. If Check fails at frame 160 or 260, one of the four edges is being missed.

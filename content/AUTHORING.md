@@ -12,9 +12,10 @@ this section is the full rulebook; this is the routine.
 
 **Where things live.** A lesson is one file, `content/lessons/NN-name.md`. The programs it
 shows are `content/samples/<id>.cs`, named by the `:::run` / `:::edit` lines in the
-lesson. A challenge is three files in `content/challenges/`: `<id>.start.cs` (what the
+lesson. A challenge is four files in `content/challenges/`: `<id>.start.cs` (what the
 student sees), `<id>.solution.cs` (the reference answer), `<id>.cases.json` (what is
-checked). Goldens sit beside them (`<id>.out.txt`, `<id>.frame.txt`, `<id>.frames.txt`)
+checked), `<id>.hint.md` (one nudge, offered after the first failed Check; the solution is
+offered after the third). Goldens sit beside them (`<id>.out.txt`, `<id>.frame.txt`, `<id>.frames.txt`)
 and are generated, never hand-written.
 
 **Prose-only edits** (wording, a key idea, a try-it, a challenge statement's words but not
@@ -82,7 +83,7 @@ Every lesson needs, at minimum:
       output), plus `<id>.in.txt` only if the sample reads input. (A guided-build lesson may ship
       a single reference sample instead — see "Guided-build lessons" below.)
 - [ ] At least one challenge kit in `content/challenges/`: `<id>.start.cs` +
-      `<id>.solution.cs` + `<id>.cases.json`. (A showcase lesson ships none at all — its kit is
+      `<id>.solution.cs` + `<id>.cases.json` + `<id>.hint.md`. (A showcase lesson ships none at all — its kit is
       samples only; see "Showcase lessons" under "Classes (20 onward)".)
 - [ ] One row in `WebCatalog.Entries` (`web/CRE132.Web/WebCatalog.cs`), inserted in course
       order, pointing at `lessons/<NN-name>.json`. A lesson numbered past the last `Part`'s
@@ -118,8 +119,8 @@ runtime one.
 
 ## Challenges
 
-A challenge kit is three files sharing an id: `<id>.start.cs`, `<id>.solution.cs`,
-`<id>.cases.json`. Three constraints govern them, none of them optional:
+A challenge kit is four files sharing an id: `<id>.start.cs`, `<id>.solution.cs`,
+`<id>.cases.json`, `<id>.hint.md`. Four constraints govern them, none of them optional:
 
 - The starter (`<id>.start.cs`) must **compile and run as shipped**. It may print the wrong
   thing, or an incomplete thing, or nothing at all beyond what's already there — that's the
@@ -129,6 +130,15 @@ A challenge kit is three files sharing an id: `<id>.start.cs`, `<id>.solution.cs
   taught by that lesson**, and no others. No reaching ahead for a shortcut a student in that
   lesson couldn't yet write themselves — a Lesson 5 challenge is solved with `if`/`else` and
   what came before, never with a loop or a method just because it's shorter.
+- The hint (`<id>.hint.md`) is plain markdown, one to three sentences, **no `:::` directives**:
+  name the construct and the mistake a student is most likely making, not the finished code.
+  For a prescriptive game challenge the useful hint is diagnostic — "if frame 120 fails but 45
+  passes, the removal is missing". The page offers the hint after the first failed Check and
+  the solution itself after the third (a Check only counts when the code changed since the
+  last one), so a hint that *is* the solution collapses that ladder. `ContentTests` fails the
+  build for a challenge with no hint, and the kit refuses an empty one. The solution shown is
+  `<id>.solution.cs` verbatim, highlighted, with a "Copy into the editor" button — one more
+  reason it must be the minimal idiomatic answer.
 - The challenge's task statement (the body of its `:::challenge` block, in the lesson md)
   must **state the exact expected output text**. A student should never have to guess
   capitalisation, punctuation, spacing, or wording — if the output is `CRE132`, the task
@@ -327,8 +337,8 @@ frames 10 through 30, both included); a single number (`"5"`) is one frame.
 
 ### Game challenge kit
 
-The usual three files (`<id>.start.cs`, `<id>.solution.cs`, `<id>.cases.json`), under the same
-constraints as any challenge (see "Challenges" above). A game challenge's case may additionally
+The usual four files (`<id>.start.cs`, `<id>.solution.cs`, `<id>.cases.json`, `<id>.hint.md`),
+under the same constraints as any challenge (see "Challenges" above). A game challenge's case may additionally
 carry a `game` script:
 
 ```json

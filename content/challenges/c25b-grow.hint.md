@@ -1,0 +1,1 @@
+Comment 6 replaces the single `RemoveAt` line with an `if`/`else`: eat (`score` and `PlaceFood()`) *or* drop the tail, never both. If the food turns up in the wrong place, check `PlaceFood()` calls `Rand.Range` for the column first, then the row, and is called only from `Setup` and comment 6.

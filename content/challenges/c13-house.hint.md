@@ -1,0 +1,1 @@
+The four `Screen.` calls go on the line under the comment, inside `Draw`, in the order listed: `Rect`, `Circle`, `Line`, `Line`. Every name in the task is already a variable at the top of the file, so `Screen.Rect(wallX, wallY, wallWidth, wallHeight, Colour.Orange);` is a complete first line.

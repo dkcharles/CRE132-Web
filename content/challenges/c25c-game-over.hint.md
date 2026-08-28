@@ -1,0 +1,1 @@
+Do it in the task's order: `state` and the `enum`, then `Reset()`, then `Step()`, then the `switch`. If frame 200 still shows the snake at the left edge, the four wrapping lines are still in `Step()`; if the title comes back with the old snake, `Reset();` is missing from the `Enter` branch. `Screen.Clear` stays above the `switch`.

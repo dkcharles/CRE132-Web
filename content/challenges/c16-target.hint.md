@@ -1,0 +1,1 @@
+`if (Mouse.WasClicked) { ... }` with two assignments inside: `tx = Mouse.X;` and `ty = Mouse.Y;`. It has to be `WasClicked`, not `IsDown` — and the assignments have to be inside the `if`, or the target follows the pointer without any click.

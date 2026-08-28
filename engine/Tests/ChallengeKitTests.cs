@@ -122,4 +122,31 @@ public class ChallengeKitTests : IDisposable
         Assert.Contains(bootErrors, e => e.StartsWith("warning: ") && e.Contains("case 2"));
         Assert.NotNull(bootKit.Cases[0].Frames);
     }
+
+    [Fact]
+    public void A_kit_ships_its_solution_raw_and_highlighted_and_its_hint_when_there_is_one()
+    {
+        ConsoleKit("c6");
+        var (kit, errors) = ChallengeKit.Load(dir, "c6");
+        Assert.Empty(errors);
+        Assert.Equal("Console.WriteLine(1);\n", kit!.Solution);
+        Assert.Contains("<span", kit.SolutionHtml);
+        Assert.Null(kit.Hint);
+
+        Put("c6.hint.md", "Try `x`.\n");
+        var (withHint, hintErrors) = ChallengeKit.Load(dir, "c6");
+        Assert.Empty(hintErrors);
+        Assert.Equal("<p>Try <code>x</code>.</p>", withHint!.Hint);
+    }
+
+    [Theory]
+    [InlineData("  \n")]
+    [InlineData(":::key\nno directives in a hint\n:::\n")]
+    public void An_empty_or_directive_bearing_hint_fails_the_kit(string hint)
+    {
+        ConsoleKit("c7"); Put("c7.hint.md", hint);
+        var (kit, errors) = ChallengeKit.Load(dir, "c7");
+        Assert.Null(kit);
+        Assert.Contains(errors, e => e.Contains("c7.hint.md"));
+    }
 }

@@ -107,7 +107,10 @@ names — most errors are one missing quote, bracket or semicolon.
 If an edit has got away from you, press **Reset**; the original code comes back and you can
 try the change again. If a challenge will not pass, do the smaller thing first — print the
 value you are unsure about, or get one line of the expected output right before worrying
-about the rest.
+about the rest. After a Check that does not pass, the page offers you a **hint**; after three
+tries that did not pass, it offers the **solution**, which you can copy into the editor. Use
+the hint before the solution, and when you do look at the solution, read it against your own
+attempt — the difference is the lesson.
 
 You can and should ask for help from your peers and the teaching staff, though the struggle
 of problem solving on your own is how you learn most.

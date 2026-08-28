@@ -3,7 +3,9 @@ using CRE132.Engine;
 namespace CRE132.LessonDoc;
 
 // Everything a challenge needs, loaded by Program from content/challenges/<id>.*.
-public sealed record ChallengeFiles(string Starter, IReadOnlyList<ChallengeCase> Cases);
+public sealed record ChallengeFiles(
+    string Starter, IReadOnlyList<ChallengeCase> Cases,
+    string Solution = "", string SolutionHtml = "", string? Hint = null);
 
 // Checks every reference a document makes, and resolves what it can inline. Returning errors
 // rather than throwing lets one run report every problem in a file instead of only the first.
@@ -72,7 +74,10 @@ public static class NarrationValidator
                     resolved.Add(b with
                     {
                         Code = challenges[b.Id!].Starter,
-                        Cases = challenges[b.Id!].Cases
+                        Cases = challenges[b.Id!].Cases,
+                        Solution = challenges[b.Id!].Solution,
+                        SolutionHtml = challenges[b.Id!].SolutionHtml,
+                        Hint = challenges[b.Id!].Hint
                     });
                     break;
 

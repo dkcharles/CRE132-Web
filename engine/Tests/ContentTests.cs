@@ -189,4 +189,15 @@ public class ContentTests
             .OrderBy(n => n).ToList();
         Assert.Equal(lessonNames, catalogNames!);
     }
+
+    // The page offers the hint after the first failed Check, so a challenge without one leaves
+    // that button missing for no reason a student could see.
+    [Theory]
+    [MemberData(nameof(ChallengeIds))]
+    public void Every_challenge_has_a_hint(string id)
+    {
+        string hint = Content("challenges", id + ".hint.md");
+        Assert.True(File.Exists(hint), $"{id}: no {id}.hint.md — write one nudge (no code that solves it).");
+        Assert.False(string.IsNullOrWhiteSpace(File.ReadAllText(hint)), $"{id}.hint.md is empty.");
+    }
 }

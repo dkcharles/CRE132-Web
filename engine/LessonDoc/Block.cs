@@ -20,7 +20,10 @@ public sealed record Block(
     string? Svg = null,       // figure, inlined by the validator
     string? Code = null,      // see above
     IReadOnlyList<ChallengeCase>? Cases = null,   // challenge
-    string? Input = null);    // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it
+    string? Input = null,     // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it
+    string? Solution = null,  // challenge: the reference solution, RAW (it can be copied into the editor)
+    string? SolutionHtml = null, // challenge: the same solution highlighted, for showing after three failed Checks
+    string? Hint = null);     // challenge: rendered <id>.hint.md, offered after the first failed Check; null when the kit has none
 
 // A malformed directive, reported with the line it is on so the build message is actionable.
 public sealed class NarrationException(int line, string message)

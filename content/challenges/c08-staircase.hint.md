@@ -1,0 +1,1 @@
+One loop for the rows, counting `row` from `1` to `height`. Inside it, build the line: start from `""` and add a `#` `row` times with a second loop, then print the finished line once — after the inner loop, still inside the outer one.

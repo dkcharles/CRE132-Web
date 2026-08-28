@@ -136,6 +136,30 @@
             }
         }
     }
+    @* Help unlocks with failed Checks - a hint after the first, the solution after the third -
+       and goes away once the latest Check passes. Only a Check on changed code counts, so
+       pressing Check three times on the same program does not hand over the answer. *@
+    @if (!Solved && (HintUnlocked || SolutionUnlocked))
+    {
+        <div class="help">
+            @if (HintUnlocked && !showHint) { <button class="help-link" @onclick="() => showHint = true">Show a hint</button> }
+            @if (SolutionUnlocked && !showSolution) { <button class="help-link" @onclick="() => showSolution = true">Show the solution</button> }
+        </div>
+        @if (HintUnlocked && showHint)
+        {
+            <aside class="callout hint"><span class="label">HINT</span>@((MarkupString)Hint!)</aside>
+        }
+        @if (SolutionUnlocked && showSolution)
+        {
+            <div class="pane">
+                <div class="pane-label">
+                    One solution
+                    <button @onclick="CopySolutionAsync" disabled="@busy">Copy into the editor</button>
+                </div>
+                <pre class="listing"><code>@((MarkupString)SolutionHtml)</code></pre>
+            </div>
+        }
+    }
 </div>
 
 @code {
@@ -143,6 +167,9 @@
     [Parameter, EditorRequired] public string TaskHtml { get; set; } = default!;
     [Parameter, EditorRequired] public string Starter { get; set; } = default!;
     [Parameter, EditorRequired] public IReadOnlyList<ChallengeCase> Cases { get; set; } = default!;
+    [Parameter, EditorRequired] public string Solution { get; set; } = default!;      // raw: what "Copy into the editor" pastes
+    [Parameter, EditorRequired] public string SolutionHtml { get; set; } = default!;  // highlighted: what is shown
+    [Parameter] public string? Hint { get; set; }                                     // rendered hint.md; null when the kit has none
 
     CodeEditor? editor;
     GameStage? stage;
@@ -153,9 +180,16 @@
     IReadOnlyList<CaseResult>? results;
     bool busy, checking;      // checking keeps Run and Check from both claiming to be checking
     bool showAll;             // the output pane shows the last 200 lines until asked for the rest
+    int attempts;             // failed Checks on distinct code; persisted so a reload does not reset it
+    string? lastAttempt;      // fingerprint of the code the last counted attempt was made on
+    bool showHint, showSolution;
 
     string StoreKey => "challenge." + ChallengeId;
+    string AttemptsKey => StoreKey + ".attempts";
     bool ReadsInput => Cases.Any(c => c.Input.Length > 0);
+    bool Solved => results is not null && results.All(r => r.Passed);
+    bool HintUnlocked => Hint is not null && attempts >= 1;
+    bool SolutionUnlocked => attempts >= 3;
 
     // The checker reports a frame that was never rendered as a single blank row, with row 1
     // flagged as the difference; an empty grid and a stray highlight would both mislead.
@@ -167,6 +201,14 @@
         Compiler.StateChanged += StateHasChanged;
         input = Cases[0].Input;
         buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Starter)) ?? Starter;
+        // "<count>\n<fingerprint>", against the starter's fingerprint like the buffer itself, so
+        // a re-authored challenge starts everyone back at zero.
+        string? saved = await Store.LoadAsync(AttemptsKey, SourceText.Fingerprint(Starter));
+        if (saved?.Split('\n') is [string count, string fingerprint] && int.TryParse(count, out int n))
+        {
+            attempts = n;
+            lastAttempt = fingerprint;
+        }
     }
 
     // Run is Check without the marking: the student's own program on whatever the input panel
@@ -227,6 +269,7 @@
             {
                 errors = compiled.Errors;
                 await editor.SetErrorsAsync(errors!);
+                await RecordAttemptAsync();
                 return;
             }
 
@@ -242,6 +285,7 @@
                 return;
             }
             await editor.SetErrorsAsync(Array.Empty<CompileError>());
+            if (!Solved) await RecordAttemptAsync();
         }
         catch (CompilerUnavailableException ex) { notice = ex.Message; }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
@@ -259,7 +303,33 @@
         await editor!.SetTextAsync(Starter);
         await stage!.ClearAsync();
         errors = null; results = null; notice = null; runOutput = null; runError = null; showAll = false;
+        attempts = 0; lastAttempt = null; showHint = false; showSolution = false;
         await Store.ClearAsync(StoreKey);
+        await Store.ClearAsync(AttemptsKey);
+    }
+
+    // A failed Check counts once per distinct program: the same code checked again is the same
+    // attempt. A store failure here must not turn a plain "not yet" into an error banner.
+    async Task RecordAttemptAsync()
+    {
+        string fingerprint = SourceText.Fingerprint(buffer);
+        if (fingerprint == lastAttempt) return;
+        lastAttempt = fingerprint;
+        attempts++;
+        try { await Store.SaveAsync(AttemptsKey, $"{attempts}\n{lastAttempt}", SourceText.Fingerprint(Starter)); }
+        catch (Microsoft.JSInterop.JSException) { }
+    }
+
+    // The shown solution, pasted over whatever is in the editor. Saved like any other edit, so
+    // it is still there after a reload; Check on it passes and the help offers go away.
+    async Task CopySolutionAsync()
+    {
+        buffer = Solution;
+        await editor!.SetTextAsync(Solution);
+        await editor.SetErrorsAsync(Array.Empty<CompileError>());
+        await stage!.ClearAsync();
+        errors = null; results = null; notice = null; runOutput = null; runError = null;
+        await Store.SaveAsync(StoreKey, buffer, SourceText.Fingerprint(Starter));
     }
 
     public void Dispose() => Compiler.StateChanged -= StateHasChanged;

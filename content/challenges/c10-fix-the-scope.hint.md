@@ -1,0 +1,1 @@
+Cut the `int total = 0;` line out of the loop body and paste it on the line above `for`. Inside the loop, `total = total + i;` stays exactly as it is — it now adds to a `total` that survives every trip.

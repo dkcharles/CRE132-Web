@@ -1,0 +1,1 @@
+Add the five pieces in the listed order, and use the task's three-line paddle test twice — the second copy with `rightX` and `rightY`. If the first script fails at frame 120 or 240, a bounce or a paddle test is missing; if the second or third fails, the miss needs both `bx < 0` **and** `bx > screenWidth`, joined with `||`.

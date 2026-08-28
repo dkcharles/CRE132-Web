@@ -1,0 +1,1 @@
+Comment 1 is an `if (Frame.Count % 15 == 0)` with `xs.Add(Rand.Range(20, 620));` and `ys.Add(0);` inside. If frame 45 passes but frame 120 fails, look at comment 2: inside an `if (ys[i] > 370)`, remove from **both** lists and then `i--;`.

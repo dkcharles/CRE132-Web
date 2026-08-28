@@ -1,0 +1,1 @@
+If frame 45 fails, check `Move()`: `speedY = speedY + 0.3f;` must come *before* `y = y + speedY;`. If only frame 150 fails, the removal at comment 2 is missing — or missing its `i--;`. Comment 1 is an `if (Frame.Count % 10 == 0)` around the one `sparks.Add(...)` line from the task.

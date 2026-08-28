@@ -47,7 +47,8 @@
 
             case "challenge":
                 <ChallengeView @key="@($"{Entry.Id}/challenge/{b.Id}")"
-                               ChallengeId="@b.Id" TaskHtml="@(b.Html!)" Starter="@(b.Code!)" Cases="@(b.Cases!)" />
+                               ChallengeId="@b.Id" TaskHtml="@(b.Html!)" Starter="@(b.Code!)" Cases="@(b.Cases!)"
+                               Solution="@(b.Solution!)" SolutionHtml="@(b.SolutionHtml!)" Hint="@b.Hint" />
                 break;
 
             default:

@@ -1,0 +1,1 @@
+Each paddle is four one-line `if`s in a row: two that move (`leftY = leftY - paddleSpeed;`) and then two that clamp (`if (leftY < 0) leftY = 0;`). Do the left paddle, then copy the block and swap `leftY` for `rightY` and `Key.W`/`Key.S` for `Key.Up`/`Key.Down`.

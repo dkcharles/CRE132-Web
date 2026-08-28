@@ -1,0 +1,1 @@
+The two new methods go inside the class, after `Move()`: `public void Bounce()` holds the two `if` lines from the motion lesson using plain `x`, `speedX` and `radius` — no `ball.` — and `public void Draw()` holds one `Screen.Circle`. Then the top-level `Draw` just calls `ball.Bounce();` and `ball.Draw();` in place of the circle line.

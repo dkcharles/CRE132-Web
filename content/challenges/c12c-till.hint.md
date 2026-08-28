@@ -1,0 +1,1 @@
+Read the first number before the loop, then `while (choice != 0)`. Inside, keep the `if`/`else` you have, add the price to `total` in the valid branch, and read the *next* number as the last line of the loop — forget that and the loop never ends. Print the total after the loop.

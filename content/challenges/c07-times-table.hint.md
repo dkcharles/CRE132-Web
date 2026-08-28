@@ -1,0 +1,1 @@
+A `for` loop counting `i` from `1` to `5` — `for (int i = 1; i <= 5; i++)` — with one `Console.WriteLine` inside it. Both the number at the start of the line and the answer come from `i`: `{i}` and `{i * n}`.

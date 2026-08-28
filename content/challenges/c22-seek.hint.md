@@ -1,0 +1,1 @@
+Two things under the comment: `Vec2 toTarget = new Vec2(target.x - seeker.x, target.y - seeker.y);`, then the `if` from the task with `seeker = seeker.Add(toTarget.Normalised().Scale(speed));` inside it. If frames 150 and 200 fail, the `if` is missing — the seeker is overshooting.

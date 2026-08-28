@@ -1,0 +1,1 @@
+`cooldown = cooldown - 1;` runs every frame, but `cooldown = 15;` runs only inside the firing `if`, after `shots.Add(...)`. Too many shots in the first script means the `&& cooldown <= 0` is missing from that `if`; a failure at frame 90 in the second means the removal at comment 4 is — `shots[i].y < -shots[i].radius`, then `RemoveAt(i)` and `i--`.

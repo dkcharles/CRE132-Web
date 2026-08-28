@@ -1,0 +1,1 @@
+`ageText` is a `string`, so `ageText + 1` would just glue a `1` on the end. Turn it into an `int` first with `int.Parse`, then print one line with `{name}` and `{age + 1}` inside a `$"..."` string — and print nothing else.

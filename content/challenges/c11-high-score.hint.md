@@ -1,0 +1,1 @@
+Start `highest` at the first score, `scores[0]`, then walk the list with a second `foreach`: whenever `score > highest`, replace `highest` with that score. Print `Highest: ...` once, after that loop has finished.

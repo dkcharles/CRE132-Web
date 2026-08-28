@@ -110,6 +110,9 @@ public static class NarrationParser
 
     static string Render(string markdown) => Highlight(Markdown.ToHtml(markdown, Pipeline).Trim());
 
+    // The same pipeline for markdown that lives outside a lesson file - a challenge's hint.md.
+    public static string RenderMarkdown(string markdown) => Render(markdown);
+
     // A ```csharp fence in the prose gets the same colouring as a sample's listing. Markdig has
     // already HTML-encoded the fence body, and the highlighter encodes for itself, so the body
     // is decoded back to source first. Entities are the only escapes Markdig introduces and the

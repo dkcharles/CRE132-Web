@@ -1,0 +1,1 @@
+Copy the two-line `if` test from the task exactly, and inside its braces put the three assignments: `cx = 100;`, `cy = 300;`, `score = score + 1;`. If the no-key script fails, the coin is moving without being touched — check those three lines are inside the `if`, not before it.

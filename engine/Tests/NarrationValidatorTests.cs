@@ -77,4 +77,18 @@ public class NarrationValidatorTests
         Assert.Equal("16\n", resolved[0].Input);
         Assert.Equal("16\n", resolved[1].Input);
     }
+
+    [Fact]
+    public void A_challenge_carries_its_solution_and_hint_to_the_page()
+    {
+        var kit = new ChallengeFiles("// s", new[] { new ChallengeCase("", "hi\n") },
+                                     Solution: "int a = 1;", SolutionHtml: "<span>int</span> a = 1;", Hint: "<p>h</p>");
+        var (resolved, errors) = NarrationValidator.Validate(
+            new[] { new Block("challenge", Id: "c1") }, Samples, Figures,
+            new Dictionary<string, ChallengeFiles> { ["c1"] = kit }, new Dictionary<string, string>());
+        Assert.Empty(errors);
+        Assert.Equal("int a = 1;", resolved[0].Solution);
+        Assert.Equal("<span>int</span> a = 1;", resolved[0].SolutionHtml);
+        Assert.Equal("<p>h</p>", resolved[0].Hint);
+    }
 }

@@ -1,0 +1,1 @@
+Order is the whole trick: test `age < 12` first, then `else if (day == "Tuesday")`, then a plain `else` for everything left. Because the age test comes first, an under-12 on a Tuesday never reaches the Tuesday test.

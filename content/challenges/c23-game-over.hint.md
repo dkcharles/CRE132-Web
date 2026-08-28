@@ -1,0 +1,1 @@
+Each `case` ends in `break;`, and only the `Playing` case calls `ball.Move()`. If the third script fails at frame 200, `ball.Reset();` is missing from the `Enter` branch; if the second fails at frame 200, the game-over test `ball.y > Screen.Height + ball.radius` never fires — check `Move()` now bounces off the top only.

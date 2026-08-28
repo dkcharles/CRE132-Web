@@ -1,0 +1,1 @@
+Two `if (Keys.IsDown(Key.Left))`-style lines move `x`, then two more `if`s clamp it: `if (x < 0) x = 0;` and the same shape with `paddleMaxX`. All four go above the `Screen.Rect` line, so the paddle is drawn where it ended up this frame.

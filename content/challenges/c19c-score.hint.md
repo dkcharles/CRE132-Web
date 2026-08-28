@@ -1,0 +1,1 @@
+Split the miss into two `if`s — `bx < 0` scores a point for `right`, `bx > screenWidth` for `left` — each still putting `bx` and `by` back to the centre. The `Screen.Text` line goes after the three shapes, and the text is `left + " : " + right` with a space either side of the colon inside the quotes.

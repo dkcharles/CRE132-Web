@@ -17,4 +17,7 @@ public sealed record Block(
     string? Svg = null,
     string? Code = null,
     IReadOnlyList<ChallengeCase>? Cases = null,
-    string? Input = null);    // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it
+    string? Input = null,     // run, edit: prefill for the input panel; what Console.ReadLine reads unless the student edits it
+    string? Solution = null,  // challenge: the reference solution, RAW (it can be copied into the editor)
+    string? SolutionHtml = null, // challenge: the same solution highlighted, for showing after three failed Checks
+    string? Hint = null);     // challenge: rendered <id>.hint.md, offered after the first failed Check; null when the kit has none

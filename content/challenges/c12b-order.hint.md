@@ -1,0 +1,1 @@
+Read the number with `int.Parse(Console.ReadLine())`. A menu number is one more than its list index, so index `choice - 1` picks the right name and price — but only use it inside an `if` that checks `choice` is between `1` and `names.Count`; the `else` prints the sorry line.

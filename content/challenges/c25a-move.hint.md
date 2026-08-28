@@ -1,0 +1,1 @@
+`Step()` is the five items in order: work out `nextCol`/`nextRow`, wrap each with two `if`s, `Insert(0, ...)`, then `RemoveAt(body.Count - 1)`. If the second script leaves the snake at columns `0`, `1`, `2`, the `&& dirCol != -1`-style guards on the four arrow lines are missing — copy them exactly as the task prints them.

@@ -50,8 +50,31 @@ public static class ChallengeKit
         if (!anyGame && File.Exists(framesFile))
             errors.Add($"challenge '{id}': {id}.frames.txt exists but no case has a game script.");
 
+        // <id>.hint.md is optional in the kit (ContentTests insists on one for every shipped
+        // challenge): a nudge in markdown, shown after the first failed Check. It goes through
+        // the lesson pipeline, so a directive inside it would parse as one - refused here.
+        string hintFile = Path.Combine(challengesDir, id + ".hint.md");
+        string? hint = null;
+        if (File.Exists(hintFile))
+        {
+            string markdown = SourceText.Normalise(File.ReadAllText(hintFile)).Trim();
+            if (markdown.Length == 0)
+                errors.Add($"challenge '{id}': {id}.hint.md is empty — write one nudge, or delete the file.");
+            else if (markdown.Split('\n').Any(l => l.TrimStart().StartsWith(":::", StringComparison.Ordinal)))
+                errors.Add($"challenge '{id}': {id}.hint.md contains a ::: directive — a hint is plain markdown.");
+            else
+                hint = NarrationParser.RenderMarkdown(markdown);
+        }
+
         if (errors.Any(e => !e.StartsWith("warning: "))) return (null, errors);
-        return (new ChallengeFiles(SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases), errors);
+
+        string solutionSource = SourceText.Normalise(File.ReadAllText(solution)).TrimEnd() + "\n";
+        return (new ChallengeFiles(
+                    SourceText.Normalise(File.ReadAllText(starter)).TrimEnd() + "\n", cases,
+                    Solution: solutionSource,
+                    SolutionHtml: CSharpHighlighter.Highlight(solutionSource),
+                    Hint: hint),
+                errors);
     }
 
     // Reads cases.json, validates every game script, and attaches snapshots from frames.txt

@@ -98,6 +98,7 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .console.empty { opacity: 0.6; font-style: italic; }
 .callout { border-left: 4px solid #4a7; padding: 0.5rem 1rem; margin: 1.25rem 0; }
 .callout.key { border-color: #d90; }
+.callout.hint { border-color: #46a; margin: 0.75rem 0; }
 .callout .label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; opacity: 0.8; }
 .challenge-task { border: 2px solid #46a; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
 .challenge-task .label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #46a; }
@@ -112,7 +113,8 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .notice { color: #b06000; }
 /* "Show all N lines" under a capped console: a link, not a call to action - the 200 lines
    above it are usually the whole answer. */
-.show-all { background: none; border: 0; padding: 0.2rem 0; color: #46a; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
+.challenge .help { display: flex; gap: 1rem; margin: 0.5rem 0; }
+.show-all, .help-link { background: none; border: 0; padding: 0.2rem 0; color: #46a; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
 .caption { font-size: 0.85rem; opacity: 0.8; }
 @media (max-width: 50rem) { .page { grid-template-columns: 1fr; } .contents { position: static; } }
 /* Phones. A grid item's default min-width is auto - the width of its widest child - so one long
