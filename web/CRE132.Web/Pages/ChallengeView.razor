@@ -10,6 +10,16 @@
         @((MarkupString)TaskHtml)
     </div>
     <CodeEditor @ref="editor" EditorId="@("challenge-" + ChallengeId)" InitialText="@buffer" />
+    @* Same panel as a sample's: ▶ Run feeds it to the program's Console.ReadLine() calls.
+       Check ignores it - the cases supply their own input. Only shown when the challenge
+       actually reads something, prefilled with the first test's input so Run works untouched. *@
+    @if (ReadsInput)
+    {
+        <details>
+            <summary>Input — one line per <code>Console.ReadLine()</code> (used by ▶ Run)</summary>
+            <textarea class="stdin" rows="3" @bind="input"></textarea>
+        </details>
+    }
     <GameStage @ref="stage" />
     <div class="controls">
         <button @onclick="ResetAsync" disabled="@busy">Reset</button>
@@ -137,6 +147,7 @@
     CodeEditor? editor;
     GameStage? stage;
     string buffer = "";
+    string input = "";        // what ▶ Run gives Console.ReadLine(); starts as the first case's input
     string? notice, runOutput, runError;
     IReadOnlyList<CompileError>? errors;
     IReadOnlyList<CaseResult>? results;
@@ -144,6 +155,7 @@
     bool showAll;             // the output pane shows the last 200 lines until asked for the rest
 
     string StoreKey => "challenge." + ChallengeId;
+    bool ReadsInput => Cases.Any(c => c.Input.Length > 0);
 
     // The checker reports a frame that was never rendered as a single blank row, with row 1
     // flagged as the difference; an empty grid and a stray highlight would both mislead.
@@ -153,11 +165,12 @@
     protected override async Task OnInitializedAsync()
     {
         Compiler.StateChanged += StateHasChanged;
+        input = Cases[0].Input;
         buffer = await Store.LoadAsync(StoreKey, SourceText.Fingerprint(Starter)) ?? Starter;
     }
 
-    // Run is Check without the marking: the student's own program on the first case's input,
-    // playing on the stage when it is a game.
+    // Run is Check without the marking: the student's own program on whatever the input panel
+    // holds (the first case's input until they edit it), playing on the stage when it is a game.
     async Task RunAsync()
     {
         busy = true; errors = null; results = null; notice = null; runOutput = null; runError = null;
@@ -175,7 +188,7 @@
                 return;
             }
 
-            GameSession session = GameSession.Start(ProgramLoader.FromBytes(compiled.Bytes!), Cases[0].Input);
+            GameSession session = GameSession.Start(ProgramLoader.FromBytes(compiled.Bytes!), input ?? "");
             if (session.IsGame) { await stage!.PlayAsync(session); }
             else
             {
@@ -242,6 +255,7 @@
     async Task ResetAsync()
     {
         buffer = Starter;
+        input = Cases[0].Input;
         await editor!.SetTextAsync(Starter);
         await stage!.ClearAsync();
         errors = null; results = null; notice = null; runOutput = null; runError = null; showAll = false;

@@ -127,7 +127,7 @@ main.home { width: min(70rem, 94vw); margin: 2rem auto 3rem; text-align: left; p
 .pager-links { display: flex; justify-content: space-between; gap: 1rem; }
 .pager-next { margin-left: auto; }
 
-.runnable .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; box-sizing: border-box; }
+.runnable .stdin, .challenge .stdin { width: 100%; font-family: ui-monospace, Consolas, monospace; box-sizing: border-box; }
 
 /* The build-time highlighter's palette (same colours as CodeSchool). Listings and prose
    fences share it; the editor is CodeMirror's material-darker theme instead. */

@@ -645,7 +645,10 @@ reference to match when a rule in this document leaves a judgement call.
   is gone: an `.in.txt` beside a sample's `.cs` now becomes the prefilled contents of an input
   panel shown above the sample's console, and its contents are what the program's
   `Console.ReadLine()` calls receive unless the student edits the panel first. A sample with
-  no `.in.txt` shows no input panel and behaves exactly as before.
+  no `.in.txt` shows no input panel and behaves exactly as before. A challenge gets the same
+  panel automatically whenever any of its `cases.json` entries has a non-empty `input`,
+  prefilled with the first case's input: ▶ Run feeds the panel to the program, Check ignores
+  it and uses the cases. Nothing to author — it follows from `cases.json`.
 - **The leading H1 is dropped.** If a lesson `.md` opens with a level-one heading
   (`# Title`), the parser drops it rather than rendering it — the page already prints the
   catalog's `Title` as the lesson's `<h1>`, so a leading `# ...` would duplicate it. Start the
