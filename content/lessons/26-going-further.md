@@ -123,6 +123,77 @@ keeps going until it runs into whatever the r-pentomino has scattered in its pat
 Drawing is two loops and one `if`: an `18` by `18` green square at `col * cell, row * cell` for
 every `1` in the grid, the same square the Snake board was drawn with.
 
+### The algorithm on its own
+
+Lifted out of the program above, one generation of Life is these two methods and nothing else.
+Everything around them is seeding the board and drawing it.
+
+```csharp
+int Neighbours(int col, int row)
+{
+    int total = 0;
+    for (int dx = -1; dx <= 1; dx++)
+    {
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            int nearCol = (col + dx + cols) % cols;
+            int nearRow = (row + dy + rows) % rows;
+            if (dx != 0 || dy != 0) total = total + cells[nearCol, nearRow];
+        }
+    }
+    return total;
+}
+
+void Step()
+{
+    int[,] next = new int[cols, rows];
+    for (int col = 0; col < cols; col++)
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            int neighbours = Neighbours(col, row);
+            next[col, row] = 0;
+            if (cells[col, row] == 1 && (neighbours == 2 || neighbours == 3)) next[col, row] = 1;
+            if (cells[col, row] == 0 && neighbours == 3) next[col, row] = 1;
+        }
+    }
+    cells = next;
+}
+```
+
+Read as a recipe, `Step` does four things:
+
+1. **Make a second board.** `next` is the same size as `cells` and starts entirely dead, because
+   a new array of ints is all zeros.
+2. **Visit every square.** The two `for` loops walk every column and every row, so the body runs
+   `32 * 18` times, once per square, and `Neighbours` counts that square's eight neighbours on the
+   **old** board.
+3. **Judge the square.** The two `if` lines are the rules. A live square with `2` or `3` live
+   neighbours survives; a dead square with exactly `3` is born; the `next[col, row] = 0;` above
+   them has already decided everything else. The answer goes into `next`, never into `cells`.
+4. **Swap the boards.** When every square has been judged, `cells = next;` and the old
+   generation is gone.
+
+Conway stated the rules as four: a live cell with fewer than two neighbours dies of loneliness,
+one with two or three lives on, one with more than three dies of overcrowding, and a dead cell
+with exactly three becomes alive. The program has two `if` lines rather than four because
+"dies" is the default: a square is written as `0` first, and only the survivors and the births
+have to be written as `1`.
+
+`Neighbours` is the other half. Its two loops run `dx` and `dy` from `-1` to `1`, which visits
+the three-by-three block of squares centred on `col, row` — nine squares, so the `if` skips the
+one where both offsets are `0`, the square itself. Each of the other eight is looked up on the
+old board and added to the total, and because a dead square holds `0` and a live one holds `1`,
+adding them up is the same thing as counting the live ones. The `% cols` and `% rows` wrap the
+lookup round the edges; a board with walls would test the bounds instead, and the try-it below
+shows that version.
+
+Every generation costs `32 * 18` squares times eight lookups, about four and a half thousand
+reads, which the browser does without noticing. The same loop over a board of a thousand by a
+thousand is eight million reads a step, which is why serious Life programs use cleverer
+algorithms than this one — HashLife, in the links below, can leap millions of generations in a
+second by remembering the answers to boards it has already seen.
+
 :::try
 Copy this program into the **Playground** too, and take it apart from the seed outwards.
 
@@ -160,6 +231,30 @@ A grid is an array with two indexes: `int[,] cells = new int[32, 18];`, read as
 `cells[col, row]`. Use one when the thing you are storing genuinely has rows and columns — a
 board, a map, a maze. Everything else in this course is still a `List`.
 :::
+
+### Further reading on Life
+
+Life has had fifty years of attention, and most of it is online. If the program above has
+caught you, these are the places to go next, roughly in order.
+
+- [Conway's Game of Life on Wikipedia](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+  — the rules, the history, and pictures of the famous patterns: still lifes, oscillators,
+  the glider and the glider gun. A good first stop.
+- [Play Game of Life](https://playgameoflife.com/) — a board in the browser. Draw a pattern
+  with the mouse, press play, and try the r-pentomino from the program above on an unwrapped
+  board that is far bigger than `32` by `18`.
+- [LifeWiki](https://conwaylife.com/wiki/Main_Page) — the encyclopaedia of patterns, with a
+  page for every one, including the [glider](https://conwaylife.com/wiki/Glider) and the
+  [r-pentomino](https://conwaylife.com/wiki/R-pentomino) this program starts from, each with
+  an animation and its full history.
+- [Inventing Game of Life](https://www.youtube.com/watch?v=R9Plq-D1gEk) — John Conway himself,
+  on Numberphile, explaining how the rules were found and why these particular numbers.
+- [The Nature of Code, chapter 7: Cellular Automata](https://natureofcode.com/cellular-automata/)
+  — Daniel Shiffman builds the same program in JavaScript, and starts one dimension down with
+  Wolfram's elementary automata, which are the next thing to write once Life makes sense.
+- [Golly](https://golly.sourceforge.io/) — a free desktop program built for Life and its
+  relatives, which runs the HashLife algorithm: patterns of millions of cells, billions of
+  generations, in seconds.
 
 ## Particles
 
